@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Вход — Code Nest{% endblock %}
+
+{% block content %}
+<div class="auth-form">
+    <h2>Вход</h2>
+
+    {% if form.errors %}
+        <div class="error-box">
+            Неверное имя пользователя или пароль. Попробуйте снова.
+        </div>
+    {% endif %}
+
+    {% if next %}
+        {% if user.is_authenticated %}
+            <p class="notice">У вас нет доступа к этой странице.</p>
+        {% else %}
+            <p class="notice">Войдите, чтобы получить доступ.</p>
+        {% endif %}
+    {% endif %}
+
+    <form method="post">
+        {{ csrf_input|safe }}
+
+        <div class="form-field">
+            <label for="id_username">Имя пользователя</label>
+            <input type="text" name="username" id="id_username" required autofocus>
+        </div>
+
+        <div class="form-field">
+            <label for="id_password">Пароль</label>
+            <input type="password" name="password" id="id_password" required>
+        </div>
+
+        <button type="submit" class="btn-primary">Войти</button>
+    </form>
+
+    <p class="auth-link">
+        Нет аккаунта? <a href="{{ url('forum:register') }}">Зарегистрироваться</a>
+    </p>
+</div>
+{% endblock %}

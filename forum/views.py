@@ -1,5 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth import login
 from .models import Section, Topic
+from .forms import RegisterForm
 
 
 def index(request):
@@ -29,3 +31,16 @@ def topic_detail(request, section_slug, slug):
         'topic': topic,
         'posts': posts,
     })
+
+def register(request):
+    """Регистрация нового пользователя."""
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user) # Автоматический вход после регистрации.
+            return redirect('forum:index')
+    else:
+        form = RegisterForm()
+    
+    return render(request, 'forum/register.html', {'form': form})

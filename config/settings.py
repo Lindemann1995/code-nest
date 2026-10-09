@@ -59,6 +59,12 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'environment': 'config.jinja2.environment',
+            'context_processors': [
+                'config.jinja2.user_context',
+                'config.jinja2.csrf_context',
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.request',
+            ],
         },
     },
     {
@@ -138,3 +144,7 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'forum:index'
+LOGOUT_REDIRECT_URL = 'forum:index'
