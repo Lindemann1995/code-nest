@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - Code Nest{% endblock %}
+
+{% block content %}
+<h2>Разделы форума</h2>
+
+{% if sections %}
+    <ul class="sections-list">
+        {% for section in sections %}
+            <li>
+                <a href="{{ url('forum:section', kwargs={'slug': section.slug}) }}">
+                {% if section.description %}
+                    <p>{{ section.description }}</p>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Пока нет ни одного раздела. Создайте их в <a href="/admin/">админке</a>.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ section.name }} — Code Nest{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="{{ url('forum:index') }}">Главная</a>
+    {% if section.parent %}
+        / <a href="{{ url('forum:section', kwargs={'slug': section.parent.slug}) }}">{{ section.parent.name }}</a>
+    {% endif %}
+    / <span>{{ section.name }}</span>
+</nav>
+
+<h2>{{ section.name }}</h2>
+{% if section.description %}
+    <p class="description">{{ section.description }}</p>
+{% endif %}
+
+{% if subsections %}
+    <h3>Подразделы</h3>
+    <ul class="subsections-list">
+    {% for sub in subsections %}
+        <li>
+            <a href="{{ url('forum:section', kwargs={'slug': sub.slug}) }}">{{ sub.name }}</a>
+            {% if sub.description %}
+                <p>{{ sub.description }}</p>
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<h3>Темы</h3>
+{% if topics %}
+    <ul class="topics-list">
+    {% for topic in topics %}
+        <li>
+            {% if topic.is_pinned %}<span class="badge">📌</span>{% endif %}
+            {% if topic.is_closed %}<span class="badge">🔒</span>{% endif %}
+            <a href="{{ url('forum:topic', kwargs={'section_slug': section.slug, 'slug': topic.slug}) }}">
+                {{ topic.title }}
+            </a>
+            <div class="topic-meta">
+                Автор: {{ topic.author.username }} ·
+                {{ topic.created_at.strftime('%d.%m.%Y %H:%M') }} ·
+                Просмотров: {{ topic.views }}
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>В этом разделе пока нет тем.</p>
+{% endif %}
+{% endblock %}
