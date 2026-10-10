@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, TopicForm, PostForm, ProfileEditForm, TopicMoveForm
 from django.http import JsonResponse
 from django.utils import timezone
+from .utils import parse_mentions, linkify_mentions
+from .achievements import check_user_achievements
 
 
 def index(request):
@@ -71,17 +73,19 @@ def topic_create(request, section_slug):
         post_form = PostForm(request.POST)
 
         if topic_form.is_valid() and post_form.is_valid():
-            # Создаем тему.
             topic = topic_form.save(commit=False)
             topic.section = section
             topic.author = request.user
             topic.save()
 
-            # Создаем первое сообщение.
             post = post_form.save(commit=False)
             post.topic = topic
             post.author = request.user
             post.save()
+
+            # Парсим @упоминания в первом посте
+            parse_mentions(post.content, sender=request.user, topic=topic, post=post)
+            check_user_achievements(request.user)
 
             return redirect('forum:topic', section_slug=section_slug, slug=topic.slug)
     else:
@@ -102,14 +106,14 @@ def post_create(request, section_slug, slug):
     if topic.is_closed:
         return redirect('forum:topic', section_slug=section_slug, slug=slug)
 
-        if request.method == 'POST':
-            form = PostForm(request.POST)
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.topic = topic
-                post.author = request.user
-                post.save()
-                topic.save()
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.topic = topic
+            post.author = request.user
+            post.save()
+            topic.save()
 
             # Уведомление автору темы (если не сам себе)
             if topic.author != request.user:
@@ -122,9 +126,14 @@ def post_create(request, section_slug, slug):
                     message=f"ответил в вашей теме «{topic.title}»"
                 )
 
+            # Парсим @упоминания (ВНУТРИ if form.is_valid())
+            parse_mentions(post.content, sender=request.user, topic=topic, post=post)
+            check_user_achievements(request.user)
+
+            return redirect('forum:topic', section_slug=section_slug, slug=slug)
     else:
         form = PostForm()
-    
+
     return render(request, 'forum/post_create.html', {
         'topic': topic,
         'form': form,

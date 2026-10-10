@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Category, Section, Topic, Post, Profile, Reaction, Notification, Conversation, Message
+from .models import Achievement, UserAchievement
 
 
 @admin.register(Category)
@@ -123,3 +124,17 @@ class MessageAdmin(admin.ModelAdmin):
     def content_short(self, obj):
         return obj.content[:60]
     content_short.short_description = "Сообщение"
+
+@admin.register(Achievement)
+class AchievementAdmin(admin.ModelAdmin):
+    list_display = ('icon', 'name', 'code', 'order')
+    list_editable = ('order',)
+    search_fields = ('name', 'description', 'code')
+
+
+@admin.register(UserAchievement)
+class UserAchievementAdmin(admin.ModelAdmin):
+    list_display = ('user', 'achievement', 'received_at')
+    list_filter = ('achievement', 'received_at')
+    search_fields = ('user__username', 'achievement__name')
+    date_hierarchy = 'received_at'

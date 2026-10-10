@@ -159,6 +159,11 @@ class Post(models.Model):
         if not user.is_authenticated:
             return None
         return self.reactions.filter(user=user).first()
+    
+    def content_with_mentions(self):
+        """Возвращает HTML с обработанными @упоминаниями."""
+        from .utils import linkify_mentions
+        return linkify_mentions(self.content)
 
 class Profile(models.Model):
     """Профиль пользователя - расширение стандартной модели User."""
@@ -550,3 +555,44 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.author.username}: {self.content[:50]}"
+
+class Achievement(models.Model):
+    """Награда (бейдж), которую можно получить."""
+    code = models.SlugField(max_length=50, unique=True, verbose_name="Код")
+    name = models.CharField(max_length=100, verbose_name="Название")
+    description = models.TextField(blank=True, verbose_name="Описание")
+    icon = models.CharField(max_length=10, verbose_name="Иконка (эмодзи)")
+    order = models.IntegerField(default=0, verbose_name="Порядок")
+
+    class Meta:
+        verbose_name = "Награда"
+        verbose_name_plural = "Награды"
+        ordering = ['order', 'name']
+
+    def __str__(self):
+        return f"{self.icon} {self.name}"
+
+
+class UserAchievement(models.Model):
+    """Полученная пользователем награда."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='achievements',
+        verbose_name="Пользователь"
+    )
+    achievement = models.ForeignKey(
+        Achievement,
+        on_delete=models.CASCADE,
+        verbose_name="Награда"
+    )
+    received_at = models.DateTimeField(auto_now_add=True, verbose_name="Получена")
+
+    class Meta:
+        verbose_name = "Награда пользователя"
+        verbose_name_plural = "Награды пользователей"
+        unique_together = ('user', 'achievement')
+        ordering = ['-received_at']
+
+    def __str__(self):
+        return f"{self.user.username} → {self.achievement.name}"

@@ -115,6 +115,21 @@
             <div class="block-content">{{ profile.bio }}</div>
         </div>
     {% endif %}
+    {% if profile_user.achievements.all() %}
+    <div class="profile-block">
+        <div class="block-title">Награды</div>
+        <div class="block-content">
+            <div class="achievements-grid">
+                {% for ua in profile_user.achievements.all() %}
+                    <div class="achievement-card" title="{{ ua.achievement.description }}">
+                        <div class="achievement-icon">{{ ua.achievement.icon }}</div>
+                        <div class="achievement-name">{{ ua.achievement.name }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endif %}
 
     {% if profile.vk_url or profile.github_url %}
         <div class="profile-block">

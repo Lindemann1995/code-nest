@@ -82,8 +82,8 @@
                         <div class="post-date">{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
                     </div>
                     <div class="post-content">
-                        {{ post.content|safe }}
-                    </div>
+                    {{ post.content_with_mentions()|safe }}
+                </div>
                     <div class="post-actions">
                 <button class="reaction-btn {% if post.user_reaction(user) %}active{% endif %}"
                         data-post-id="{{ post.id }}"
