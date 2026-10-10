@@ -21,11 +21,26 @@
     Просмотров: {{ topic.views }}
 </div>
 
-        <div class="posts">
-        {% for post in posts %}
-            <div class="post">
-                <div class="post-author">
-            <a href="{{ url('forum:profile', kwargs={'username': post.author.username}) }}" class="post-author-link">
+<div class="posts">
+{% for post in posts %}
+    <div class="post">
+        <div class="post-author">
+            <a href="{{ url('forum:profile', kwargs={'username': post.author.username}) }}"
+               class="post-author-link user-link"
+               data-username="{{ post.author.username }}"
+               data-profile-url="{{ url('forum:profile', kwargs={'username': post.author.username}) }}"
+               data-avatar="{% if post.author.profile.avatar %}{{ post.author.profile.avatar.url }}{% endif %}"
+               data-banner="{% if post.author.profile.banner %}{{ post.author.profile.banner.url }}{% endif %}"
+               data-role-name="{{ post.author.profile.role_name }}"
+               data-role-color="{{ post.author.profile.role_color }}"
+               data-role-icon="{{ post.author.profile.role_icon }}"
+               data-status="{{ post.author.profile.status }}"
+               data-joined="{{ post.author.date_joined.strftime('%d.%m.%Y') }}"
+               data-online="{% if post.author.profile.is_online %}🟢 Онлайн{% else %}⚫ {{ post.author.profile.last_seen_display }}{% endif %}"
+               data-posts="{{ post.author.profile.posts_count }}"
+               data-topics="{{ post.author.profile.topics_count }}"
+               data-reputation="{{ post.author.profile.reputation }}"
+               onclick="event.preventDefault(); openUserPopup(this);">
                 <strong>{{ post.author.username }}</strong>
             </a>
             <div class="post-author-role" style="color: {{ post.author.profile.role_color }}">
@@ -42,6 +57,7 @@
     <p>В этой теме пока нет сообщений.</p>
 {% endfor %}
 </div>
+
 {% if user.is_authenticated and not topic.is_closed %}
     <div style="margin-top: 30px;">
         <a href="{{ url('forum:post_create', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}" class="btn-primary" style="display:inline-block; text-decoration:none;">Ответить в теме</a>
@@ -52,7 +68,4 @@
     <p class="notice">🔒 Тема закрыта.</p>
 {% endif %}
 
-{% if topic.is_closed %}
-    <p class="notice">🔒 Эта тема закрыта.</p>
-{% endif %}
 {% endblock %}

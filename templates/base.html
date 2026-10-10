@@ -470,6 +470,142 @@
                 margin-top: 15px;
             }
         }
+        /* Попап профиля */
+        .user-popup {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .user-popup-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 360px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .user-popup-close {
+            position: absolute;
+            top: 10px; right: 15px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            border: none;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.2s;
+        }
+        .user-popup-close:hover { background: rgba(0,0,0,0.7); }
+
+        .user-popup-banner {
+            height: 100px;
+            background: linear-gradient(135deg, #1a1f2e 0%, #f5a623 100%);
+            background-size: cover;
+            background-position: center;
+        }
+        .user-popup-avatar {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: #1a1f2e;
+            color: #f5a623;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            border: 4px solid #fff;
+            margin: -40px auto 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .user-popup-avatar img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .user-popup-info {
+            padding: 0 20px 20px;
+            text-align: center;
+        }
+        .user-popup-name a {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1d1d1f;
+            text-decoration: none;
+        }
+        .user-popup-name a:hover { color: #0066cc; }
+        .user-popup-role {
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .user-popup-status {
+            color: #666;
+            font-style: italic;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        .user-popup-meta {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .user-popup-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+        .popup-stat {
+            text-align: center;
+        }
+        .popup-stat-value {
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0066cc;
+        }
+        .popup-stat-label {
+            font-size: 11px;
+            color: #888;
+        }
+        .user-popup-btn {
+            display: inline-block;
+            background: #0066cc;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+        .user-popup-btn:hover {
+            background: #0052a3;
+            text-decoration: none;
+        }
+
+        /* Адаптив */
+        @media (max-width: 480px) {
+            .user-popup-content {
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -608,5 +744,109 @@
                 hljs.highlightElement(code);
             });
     </script>
+    <!-- Попап профиля -->
+    <div id="user-popup" class="user-popup" style="display: none;">
+        <div class="user-popup-content">
+            <button class="user-popup-close" onclick="closeUserPopup()">×</button>
+
+            <div class="user-popup-banner" id="popup-banner"></div>
+
+            <div class="user-popup-avatar" id="popup-avatar"></div>
+
+            <div class="user-popup-info">
+                <div class="user-popup-name">
+                    <a id="popup-username" href="#"></a>
+                </div>
+                <div class="user-popup-role" id="popup-role"></div>
+                <div class="user-popup-status" id="popup-status"></div>
+                <div class="user-popup-meta">
+                    <span id="popup-joined"></span>
+                    <span id="popup-online"></span>
+                </div>
+                <div class="user-popup-stats">
+                    <div class="popup-stat">
+                        <span class="popup-stat-value" id="popup-posts">0</span>
+                        <span class="popup-stat-label">Сообщений</span>
+                    </div>
+                    <div class="popup-stat">
+                        <span class="popup-stat-value" id="popup-topics">0</span>
+                        <span class="popup-stat-label">Тем</span>
+                    </div>
+                    <div class="popup-stat">
+                        <span class="popup-stat-value" id="popup-reputation">0</span>
+                        <span class="popup-stat-label">Репутация</span>
+                    </div>
+                </div>
+                <a id="popup-profile-link" class="user-popup-btn" href="#">Открыть профиль</a>
+            </div>
+        </div>
+    </div>
+    <script>
+    function openUserPopup(el) {
+        const data = el.dataset;
+
+        // Баннер
+        const bannerEl = document.getElementById('popup-banner');
+        if (data.banner) {
+            bannerEl.style.backgroundImage = `url('${data.banner}')`;
+        } else {
+            bannerEl.style.background = 'linear-gradient(135deg, #1a1f2e 0%, #f5a623 100%)';
+        }
+
+        // Аватар
+        const avatarEl = document.getElementById('popup-avatar');
+        if (data.avatar) {
+            avatarEl.innerHTML = `<img src="${data.avatar}" alt="${data.username}">`;
+        } else {
+            avatarEl.textContent = data.username.charAt(0).toUpperCase();
+        }
+
+        // Имя
+        const nameEl = document.getElementById('popup-username');
+        nameEl.textContent = data.username;
+        nameEl.href = data.profileUrl;
+
+        // Роль
+        const roleEl = document.getElementById('popup-role');
+        roleEl.textContent = `${data.roleIcon} ${data.roleName}`.trim();
+        roleEl.style.color = data.roleColor;
+
+        // Статус
+        document.getElementById('popup-status').textContent = data.status || '';
+
+        // Мета
+        document.getElementById('popup-joined').textContent = `📅 С ${data.joined}`;
+        document.getElementById('popup-online').textContent = data.online;
+
+        // Статистика
+        document.getElementById('popup-posts').textContent = data.posts;
+        document.getElementById('popup-topics').textContent = data.topics;
+        document.getElementById('popup-reputation').textContent = data.reputation;
+
+        // Ссылка на профиль
+        document.getElementById('popup-profile-link').href = data.profileUrl;
+
+        // Показываем
+        document.getElementById('user-popup').style.display = 'flex';
+    }
+
+    function closeUserPopup() {
+        document.getElementById('user-popup').style.display = 'none';
+    }
+
+    // Закрытие по клику вне попапа
+    document.getElementById('user-popup').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeUserPopup();
+        }
+    });
+
+    // Закрытие по Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeUserPopup();
+        }
+    });
+</script>
 </body>
 </html>
