@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Перенос темы — Code Nest{% endblock %}
+
+{% block content %}
+<div class="auth-form" style="max-width: 600px;">
+    <h2>Перенос темы</h2>
+
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin: 20px 0;">
+        <strong>{{ topic.title }}</strong><br>
+        <span style="color: #666; font-size: 13px;">
+            Текущий раздел: <strong>{{ topic.section.name }}</strong>
+        </span>
+    </div>
+
+    <form method="post">
+        {{ csrf_input|safe }}
+
+        <div class="form-field">
+            <label for="{{ form.new_section.id_for_label }}">{{ form.new_section.label }}</label>
+            {{ form.new_section }}
+            {% if form.new_section.errors %}
+                <div class="field-error">
+                    {% for error in form.new_section.errors %}{{ error }}{% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="btn-primary">Перенести</button>
+            <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
+               class="btn-primary"
+               style="background: #999; text-decoration: none; text-align: center; line-height: 1.4;">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

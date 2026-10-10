@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Topic, Post, Profile
+from .models import Section, Topic, Post, Profile, Reaction
 
 
 class RegisterForm(UserCreationForm):
@@ -124,3 +124,12 @@ class ProfileEditForm(forms.ModelForm):
             'is_email_public': 'Показывать email в профиле',
             'is_online_public': 'Показывать онлайн-статус',
         }
+
+class TopicMoveForm(forms.Form):
+    """Форма переноса темы в другой раздел."""
+    new_section = forms.ModelChoiceField(
+        queryset=Section.objects.all(),
+        label="Новый раздел",
+        empty_label="— Выберите раздел —",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )

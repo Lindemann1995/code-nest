@@ -13,6 +13,33 @@
     {% if topic.is_pinned %}<span class="badge">📌</span>{% endif %}
     {% if topic.is_closed %}<span class="badge">🔒</span>{% endif %}
     {{ topic.title }}
+    {% if user.is_authenticated %}
+    {% if user == topic.author or user.profile.is_staff_role %}
+        <div class="topic-moderator-actions">
+            <a href="{{ url('forum:topic_toggle_close', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
+               class="post-action-link">
+                {% if topic.is_closed %}🔓 Открыть тему{% else %}🔒 Закрыть тему{% endif %}
+            </a>
+
+            {% if user.profile.is_staff_role %}
+                <a href="{{ url('forum:topic_toggle_pin', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
+                   class="post-action-link">
+                    {% if topic.is_pinned %}📌 Открепить{% else %}📌 Закрепить{% endif %}
+                </a>
+                {% if user.profile.role in ('senior_mod', 'admin', 'manager', 'team') %}
+                <a href="{{ url('forum:topic_move', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
+                class="post-action-link">
+                    📁 Перенести
+                </a>
+            {% endif %}
+                <a href="{{ url('forum:topic_delete', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
+                class="post-action-link post-action-delete">
+                    🗑️ Удалить тему
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endif %}
 </h2>
 
 <div class="topic-info">
@@ -20,46 +47,62 @@
     Создано: {{ topic.created_at.strftime('%d.%m.%Y %H:%M') }} ·
     Просмотров: {{ topic.views }}
 </div>
+            <div class="posts">
+            {% for post in posts %}
+                <div class="post">
+                    <div class="post-author">
+                        <a href="{{ url('forum:profile', kwargs={'username': post.author.username}) }}"
+                        class="post-author-link user-link"
+                        data-username="{{ post.author.username }}"
+                        data-profile-url="{{ url('forum:profile', kwargs={'username': post.author.username}) }}"
+                        data-avatar="{% if post.author.profile.avatar %}{{ post.author.profile.avatar.url }}{% endif %}"
+                        data-banner="{% if post.author.profile.banner %}{{ post.author.profile.banner.url }}{% endif %}"
+                        data-role-name="{{ post.author.profile.role_name }}"
+                        data-role-color="{{ post.author.profile.role_color }}"
+                        data-role-icon="{{ post.author.profile.role_icon }}"
+                        data-status="{{ post.author.profile.status }}"
+                        data-joined="{{ post.author.date_joined.strftime('%d.%m.%Y') }}"
+                        data-online="{% if post.author.profile.is_online %}🟢 Онлайн{% else %}⚫ {{ post.author.profile.last_seen_display }}{% endif %}"
+                        data-posts="{{ post.author.profile.posts_count }}"
+                        data-topics="{{ post.author.profile.topics_count }}"
+                        data-reputation="{{ post.author.profile.reputation }}"
+                        onclick="event.preventDefault(); openUserPopup(this);">
+                            <strong>{{ post.author.username }}</strong>
+                        </a>
+                        <div class="post-author-role" style="color: {{ post.author.profile.role_color }}">
+                            {% if post.author.profile.role_icon %}{{ post.author.profile.role_icon }} {% endif %}
+                            {{ post.author.profile.role_name }}
+                        </div>
+                        <div class="post-date">{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                    </div>
+                    <div class="post-content">
+                        {{ post.content|safe }}
+                    </div>
+                    <div class="post-actions">
+                <button class="reaction-btn {% if post.user_reaction(user) %}active{% endif %}"
+                        data-post-id="{{ post.id }}"
+                        data-url="{{ url('forum:toggle_reaction', kwargs={'post_id': post.id}) }}"
+                        {% if not user.is_authenticated %}disabled title="Войдите, чтобы поставить лайк"{% endif %}>
+                    👍 <span class="reaction-count">{{ post.reactions.count() }}</span>
+                </button>
 
-<div class="posts">
-{% for post in posts %}
-    <div class="post">
-        <div class="post-author">
-            <a href="{{ url('forum:profile', kwargs={'username': post.author.username}) }}"
-               class="post-author-link user-link"
-               data-username="{{ post.author.username }}"
-               data-profile-url="{{ url('forum:profile', kwargs={'username': post.author.username}) }}"
-               data-avatar="{% if post.author.profile.avatar %}{{ post.author.profile.avatar.url }}{% endif %}"
-               data-banner="{% if post.author.profile.banner %}{{ post.author.profile.banner.url }}{% endif %}"
-               data-role-name="{{ post.author.profile.role_name }}"
-               data-role-color="{{ post.author.profile.role_color }}"
-               data-role-icon="{{ post.author.profile.role_icon }}"
-               data-status="{{ post.author.profile.status }}"
-               data-joined="{{ post.author.date_joined.strftime('%d.%m.%Y') }}"
-               data-online="{% if post.author.profile.is_online %}🟢 Онлайн{% else %}⚫ {{ post.author.profile.last_seen_display }}{% endif %}"
-               data-posts="{{ post.author.profile.posts_count }}"
-               data-topics="{{ post.author.profile.topics_count }}"
-               data-reputation="{{ post.author.profile.reputation }}"
-               onclick="event.preventDefault(); openUserPopup(this);">
-                <strong>{{ post.author.username }}</strong>
-            </a>
-            <div class="post-author-role" style="color: {{ post.author.profile.role_color }}">
-                {% if post.author.profile.role_icon %}{{ post.author.profile.role_icon }} {% endif %}
-                {{ post.author.profile.role_name }}
+                {% if user.is_authenticated %}
+                    {% if user == post.author or user.profile.is_staff_role %}
+                        <a href="{{ url('forum:post_edit', kwargs={'post_id': post.id}) }}" class="post-action-link">
+                            ✏️ Редактировать
+                        </a>
+                        <a href="{{ url('forum:post_delete', kwargs={'post_id': post.id}) }}" class="post-action-link post-action-delete">
+                    🗑️ Удалить
+                </a>
+                {% endif %}
+                {% endif %}
+
+                {% if post.is_edited %}
+                    <span class="post-edited-mark">
+                        (отредактировано {{ post.updated_at.strftime('%d.%m.%Y %H:%M') }})
+                    </span>
+                {% endif %}
             </div>
-            <div class="post-date">{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
-        </div>
-        <div class="post-content">
-            {{ post.content|safe }}
-        </div>
-        <div class="post-actions">
-            <button class="reaction-btn {% if post.user_reaction(user) %}active{% endif %}"
-                    data-post-id="{{ post.id }}"
-                    data-url="{{ url('forum:toggle_reaction', kwargs={'post_id': post.id}) }}"
-                    {% if not user.is_authenticated %}disabled title="Войдите, чтобы поставить лайк"{% endif %}>
-                👍 <span class="reaction-count">{{ post.reactions.count() }}</span>
-            </button>
-        </div>
     </div>
 {% else %}
     <p>В этой теме пока нет сообщений.</p>

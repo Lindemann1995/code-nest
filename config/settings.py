@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'forum.middleware.LastActivityMiddleware',
+    'forum.middleware.BannedUserMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'

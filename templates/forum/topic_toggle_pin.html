@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}{% if topic.is_pinned %}Открепление{% else %}Закрепление{% endif %} темы — Code Nest{% endblock %}
+
+{% block content %}
+<div class="auth-form" style="max-width: 600px;">
+    <h2>{% if topic.is_pinned %}Открепить тему?{% else %}Закрепить тему?{% endif %}</h2>
+
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin: 20px 0;">
+        <strong>{{ topic.title }}</strong>
+    </div>
+
+    <p style="color: #666; margin-bottom: 20px;">
+        {% if topic.is_pinned %}
+            После открепления тема вернётся в обычный порядок.
+        {% else %}
+            Закреплённая тема всегда будет сверху списка тем в разделе.
+        {% endif %}
+    </p>
+
+    <form method="post">
+        {{ csrf_input|safe }}
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn-primary">
+                {% if topic.is_pinned %}Открепить{% else %}Закрепить{% endif %}
+            </button>
+            <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
+               class="btn-primary"
+               style="background: #999; text-decoration: none; text-align: center; line-height: 1.4;">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

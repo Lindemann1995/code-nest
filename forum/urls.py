@@ -13,4 +13,12 @@ urlpatterns = [
     path('user/<str:username>/', views.profile_detail, name='profile'),
     path('user/<str:username>/edit/', views.profile_edit, name='profile_edit'),
     path('post/<int:post_id>/react/', views.toggle_reaction, name='toggle_reaction'),
+    path('post/<int:post_id>/edit/', views.post_edit, name='post_edit'),
+    path('post/<int:post_id>/delete/', views.post_delete, name='post_delete'),
+    path('section/<slug:section_slug>/topic/<slug:slug>/delete/', views.topic_delete, name='topic_delete'),
+    path('section/<slug:section_slug>/topic/<slug:slug>/toggle-close/', views.topic_toggle_close, name='topic_toggle_close'),
+    path('section/<slug:section_slug>/topic/<slug:slug>/toggle-pin/', views.topic_toggle_pin, name='topic_toggle_pin'),
+    path('section/<slug:section_slug>/topic/<slug:slug>/move/', views.topic_move, name='topic_move'),
+    path('user/<str:username>/ban/', views.user_ban, name='user_ban'),
+    path('user/<str:username>/unban/', views.user_unban, name='user_unban'),
 ]

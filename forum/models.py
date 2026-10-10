@@ -6,39 +6,79 @@ from datetime import timedelta
 from unidecode import unidecode
 
 
+class Category(models.Model):
+    """Категория — верхний уровень иерархии (например, «Языки программирования»)."""
+    name = models.CharField(max_length=100, unique=True, verbose_name="Название")
+    slug = models.SlugField(max_length=100, unique=True, verbose_name="Slug")
+    description = models.TextField(blank=True, verbose_name="Описание")
+    icon = models.CharField(
+        max_length=10,
+        blank=True,
+        verbose_name="Иконка",
+        help_text="Эмодзи, например: 💻 😄 📚"
+    )
+    order = models.IntegerField(default=0, verbose_name="Порядок", help_text="Меньше — выше")
+    is_pinned = models.BooleanField(default=False, verbose_name="Закреплена")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создана")
+
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
+        ordering = ['-is_pinned', 'order', 'name']
+
+    def __str__(self):
+        return self.name
+
+
 class Section(models.Model):
-    """Раздел форума с поддержкой вложенности.
-    
-    Пример:
-    - Программирование (родитель: None)
-      - Pawn (родитель: Программирование)
-        - Помощь (родитель: Pawn)
-    """
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
+    """Раздел — внутри категории. Может содержать подразделы."""
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        related_name='sections',
+        verbose_name="Категория"
+    )
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name='children',
-        help_text="Родительский раздел (если есть)"
+        verbose_name="Родительский раздел",
+        help_text="Если это подраздел — выберите родителя"
     )
-    order = models.IntegerField(default=0, help_text="Порядок вывода (меньше — выше)")
-    is_pinned = models.BooleanField(default=False, help_text="Закреплённый раздел")
-    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=100, verbose_name="Название")
+    slug = models.SlugField(max_length=100, unique=True, verbose_name="Slug")
+    description = models.TextField(blank=True, verbose_name="Описание")
+    order = models.IntegerField(default=0, verbose_name="Порядок", help_text="Меньше — выше")
+    is_pinned = models.BooleanField(default=False, verbose_name="Закреплён")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создан")
 
     class Meta:
         verbose_name = "Раздел"
         verbose_name_plural = "Разделы"
-        ordering = ['order', 'name']
+        ordering = ['-is_pinned', 'order', 'name']
 
     def __str__(self):
         if self.parent:
-            return f"{self.parent} → {self.name}"
-        return self.name
+            return f"{self.category} → {self.parent.name} → {self.name}"
+        return f"{self.category} → {self.name}"
 
+    def total_topics_count(self):
+        """Считает темы в этом разделе + во всех подразделах (рекурсивно)."""
+        count = self.topics.count()
+        for child in self.children.all():
+            count += child.total_topics_count()
+        return count
+
+    def total_posts_count(self):
+        """Считает сообщения в этом разделе + во всех подразделах."""
+        count = 0
+        for topic in self.topics.all():
+            count += topic.posts.count()
+        for child in self.children.all():
+            count += child.total_posts_count()
+        return count
 
 class Topic(models.Model):
     """Тема в разделе."""
@@ -226,6 +266,20 @@ class Profile(models.Model):
     is_online_public = models.BooleanField(
         default=True,
         verbose_name="Показывать онлайн-статус"
+    )
+    
+    is_banned = models.BooleanField(
+        default=False,
+        verbose_name="Заблокирован"
+    )
+    ban_reason = models.TextField(
+        blank=True,
+        verbose_name="Причина бана"
+    )
+    banned_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Дата бана"
     )
 
     created_at = models.DateTimeField(

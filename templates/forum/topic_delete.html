@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Удаление темы — Code Nest{% endblock %}
+
+{% block content %}
+<div class="auth-form" style="max-width: 600px;">
+    <h2>Удалить тему?</h2>
+
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin: 20px 0;">
+        <strong>{{ topic.title }}</strong><br>
+        <span style="color: #666; font-size: 13px;">
+            Автор: {{ topic.author.username }} ·
+            Создано: {{ topic.created_at.strftime('%d.%m.%Y %H:%M') }} ·
+            Сообщений: {{ topic.posts.count() }}
+        </span>
+    </div>
+
+    <p style="color: #d32f2f; margin-bottom: 20px;">
+        ⚠️ Это действие <strong>нельзя отменить</strong>. Все сообщения темы будут удалены.
+    </p>
+
+    <form method="post">
+        {{ csrf_input|safe }}
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn-primary" style="background: #d32f2f;">
+                Удалить тему
+            </button>
+            <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
+               class="btn-primary"
+               style="background: #999; text-decoration: none; text-align: center; line-height: 1.4;">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

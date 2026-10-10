@@ -1,12 +1,20 @@
 from django.contrib import admin
-from .models import Section, Topic, Post, Profile, Reaction
+from .models import Category, Section, Topic, Post, Profile, Reaction
 
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('icon', 'name', 'slug', 'order', 'is_pinned', 'created_at')
+    list_editable = ('order', 'is_pinned')
+    list_filter = ('is_pinned',)
+    search_fields = ('name', 'description')
+    prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'parent', 'slug', 'order', 'is_pinned', 'created_at')
+    list_display = ('name', 'category', 'parent', 'slug', 'order', 'is_pinned', 'created_at')
     list_editable = ('order', 'is_pinned')
-    list_filter = ('parent', 'is_pinned')
+    list_filter = ('category', 'parent', 'is_pinned')
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
 
@@ -59,6 +67,10 @@ class ProfileAdmin(admin.ModelAdmin):
         }),
         ('Приватность', {
             'fields': ('is_email_public', 'is_online_public')
+        }),
+        ('Блокировка', {
+            'fields': ('is_banned', 'ban_reason', 'banned_at'),
+            'classes': ('collapse',)
         }),
         ('Служебное', {
             'fields': ('created_at', 'updated_at'),

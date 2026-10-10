@@ -5,35 +5,30 @@
 {% block content %}
 <div class="profile-page">
 
-    <!-- Баннер -->
-    <div class="profile-banner" style="
-    {% if profile.banner %}
-        background: url('{{ profile.banner.url }}') center/cover no-repeat;
-    {% else %}
-        background: linear-gradient(135deg, #1a1f2e 0%, #f5a623 100%);
-    {% endif %}
-"></div>
+    <div class="profile-banner" style="{% if profile.banner %}background: url('{{ profile.banner.url }}') center/cover no-repeat;{% else %}background: linear-gradient(135deg, #1a1f2e 0%, #f5a623 100%);{% endif %}"></div>
 
-    <!-- Шапка профиля -->
-    <div class="profile-header">
-            <div class="profile-avatar">
-        {% if profile.avatar %}
-            <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}">
-        {% else %}
-            {{ profile_user.username[0]|upper }}
-        {% endif %}
-    </div>
+    <div class="profile-top">
+        <div class="profile-avatar">
+            {% if profile.avatar %}
+                <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}">
+            {% else %}
+                {{ profile_user.username[0]|upper }}
+            {% endif %}
+        </div>
 
-        <div class="profile-info">
-            <h1>{{ profile_user.username }}</h1>
-            <div class="profile-role" style="color: {{ profile.role_color }}">
-                {{ profile.role_icon }} {{ profile.role_name }}
+        <div class="profile-main">
+            <div class="profile-name-row">
+                <h1>{{ profile_user.username }}</h1>
+                <span class="profile-role-badge" style="color: {{ profile.role_color }}; border-color: {{ profile.role_color }}33; background: {{ profile.role_color }}15;">
+                    {% if profile.role_icon %}{{ profile.role_icon }} {% endif %}{{ profile.role_name }}
+                </span>
             </div>
             {% if profile.status %}
                 <div class="profile-status">{{ profile.status }}</div>
             {% endif %}
-            <div class="profile-meta">
-                <span>📅 На форуме с {{ profile_user.date_joined.strftime('%d.%m.%Y') }}</span>
+            <div class="profile-meta-row">
+                <span>📅 С {{ profile_user.date_joined.strftime('%d.%m.%Y') }}</span>
+                <span class="meta-dot">·</span>
                 <span>
                     {% if profile.is_online %}
                         <span style="color: #22c55e;">🟢 Онлайн</span>
@@ -42,74 +37,130 @@
                     {% endif %}
                 </span>
                 {% if profile.city %}
+                    <span class="meta-dot">·</span>
                     <span>📍 {{ profile.city }}</span>
                 {% endif %}
                 {% if profile.age %}
-                    <span>🎂 {{ profile.age }} лет</span>
+                    <span class="meta-dot">·</span>
+                    <span>🎂 {{ profile.age }}</span>
                 {% endif %}
             </div>
+            {% if profile.is_banned %}
+                <div class="banned-badge">
+                    🚫 <strong>Заблокирован</strong>{% if profile.ban_reason %} — {{ profile.ban_reason }}{% endif %}
+                </div>
+            {% endif %}
         </div>
 
-        {% if user == profile_user %}
-            <div class="profile-actions">
+        <div class="profile-actions">
+            {% if user == profile_user %}
                 <a href="{{ url('forum:profile_edit', kwargs={'username': profile_user.username}) }}" class="btn-edit">
                     ✏️ Редактировать
                 </a>
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- Статистика -->
-    <div class="profile-stats">
-        <div class="stat-box">
-            <div class="stat-value">{{ posts_count }}</div>
-            <div class="stat-label">Сообщений</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value">{{ topics_count }}</div>
-            <div class="stat-label">Тем</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value">{{ profile.reputation }}</div>
-            <div class="stat-label">Репутация</div>
+            {% endif %}
+            {% if user.is_authenticated and user.profile.role in ('manager', 'team') %}
+                {% if user != profile_user and profile_user.profile.role not in ('manager', 'team') %}
+                    {% if profile.is_banned %}
+                        <a href="{{ url('forum:user_unban', kwargs={'username': profile_user.username}) }}" class="btn-edit btn-unban">
+                            ✅ Разблокировать
+                        </a>
+                    {% else %}
+                        <a href="{{ url('forum:user_ban', kwargs={'username': profile_user.username}) }}" class="btn-edit btn-ban">
+                            🚫 Заблокировать
+                        </a>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
         </div>
     </div>
 
-    <!-- О себе -->
+    <div class="profile-stats-row">
+        <div class="stat-card">
+            <div class="stat-num">{{ posts_count }}</div>
+            <div class="stat-name">Сообщений</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">{{ topics_count }}</div>
+            <div class="stat-name">Тем</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">{{ profile.reputation }}</div>
+            <div class="stat-name">Репутация</div>
+        </div>
+        <div class="stat-card stat-extra">
+            <div class="stat-num">🔥</div>
+            <div class="stat-name">Активность</div>
+        </div>
+        <div class="stat-card stat-extra">
+            <div class="stat-num">🏆</div>
+            <div class="stat-name">Награды</div>
+        </div>
+    </div>
+
     {% if profile.bio %}
-        <div class="profile-section">
-            <h3>О себе</h3>
-            <p>{{ profile.bio }}</p>
+        <div class="profile-block">
+            <div class="block-title">О себе</div>
+            <div class="block-content">{{ profile.bio }}</div>
         </div>
     {% endif %}
 
-    <!-- Соцсети -->
     {% if profile.vk_url or profile.github_url %}
-        <div class="profile-section">
-            <h3>Ссылки</h3>
-            {% if profile.vk_url %}
-                <a href="{{ profile.vk_url }}" target="_blank" class="social-link">ВКонтакте</a>
-            {% endif %}
-            {% if profile.github_url %}
-                <a href="{{ profile.github_url }}" target="_blank" class="social-link">GitHub</a>
-            {% endif %}
+        <div class="profile-block">
+            <div class="block-title">Контакты</div>
+            <div class="block-content">
+                <div class="social-row">
+                    {% if profile.vk_url %}
+                        <a href="{{ profile.vk_url }}" target="_blank" class="social-btn">ВКонтакте</a>
+                    {% endif %}
+                    {% if profile.github_url %}
+                        <a href="{{ profile.github_url }}" target="_blank" class="social-btn">GitHub</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     {% endif %}
 
-    <!-- Последние темы -->
+    {% if recent_topics or recent_posts %}
+        <div class="profile-block">
+            <div class="block-title">Активность</div>
+            <div class="block-content">
+                {% for post in recent_posts %}
+                    <div class="activity-item">
+                        <span class="activity-icon">💬</span>
+                        <span>Ответил в теме</span>
+                        <a href="{{ url('forum:topic', kwargs={'section_slug': post.topic.section.slug, 'slug': post.topic.slug}) }}">
+                            «{{ post.topic.title }}»
+                        </a>
+                        <span class="activity-time">{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                    </div>
+                {% endfor %}
+                {% for topic in recent_topics %}
+                    <div class="activity-item">
+                        <span class="activity-icon">📝</span>
+                        <span>Создал тему</span>
+                        <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}">
+                            «{{ topic.title }}»
+                        </a>
+                        <span class="activity-time">{{ topic.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
     {% if recent_topics %}
-        <div class="profile-section">
-            <h3>Последние темы</h3>
-            <ul class="profile-topics">
-            {% for topic in recent_topics %}
-                <li>
-                    <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}">
-                        {{ topic.title }}
-                    </a>
-                    <span class="topic-meta">· {{ topic.created_at.strftime('%d.%m.%Y') }}</span>
-                </li>
-            {% endfor %}
-            </ul>
+        <div class="profile-block">
+            <div class="block-title">Последние темы</div>
+            <div class="block-content">
+                {% for topic in recent_topics %}
+                    <div class="topic-item">
+                        <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}">
+                            {{ topic.title }}
+                        </a>
+                        <span class="topic-item-meta">{{ topic.created_at.strftime('%d.%m.%Y') }}</span>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     {% endif %}
 

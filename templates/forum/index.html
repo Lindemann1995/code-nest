@@ -1,22 +1,52 @@
 {% extends "base.html" %}
 
-{% block title %}Главная - Code Nest{% endblock %}
+{% block title %}Главная — Code Nest{% endblock %}
 
 {% block content %}
-<h2>Разделы форума</h2>
+<h2>Категории форума</h2>
 
-{% if sections %}
-    <ul class="sections-list">
-        {% for section in sections %}
-            <li>
-                <a href="{{ url('forum:section', kwargs={'slug': section.slug}) }}">
-                {% if section.description %}
-                    <p>{{ section.description }}</p>
+{% if categories_data %}
+    <div class="categories-list">
+    {% for item in categories_data %}
+        <div class="category-block">
+            <div class="category-header">
+                <div class="category-title">
+                    {% if item.category.icon %}<span class="category-icon">{{ item.category.icon }}</span>{% endif %}
+                    <a href="#">{{ item.category.name }}</a>
+                </div>
+                {% if item.category.description %}
+                    <div class="category-desc">{{ item.category.description }}</div>
                 {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
+            </div>
+
+            {% if item.sections %}
+                <div class="category-sections">
+                    {% for section in item.sections %}
+                        <div class="section-row">
+                            <div class="section-row-main">
+                                <a href="{{ url('forum:section', kwargs={'slug': section.slug}) }}" class="section-name">
+                                    {{ section.name }}
+                                </a>
+                                {% if section.description %}
+                                    <div class="section-desc">{{ section.description }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="section-row-stats">
+                                <span class="stat-mini">
+                            <strong>{{ section.total_topics_count() }}</strong> тем
+                        </span>
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="category-empty">В этой категории пока нет разделов.</div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    </div>
 {% else %}
-    <p>Пока нет ни одного раздела. Создайте их в <a href="/admin/">админке</a>.</p>
+    <p>Пока нет ни одной категории. Создайте их в <a href="/admin/">админке</a>.</p>
 {% endif %}
 {% endblock %}
