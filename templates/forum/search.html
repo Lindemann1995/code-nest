@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if query %}Поиск: {{ query }}{% else %}Поиск{% endif %} — Code Nest
+{% endblock %}
+
+{% block content %}
+<h2>Поиск по форуму</h2>
+
+<form method="get" action="{{ url('forum:search') }}" class="search-page-form">
+    <div class="search-page-input-wrap">
+        <span class="search-page-icon">🔍</span>
+        <input type="text" name="q" value="{{ query }}" placeholder="Введите запрос..." class="search-page-input" autofocus>
+        <button type="submit" class="search-page-btn">Найти</button>
+    </div>
+</form>
+
+{% if query %}
+    <div class="search-info">
+        {% if topics_count == 0 and posts_count == 0 %}
+            <p class="search-empty">По запросу <strong>«{{ query }}»</strong> ничего не найдено.</p>
+        {% else %}
+            <p>Найдено по запросу <strong>«{{ query }}»</strong>:
+                <strong>{{ topics_count }}</strong> тем,
+                <strong>{{ posts_count }}</strong> сообщений
+            </p>
+        {% endif %}
+    </div>
+
+    {% if topics %}
+        <div class="search-section">
+            <div class="search-section-title">📝 Темы ({{ topics_count }})</div>
+            <div class="search-results">
+                {% for topic in topics %}
+                    <div class="search-result">
+                        <div class="search-result-title">
+                            <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}">
+                                {{ topic.title }}
+                            </a>
+                        </div>
+                        <div class="search-result-meta">
+                            В разделе
+                            <a href="{{ url('forum:section', kwargs={'slug': topic.section.slug}) }}">{{ topic.section.name }}</a>
+                            · Автор: {{ topic.author.username }}
+                            · {{ topic.created_at.strftime('%d.%m.%Y') }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if posts %}
+        <div class="search-section">
+            <div class="search-section-title">💬 Сообщения ({{ posts_count }})</div>
+            <div class="search-results">
+                {% for post in posts %}
+                    <div class="search-result">
+                        <div class="search-result-title">
+                            <a href="{{ url('forum:topic', kwargs={'section_slug': post.topic.section.slug, 'slug': post.topic.slug}) }}#post-{{ post.id }}">
+                                {{ post.topic.title }}
+                            </a>
+                        </div>
+                        <div class="search-result-meta">
+                            Автор: {{ post.author.username }}
+                            · {{ post.created_at.strftime('%d.%m.%Y %H:%M') }}
+                            · Раздел: {{ post.topic.section.name }}
+                        </div>
+                        <div class="search-result-snippet">
+                            {{ post.content|striptags|truncate(200) }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% else %}
+    <p class="search-hint">Введите запрос, чтобы найти темы и сообщения.</p>
+{% endif %}
+{% endblock %}

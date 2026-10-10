@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
 from django.contrib.auth.models import User
-from .models import Category, Section, Topic, Post, Reaction
+from .models import Category, Section, Topic, Post, Reaction, Notification
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, TopicForm, PostForm, ProfileEditForm, TopicMoveForm
 from django.http import JsonResponse
@@ -102,16 +102,26 @@ def post_create(request, section_slug, slug):
     if topic.is_closed:
         return redirect('forum:topic', section_slug=section_slug, slug=slug)
 
-    if request.method == 'POST':
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.topic = topic
-            post.author = request.user
-            post.save()
-            # Обновляем updated_at темы.
-            topic.save()
-            return redirect('forum:topic', section_slug=section_slug, slug=slug)
+        if request.method == 'POST':
+            form = PostForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.topic = topic
+                post.author = request.user
+                post.save()
+                topic.save()
+
+            # Уведомление автору темы (если не сам себе)
+            if topic.author != request.user:
+                Notification.objects.create(
+                    user=topic.author,
+                    sender=request.user,
+                    notification_type='reply',
+                    topic=topic,
+                    post=post,
+                    message=f"ответил в вашей теме «{topic.title}»"
+                )
+
     else:
         form = PostForm()
     
@@ -192,15 +202,28 @@ def toggle_reaction(request, post_id):
     author_profile = post.author.profile
 
     if not created:
-        # Уже была — удаляем
         reaction.delete()
         liked = False
-        # Снимаем репутацию
         author_profile.reputation -= 1
+        # Удаляем уведомление
+        Notification.objects.filter(
+            user=post.author,
+            sender=request.user,
+            notification_type='like',
+            post=post
+        ).delete()
     else:
         liked = True
-        # Начисляем репутацию
         author_profile.reputation += 1
+        # Создаём уведомление
+        Notification.objects.create(
+            user=post.author,
+            sender=request.user,
+            notification_type='like',
+            topic=post.topic,
+            post=post,
+            message=f"поставил 👍 вашему сообщению в теме «{post.topic.title}»"
+        )
 
     author_profile.save(update_fields=['reputation'])
 
@@ -404,3 +427,58 @@ def category_detail(request, slug):
         'category': category,
         'sections': sections,
 })
+
+def search(request):
+    """Поиск по темам и сообщениям."""
+    query = request.GET.get('q', '').strip()
+    topics = []
+    posts = []
+
+    if query:
+        # Ищем в темах
+        topics = Topic.objects.filter(
+            title__icontains=query
+        ).select_related('author', 'section')[:30]
+
+        # Ищем в сообщениях
+        posts = Post.objects.filter(
+            content__icontains=query
+        ).select_related('author', 'topic', 'topic__section')[:30]
+
+    return render(request, 'forum/search.html', {
+        'query': query,
+        'topics': topics,
+        'posts': posts,
+        'topics_count': len(topics),
+        'posts_count': len(posts),
+    })
+
+@login_required
+def notifications(request):
+    """Страница уведомлений."""
+    notifs = request.user.notifications.select_related(
+        'sender', 'topic', 'post', 'topic__section'
+    ).all()[:50]
+
+    # Помечаем все как прочитанные при просмотре
+    request.user.notifications.filter(is_read=False).update(is_read=True)
+
+    return render(request, 'forum/notifications.html', {
+        'notifications': notifs,
+    })
+
+
+@login_required
+def notification_read(request, notif_id):
+    """Пометить уведомление прочитанным и перейти к объекту."""
+    notif = get_object_or_404(Notification, id=notif_id, user=request.user)
+    notif.is_read = True
+    notif.save(update_fields=['is_read'])
+    return redirect(notif.get_url())
+
+
+@login_required
+def notifications_read_all(request):
+    """Пометить все уведомления прочитанными."""
+    request.user.notifications.filter(is_read=False).update(is_read=True)
+    return redirect('forum:notifications')

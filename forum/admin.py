@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Section, Topic, Post, Profile, Reaction
+from .models import Category, Section, Topic, Post, Profile, Reaction, Notification
 
 
 @admin.register(Category)
@@ -85,3 +85,11 @@ class ReactionAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'post__content')
     date_hierarchy = 'created_at'
     readonly_fields = ('created_at',)
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'sender', 'notification_type', 'is_read', 'created_at')
+    list_filter = ('notification_type', 'is_read', 'created_at')
+    search_fields = ('user__username', 'sender__username', 'message')
+    list_editable = ('is_read',)
+    date_hierarchy = 'created_at'

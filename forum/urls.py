@@ -22,4 +22,8 @@ urlpatterns = [
     path('user/<str:username>/ban/', views.user_ban, name='user_ban'),
     path('user/<str:username>/unban/', views.user_unban, name='user_unban'),
     path('category/<slug:slug>/', views.category_detail, name='category'),
+    path('search/', views.search, name='search'),
+    path('notifications/', views.notifications, name='notifications'),
+    path('notifications/<int:notif_id>/read/', views.notification_read, name='notification_read'),
+    path('notifications/read-all/', views.notifications_read_all, name='notifications_read_all'),
 ]

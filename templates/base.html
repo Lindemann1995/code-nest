@@ -1212,6 +1212,312 @@
                 font-size: 18px;
             }
         }
+        /* ===== Страница поиска ===== */
+        .search-page-form {
+            margin: 25px 0;
+        }
+        .search-page-input-wrap {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid #d1d1d6;
+            border-radius: 10px;
+            padding: 6px 6px 6px 16px;
+            transition: all 0.2s;
+            max-width: 700px;
+        }
+        .search-page-input-wrap:focus-within {
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        .search-page-icon {
+            font-size: 18px;
+            color: #888;
+            margin-right: 10px;
+        }
+        .search-page-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 10px 0;
+            font-family: inherit;
+            background: transparent;
+        }
+        .search-page-btn {
+            background: #0066cc;
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        .search-page-btn:hover {
+            background: #0052a3;
+        }
+        .search-info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .search-empty {
+            color: #d32f2f;
+        }
+        .search-hint {
+            color: #888;
+            font-style: italic;
+            margin-top: 30px;
+        }
+        .search-section {
+            margin-bottom: 30px;
+        }
+        .search-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+        .search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .search-result {
+            background: #fff;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 15px 20px;
+            transition: box-shadow 0.2s;
+        }
+        .search-result:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .search-result-title a {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .search-result-title a:hover {
+            text-decoration: underline;
+        }
+        .search-result-meta {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .search-result-meta a {
+            color: #0066cc;
+        }
+        .search-result-snippet {
+            font-size: 14px;
+            color: #444;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+        /* Уведомления */
+        .notif-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .notif-read-all {
+            font-size: 13px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .notif-read-all:hover {
+            text-decoration: underline;
+        }
+        .notif-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .notif-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #fff;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 15px 20px;
+            transition: all 0.2s;
+        }
+        .notif-item.unread {
+            background: #f0f7ff;
+            border-color: #cce4ff;
+        }
+        .notif-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .notif-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .notif-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .notif-text {
+            font-size: 14px;
+            color: #1d1d1f;
+            line-height: 1.5;
+        }
+        .notif-user {
+            font-weight: 600;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .notif-user:hover {
+            text-decoration: underline;
+        }
+        .notif-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+        .notif-actions {
+            flex-shrink: 0;
+        }
+        .notif-open {
+            font-size: 13px;
+            color: #0066cc;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .notif-open:hover {
+            text-decoration: underline;
+        }
+        .notif-empty {
+            background: #fff;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .notif-empty p {
+            margin: 5px 0;
+        }
+        /* Уведомления — попап */
+        .notif-menu {
+            position: relative;
+        }
+        .notif-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            min-width: 340px;
+            max-width: 400px;
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .notif-dropdown.open {
+            display: block;
+            animation: dropdownFade 0.15s ease;
+        }
+        .notif-dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1d1d1f;
+        }
+        .notif-mark-all {
+            font-size: 12px;
+            font-weight: 500;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .notif-mark-all:hover {
+            text-decoration: underline;
+        }
+        .notif-dropdown-body {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .notif-dropdown-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 18px;
+            text-decoration: none;
+            color: inherit;
+            border-bottom: 1px solid #f5f5f7;
+            transition: background 0.15s;
+        }
+        .notif-dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .notif-dropdown-item:hover {
+            background: #f5f5f7;
+            text-decoration: none;
+        }
+        .notif-dropdown-item.unread {
+            background: #f0f7ff;
+        }
+        .notif-dropdown-item.unread:hover {
+            background: #e1efff;
+        }
+        .notif-dropdown-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+            line-height: 1.4;
+        }
+        .notif-dropdown-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .notif-dropdown-text {
+            font-size: 13px;
+            color: #1d1d1f;
+            line-height: 1.4;
+        }
+        .notif-dropdown-text strong {
+            color: #0066cc;
+        }
+        .notif-dropdown-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 3px;
+        }
+        .notif-dropdown-empty {
+            padding: 30px 20px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+        .notif-dropdown-footer {
+            display: block;
+            padding: 12px 18px;
+            text-align: center;
+            background: #fafbfc;
+            border-top: 1px solid #eee;
+            color: #0066cc;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+        .notif-dropdown-footer:hover {
+            background: #f0f7ff;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -1233,10 +1539,56 @@
 
         <div class="header-actions">
             {% if user.is_authenticated %}
-                <a href="#" class="header-icon-btn" title="Уведомления">
-                    🔔
-                    <span class="notif-badge">0</span>
-                </a>
+               <div class="notif-menu">
+    <button class="header-icon-btn" onclick="toggleNotifMenu(event)" title="Уведомления">
+        🔔
+        {% set unread_count = user.notifications.filter(is_read=False).count() %}
+        {% if unread_count > 0 %}
+            <span class="notif-badge">{{ unread_count }}</span>
+        {% endif %}
+    </button>
+
+    <div class="notif-dropdown" id="notifDropdown">
+        <div class="notif-dropdown-header">
+            <span>🔔 Уведомления</span>
+            {% set unread_count = user.notifications.filter(is_read=False).count() %}
+            {% if unread_count > 0 %}
+                <a href="{{ url('forum:notifications_read_all') }}" class="notif-mark-all">Прочитать все</a>
+            {% endif %}
+        </div>
+
+        <div class="notif-dropdown-body">
+            {% set recent_notifs = user.notifications.select_related('sender', 'topic')[:5] %}
+            {% if recent_notifs %}
+                {% for notif in recent_notifs %}
+                    <a href="{{ url('forum:notification_read', kwargs={'notif_id': notif.id}) }}" class="notif-dropdown-item {% if not notif.is_read %}unread{% endif %}">
+                        <div class="notif-dropdown-icon">
+                            {% if notif.notification_type == 'like' %}👍
+                            {% elif notif.notification_type == 'reply' %}💬
+                            {% elif notif.notification_type == 'mention' %}📣
+                            {% else %}🛡️{% endif %}
+                        </div>
+                        <div class="notif-dropdown-content">
+                            <div class="notif-dropdown-text">
+                                {% if notif.sender %}<strong>{{ notif.sender.username }}</strong>{% else %}Система{% endif %}
+                                {{ notif.message }}
+                            </div>
+                            <div class="notif-dropdown-time">{{ notif.created_at.strftime('%d.%m %H:%M') }}</div>
+                        </div>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <div class="notif-dropdown-empty">
+                    🔕 Нет уведомлений
+                </div>
+            {% endif %}
+        </div>
+
+        <a href="{{ url('forum:notifications') }}" class="notif-dropdown-footer">
+            Все уведомления →
+        </a>
+    </div>
+</div>
 
                 <div class="user-menu">
                     <button class="user-menu-toggle" onclick="toggleUserMenu(event)">
@@ -1556,6 +1908,28 @@
         if (e.key === 'Escape') {
             const dropdown = document.getElementById('userMenuDropdown');
             if (dropdown) dropdown.classList.remove('open');
+        }
+    });
+</script>
+<script>
+    function toggleNotifMenu(event) {
+        event.stopPropagation();
+        const dropdown = document.getElementById('notifDropdown');
+        if (dropdown) {
+            dropdown.classList.toggle('open');
+        }
+        // Закрываем user menu
+        const userMenu = document.getElementById('userMenuDropdown');
+        if (userMenu) userMenu.classList.remove('open');
+    }
+
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('notifDropdown');
+        const toggle = document.querySelector('.notif-menu .header-icon-btn');
+        if (dropdown && dropdown.classList.contains('open')) {
+            if (!dropdown.contains(e.target) && (!toggle || !toggle.contains(e.target))) {
+                dropdown.classList.remove('open');
+            }
         }
     });
 </script>
