@@ -606,6 +606,40 @@
                 max-width: 100%;
             }
         }
+        .post-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .reaction-btn {
+            background: #f5f5f7;
+            border: 1px solid #e5e5e7;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .reaction-btn:hover:not(:disabled) {
+            background: #eef4ff;
+            border-color: #0066cc;
+        }
+        .reaction-btn.active {
+            background: #0066cc;
+            color: #fff;
+            border-color: #0066cc;
+        }
+        .reaction-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .reaction-count {
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -846,6 +880,37 @@
         if (e.key === 'Escape') {
             closeUserPopup();
         }
+    });
+</script>
+<script>
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.reaction-btn');
+        if (!btn || btn.disabled) return;
+
+        const url = btn.dataset.url;
+        const countEl = btn.querySelector('.reaction-count');
+
+        // CSRF-токен
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        const csrf = csrfToken ? csrfToken.value : '';
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrf,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.liked) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+            countEl.textContent = data.count;
+        })
+        .catch(error => console.error('Ошибка:', error));
     });
 </script>
 </body>

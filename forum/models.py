@@ -91,6 +91,17 @@ class Post(models.Model):
     def __str__(self):
         return f"Сообщение от {self.author.username} в {self.topic.title}"
 
+    @property
+    def reactions_count(self):
+        """Сколько лайков у поста."""
+        return self.reactions.count()
+    
+    def user_reaction(self, user):
+        """Реакция конкретного пользователя (или None)"""
+        if not user.is_authenticated:
+            return None
+        return self.reactions.filter(user=user).first()
+
 class Profile(models.Model):
     """Профиль пользователя - расширение стандартной модели User."""
 
@@ -291,3 +302,43 @@ class Profile(models.Model):
             return f"Был(а) {days} дн. назад"
         else:
             return f"Был(а) {self.last_activity.strftime('%d.%m.%Y')}"
+
+class Reaction(models.Model):
+    """Реакция пользователя на пост (Like)."""
+
+    REACTION_CHOICES = [
+        ('like', '👍 Нравится'),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reactions',
+        verbose_name='Пользователь'
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='reactions',
+        verbose_name='Пост'
+    )
+    reaction_type = models.CharField(
+        max_length=10,
+        choices=REACTION_CHOICES,
+        default='like',
+        verbose_name="Тип реакции"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата"
+    )
+
+    class Meta:
+        verbose_name = "Реакция"
+        verbose_name_plural = "Реакции"
+        # Один пользователь = 1 реакция.
+        unique_together = ('user', 'post', 'reaction_type')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} → {self.reaction_type} → пост #{self.post.id}"

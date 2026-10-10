@@ -1,9 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
 from django.contrib.auth.models import User
-from .models import Section, Topic
+from .models import Section, Topic, Post, Reaction
 from django.contrib.auth.decorators import login_required
 from .forms import TopicForm, PostForm, ProfileEditForm, RegisterForm
+from django.http import JsonResponse
+
 
 
 def index(request):
@@ -151,3 +153,29 @@ def profile_edit(request, username):
         'profile': profile,
         'profile_user': user_obj,
     })
+
+@login_required
+def toggle_reaction(request, post_id):
+    """Поставить или снять лайк."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    post = get_object_or_404(Post, id=post_id)
+
+    reaction, created = Reaction.objects.get_or_create(
+        user=request.user,
+        post=post,
+        reaction_type='like'
+    )
+    if not created:
+        # Уже была - удаляем.
+        reaction.delete()
+        liked = False
+    else:
+        liked = True
+    
+    return JsonResponse({
+        'liked': liked,
+        'count': post.reactions.count(),
+    })
+

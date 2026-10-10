@@ -52,6 +52,14 @@
         <div class="post-content">
             {{ post.content|safe }}
         </div>
+        <div class="post-actions">
+            <button class="reaction-btn {% if post.user_reaction(user) %}active{% endif %}"
+                    data-post-id="{{ post.id }}"
+                    data-url="{{ url('forum:toggle_reaction', kwargs={'post_id': post.id}) }}"
+                    {% if not user.is_authenticated %}disabled title="Войдите, чтобы поставить лайк"{% endif %}>
+                👍 <span class="reaction-count">{{ post.reactions.count() }}</span>
+            </button>
+        </div>
     </div>
 {% else %}
     <p>В этой теме пока нет сообщений.</p>

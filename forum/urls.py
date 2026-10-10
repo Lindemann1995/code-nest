@@ -12,4 +12,5 @@ urlpatterns = [
     path('section/<slug:section_slug>/topic/<slug:slug>/reply/', views.post_create, name='post_create'),
     path('user/<str:username>/', views.profile_detail, name='profile'),
     path('user/<str:username>/edit/', views.profile_edit, name='profile_edit'),
+    path('post/<int:post_id>/react/', views.toggle_reaction, name='toggle_reaction'),
 ]
