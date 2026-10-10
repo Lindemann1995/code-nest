@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Code Nest{% endblock %}</title>
 
-    <!-- Quill — визуальный редактор -->
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
-
-    <!-- highlight.js — подсветка кода -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
 
     <style>
@@ -18,12 +15,6 @@
             background: #f5f5f7;
             color: #1d1d1f;
             line-height: 1.6;
-        }
-        header {
-            background: #1a1f2e;
-            color: #fff;
-            padding: 20px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .container {
             max-width: 1100px;
@@ -50,18 +41,6 @@
         }
         .breadcrumb a { color: #0066cc; }
         .breadcrumb span { color: #1d1d1f; font-weight: 500; }
-
-        .sections-list, .subsections-list, .topics-list {
-            list-style: none;
-            padding: 0;
-        }
-        .sections-list li:hover, .subsections-list li:hover, .topics-list li:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .sections-list a, .subsections-list a, .topics-list a {
-            font-size: 18px;
-            font-weight: 500;
-        }
         .topic-meta, .post-date, .topic-info {
             font-size: 13px;
             color: #666;
@@ -104,7 +83,8 @@
             margin-bottom: 6px;
             color: #333;
         }
-        .form-field input {
+        .form-field input,
+        .form-field textarea {
             width: 100%;
             padding: 10px 12px;
             font-size: 15px;
@@ -113,7 +93,8 @@
             transition: border 0.2s;
             font-family: inherit;
         }
-        .form-field input:focus {
+        .form-field input:focus,
+        .form-field textarea:focus {
             outline: none;
             border-color: #0066cc;
             box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
@@ -180,7 +161,7 @@
         }
         .logout-btn:hover { color: #f5a623; }
 
-       /* Quill 2.x code-block */
+        /* Quill code-block */
         .post-content .ql-code-block-container {
             background: #2d2d2d !important;
             color: #f8f8f2;
@@ -198,7 +179,7 @@
             white-space: pre-wrap;
         }
 
-        /* Quill — редактор (контрастная тема) */
+        /* Quill редактор */
         .ql-toolbar.ql-snow {
             background: #f8f9fa;
             border: 1px solid #d1d1d6;
@@ -253,18 +234,15 @@
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 14px;
         }
-        /* Выравнивание в Quill */
         .ql-editor .ql-align-center,
         .post-content .ql-align-center { text-align: center; }
         .ql-editor .ql-align-right,
         .post-content .ql-align-right { text-align: right; }
         .ql-editor .ql-align-justify,
         .post-content .ql-align-justify { text-align: justify; }
-       /* ===== Профиль пользователя ===== */
-        .profile-page {
-            max-width: 920px;
-            margin: 0 auto;
-        }
+
+        /* ===== Профиль ===== */
+        .profile-page { max-width: 920px; margin: 0 auto; }
         .profile-banner {
             height: 140px;
             border-radius: 12px 12px 0 0;
@@ -344,14 +322,13 @@
             color: #666;
             align-items: center;
         }
-        .meta-dot {
-            color: #ccc;
-        }
+        .meta-dot { color: #ccc; }
         .profile-actions {
             display: flex;
             gap: 8px;
             padding-top: 15px;
             flex-shrink: 0;
+            flex-wrap: wrap;
         }
         .btn-edit {
             display: inline-block;
@@ -368,25 +345,17 @@
             background: #0052a3;
             text-decoration: none;
         }
-        .btn-ban {
-            background: #d32f2f !important;
-        }
-        .btn-ban:hover {
-            background: #b71c1c !important;
-        }
-        .btn-unban {
-            background: #22c55e !important;
-        }
-        .btn-unban:hover {
-            background: #16a34a !important;
-        }
+        .btn-ban { background: #d32f2f !important; }
+        .btn-ban:hover { background: #b71c1c !important; }
+        .btn-unban { background: #22c55e !important; }
+        .btn-unban:hover { background: #16a34a !important; }
         .banned-badge {
             background: #ffebee;
             color: #c62828;
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 13px;
-            margin-top: 10px;
+            margin-top: 8px;
             display: inline-block;
             border-left: 3px solid #c62828;
         }
@@ -419,9 +388,7 @@
             color: #888;
             margin-top: 4px;
         }
-        .stat-extra .stat-num {
-            font-size: 20px;
-        }
+        .stat-extra .stat-num { font-size: 20px; }
         .profile-block {
             background: #fff;
             border: 1px solid #e5e5e7;
@@ -472,12 +439,8 @@
             gap: 8px;
             flex-wrap: wrap;
         }
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-        .activity-icon {
-            font-size: 16px;
-        }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-icon { font-size: 16px; }
         .activity-time {
             color: #999;
             font-size: 12px;
@@ -491,100 +454,14 @@
             align-items: center;
             gap: 15px;
         }
-        .topic-item:last-child {
-            border-bottom: none;
-        }
-        .topic-item a {
-            color: #0066cc;
-            font-size: 14px;
-        }
+        .topic-item:last-child { border-bottom: none; }
+        .topic-item a { color: #0066cc; font-size: 14px; }
         .topic-item-meta {
             color: #999;
             font-size: 12px;
             flex-shrink: 0;
         }
 
-        @media (max-width: 768px) {
-            .profile-banner {
-                height: 100px;
-            }
-            .profile-top {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                padding: 0 15px 20px;
-            }
-            .profile-main {
-                padding-top: 10px;
-                width: 100%;
-            }
-            .profile-name-row {
-                justify-content: center;
-            }
-            .profile-meta-row {
-                justify-content: center;
-            }
-            .profile-actions {
-                width: 100%;
-                justify-content: center;
-            }
-            .profile-stats-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .stat-extra {
-                display: none;
-            }
-            .activity-time {
-                margin-left: 0;
-                width: 100%;
-            }
-        }
-        /* Адаптив */
-        @media (max-width: 768px) {
-            .profile-header {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                padding: 0 15px;
-            }
-            .profile-meta {
-                justify-content: center;
-            }
-            .profile-stats {
-                grid-template-columns: 1fr;
-                padding: 0 15px;
-            }
-            .profile-section {
-                margin-left: 15px;
-                margin-right: 15px;
-            }
-        }
-        .profile-actions {
-            margin-left: auto;
-            padding-bottom: 15px;
-        }
-        .btn-edit {
-            display: inline-block;
-            background: #0066cc;
-            color: #fff;
-            padding: 10px 18px;
-            border-radius: 6px;
-            font-size: 14px;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
-        .btn-edit:hover {
-            background: #0052a3;
-            text-decoration: none;
-        }
-        @media (max-width: 768px) {
-            .profile-actions {
-                margin-left: 0;
-                width: 100%;
-                text-align: center;
-                margin-top: 15px;
-            }
-        }
         /* Попап профиля */
         .user-popup {
             position: fixed;
@@ -620,7 +497,6 @@
             transition: background 0.2s;
         }
         .user-popup-close:hover { background: rgba(0,0,0,0.7); }
-
         .user-popup-banner {
             height: 100px;
             background: linear-gradient(135deg, #1a1f2e 0%, #f5a623 100%);
@@ -646,10 +522,7 @@
             width: 100%; height: 100%;
             object-fit: cover;
         }
-        .user-popup-info {
-            padding: 0 20px 20px;
-            text-align: center;
-        }
+        .user-popup-info { padding: 0 20px 20px; text-align: center; }
         .user-popup-name a {
             font-size: 20px;
             font-weight: 700;
@@ -686,19 +559,14 @@
             border-top: 1px solid #eee;
             border-bottom: 1px solid #eee;
         }
-        .popup-stat {
-            text-align: center;
-        }
+        .popup-stat { text-align: center; }
         .popup-stat-value {
             display: block;
             font-size: 18px;
             font-weight: 700;
             color: #0066cc;
         }
-        .popup-stat-label {
-            font-size: 11px;
-            color: #888;
-        }
+        .popup-stat-label { font-size: 11px; color: #888; }
         .user-popup-btn {
             display: inline-block;
             background: #0066cc;
@@ -715,28 +583,466 @@
             text-decoration: none;
         }
 
-        /* Адаптив */
-        @media (max-width: 480px) {
-            .user-popup-content {
-                max-width: 100%;
-            }
+        /* Шапка */
+        header {
+            background: #1a1f2e;
+            color: #fff;
+            padding: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        /* Панель действий поста */
+        .header-inner {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            height: 64px;
+        }
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 22px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .logo-icon { font-size: 26px; }
+        .logo-text span { color: #f5a623; }
+        .header-nav { display: flex; gap: 8px; }
+        .nav-link {
+            color: #ccc;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-link:hover {
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            text-decoration: none;
+        }
+        .header-search {
+            flex: 1;
+            max-width: 380px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            font-size: 14px;
+            color: #888;
+            pointer-events: none;
+        }
+        .search-input {
+            width: 100%;
+            padding: 9px 14px 9px 38px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .search-input::placeholder { color: #888; }
+        .search-input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.1);
+            border-color: #f5a623;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .header-icon-btn {
+            position: relative;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #ccc;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+        .header-icon-btn:hover {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            text-decoration: none;
+        }
+        .notif-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #f5a623;
+            color: #1a1f2e;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+        .user-menu { position: relative; }
+        .user-menu-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 5px 12px 5px 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .user-menu-toggle:hover { background: rgba(255,255,255,0.12); }
+        .user-avatar-mini {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f5a623;
+            color: #1a1f2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .user-avatar-mini img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .user-name-mini {
+            font-weight: 500;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .user-menu-arrow { font-size: 10px; color: #888; }
+        .user-menu-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            min-width: 200px;
+            padding: 6px;
+            display: none;
+            z-index: 1000;
+        }
+        .user-menu-dropdown.open {
+            display: block;
+            animation: dropdownFade 0.15s ease;
+        }
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-item {
+            display: block;
+            padding: 10px 14px;
+            color: #1d1d1f;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: background 0.15s;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .dropdown-item:hover {
+            background: #f5f5f7;
+            text-decoration: none;
+        }
+        .dropdown-divider { height: 1px; background: #eee; margin: 6px 0; }
+        .dropdown-logout { color: #d32f2f; }
+        .dropdown-logout:hover { background: #ffebee; }
+        .btn-login, .btn-register {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-login {
+            color: #ccc;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .btn-login:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            text-decoration: none;
+        }
+        .btn-register {
+            background: #f5a623;
+            color: #1a1f2e;
+        }
+        .btn-register:hover {
+            background: #e0951f;
+            text-decoration: none;
+        }
+
+        /* Уведомления попап */
+        .notif-menu { position: relative; }
+        .notif-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            min-width: 340px;
+            max-width: 400px;
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .notif-dropdown.open {
+            display: block;
+            animation: dropdownFade 0.15s ease;
+        }
+        .notif-dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1d1d1f;
+        }
+        .notif-mark-all {
+            font-size: 12px;
+            font-weight: 500;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .notif-mark-all:hover { text-decoration: underline; }
+        .notif-dropdown-body { max-height: 400px; overflow-y: auto; }
+        .notif-dropdown-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 18px;
+            text-decoration: none;
+            color: inherit;
+            border-bottom: 1px solid #f5f5f7;
+            transition: background 0.15s;
+        }
+        .notif-dropdown-item:last-child { border-bottom: none; }
+        .notif-dropdown-item:hover {
+            background: #f5f5f7;
+            text-decoration: none;
+        }
+        .notif-dropdown-item.unread { background: #f0f7ff; }
+        .notif-dropdown-item.unread:hover { background: #e1efff; }
+        .notif-dropdown-icon { font-size: 20px; flex-shrink: 0; line-height: 1.4; }
+        .notif-dropdown-content { flex: 1; min-width: 0; }
+        .notif-dropdown-text {
+            font-size: 13px;
+            color: #1d1d1f;
+            line-height: 1.4;
+        }
+        .notif-dropdown-text strong { color: #0066cc; }
+        .notif-dropdown-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 3px;
+        }
+        .notif-dropdown-empty {
+            padding: 30px 20px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+        .notif-dropdown-footer {
+            display: block;
+            padding: 12px 18px;
+            text-align: center;
+            background: #fafbfc;
+            border-top: 1px solid #eee;
+            color: #0066cc;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+        .notif-dropdown-footer:hover {
+            background: #f0f7ff;
+            text-decoration: none;
+        }
+
+        /* Пост */
+        .post {
+            background: #fff;
+            padding: 0;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border: 1px solid #e5e5e7;
+            transition: box-shadow 0.2s;
+            position: relative;
+        }
+        .post:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .post-layout { display: flex; gap: 0; }
+        .post-author-card {
+            width: 180px;
+            flex-shrink: 0;
+            background: #fafbfc;
+            border-right: 1px solid #e5e5e7;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+        .post-author-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #1a1f2e;
+            color: #f5a623;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            overflow: hidden;
+            text-decoration: none;
+            margin-bottom: 10px;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: transform 0.15s;
+        }
+        .post-author-avatar:hover { transform: scale(1.05); }
+        .post-author-avatar img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .post-author-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0066cc;
+            text-decoration: none;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        .post-author-name:hover { text-decoration: underline; }
+        .post-author-role {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #f0f0f0;
+            margin-bottom: 8px;
+            white-space: nowrap;
+        }
+        .post-author-status {
+            font-size: 11px;
+            color: #888;
+            font-style: italic;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        .post-author-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+        .post-author-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+            padding: 2px 5px;
+        }
+        .post-author-stat .stat-icon { font-size: 13px; }
+        .post-author-stat .stat-value { font-weight: 600; color: #333; }
+        .post-author-online {
+            font-size: 11px;
+            color: #999;
+            margin-top: auto;
+        }
+        .post-author-online.online {
+            color: #22c55e;
+            font-weight: 600;
+        }
+        .post-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        .post-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafbfc;
+            border-top-right-radius: 10px;
+        }
+        .post-header-time { font-size: 12px; color: #888; }
+        .post-edited-mark-inline { font-size: 11px; color: #aaa; font-style: italic; }
+        .post-content {
+            padding: 20px;
+            flex: 1;
+            font-size: 15px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
         .post-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 15px;
-            margin-top: 12px;
-            padding-top: 12px;
+            padding: 10px 20px;
             border-top: 1px solid #f0f0f0;
+            background: #fafbfc;
             flex-wrap: wrap;
+            min-height: 54px;
+            border-bottom-right-radius: 10px;
+            border-bottom-left-radius: 10px;
         }
         .post-actions-right {
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-left: auto;
+            flex-shrink: 0;
         }
         .post-action-icon {
             display: inline-flex;
@@ -761,15 +1067,12 @@
             color: #0066cc;
             text-decoration: none;
         }
-        /* Меню действий */
-        .post-menu-wrapper {
-            position: relative;
-        }
+        .post-menu-wrapper { position: relative; }
         .post-menu-dropdown {
             position: absolute;
-            bottom: calc(100% + 6px);    /* ← вверх */
+            bottom: calc(100% + 6px);
             right: 0;
-            top: auto;                    /* ← отключаем top */
+            top: auto;
             background: #fff;
             border-radius: 10px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.15);
@@ -777,7 +1080,7 @@
             padding: 6px;
             opacity: 0;
             visibility: hidden;
-            transform: translateY(6px);   /* ← другая анимация */
+            transform: translateY(6px);
             transition: all 0.15s ease;
             z-index: 100;
         }
@@ -802,12 +1105,8 @@
             background: #f5f5f7;
             text-decoration: none;
         }
-        .post-menu-danger {
-            color: #d32f2f;
-        }
-        .post-menu-danger:hover {
-            background: #ffebee;
-        }
+        .post-menu-danger { color: #d32f2f; }
+        .post-menu-danger:hover { background: #ffebee; }
         .post-edited-mark {
             display: block;
             font-size: 12px;
@@ -815,20 +1114,17 @@
             font-style: italic;
             margin-top: 8px;
         }
-        /* Реакции — компактный вид */
+
+        /* Реакции */
         .reaction-bar {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #f0f0f0;
+            flex: 1;
+            min-width: 0;
         }
-        .reaction-wrapper {
-            position: relative;
-            display: inline-block;
-        }
+        .reaction-wrapper { position: relative; display: inline-block; }
         .reaction-trigger {
             display: inline-flex;
             align-items: center;
@@ -860,10 +1156,7 @@
             font-weight: 600;
             color: #666;
         }
-        .reaction-trigger.has-reaction .reaction-total {
-            color: #0066cc;
-        }
-        /* Выпадающая панель */
+        .reaction-trigger.has-reaction .reaction-total { color: #0066cc; }
         .reaction-picker {
             position: absolute;
             bottom: calc(100% + 8px);
@@ -905,12 +1198,7 @@
             background: #eef4ff;
             transform: scale(1.1);
         }
-        /* Счётчики по типам */
-        .reaction-summary {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
+        .reaction-summary { display: flex; gap: 6px; flex-wrap: wrap; }
         .reaction-badge {
             display: inline-flex;
             align-items: center;
@@ -923,43 +1211,12 @@
             color: #666;
             transition: all 0.15s;
         }
-        .reaction-badge:hover {
-            background: #f8f9fa;
-        }
-        .reaction-badge span {
-            font-weight: 600;
-            font-size: 12px;
-        }
-        .reaction-count {
-            font-weight: 600;
-        }
-        .post-action-link:hover {
-            background: #fff3e0;
-            border-color: #f5a623;
-            color: #e65100;
-            text-decoration: none;
-        }
-        .post-edited-mark {
-            display: inline-block;
-            margin-left: 10px;
-            font-size: 12px;
-            color: #999;
-            font-style: italic;
-        }
-        .post-action-delete:hover {
-            background: #ffebee;
-            border-color: #d32f2f;
-            color: #c62828;
-        }
+        .reaction-badge:hover { background: #f8f9fa; }
+        .reaction-badge span { font-weight: 600; font-size: 12px; }
+
         /* Меню модерации темы */
-        .topic-moderator-actions {
-            margin-bottom: 15px;
-            position: relative;
-        }
-        .topic-menu-wrapper {
-            position: relative;
-            display: inline-block;
-        }
+        .topic-moderator-actions { margin-bottom: 15px; position: relative; }
+        .topic-menu-wrapper { position: relative; display: inline-block; }
         .topic-menu-btn {
             display: inline-flex;
             align-items: center;
@@ -1016,17 +1273,9 @@
             background: #f5f5f7;
             text-decoration: none;
         }
-        .topic-menu-divider {
-            height: 1px;
-            background: #eee;
-            margin: 6px 0;
-        }
-        .topic-menu-danger {
-            color: #d32f2f;
-        }
-        .topic-menu-danger:hover {
-            background: #ffebee;
-        }
+        .topic-menu-divider { height: 1px; background: #eee; margin: 6px 0; }
+        .topic-menu-danger { color: #d32f2f; }
+        .topic-menu-danger:hover { background: #ffebee; }
         .form-select, select {
             width: 100%;
             padding: 10px 12px;
@@ -1042,1286 +1291,144 @@
             border-color: #0066cc;
             box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
         }
-        .banned-badge {
-            background: #ffebee;
-            color: #c62828;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            margin-top: 8px;
-            display: inline-block;
-            border-left: 3px solid #c62828;
-        }
-        .btn-ban {
-            background: #d32f2f !important;
-        }
-        .btn-ban:hover {
-            background: #b71c1c !important;
-        }
-        .btn-unban {
-            background: #22c55e !important;
-        }
-        .btn-unban:hover {
-            background: #16a34a !important;
-        }
-        /* Главная — категории */
-        .categories-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .category-block {
-            background: #fff;
-            border: 1px solid #e5e5e7;
-            border-radius: 10px;
-            overflow: hidden;
-            transition: box-shadow 0.2s;
-        }
-        .category-block:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-        }
-        .category-header {
-            padding: 18px 22px;
-            background: linear-gradient(135deg, #1a1f2e 0%, #252c42 100%);
-            color: #fff;
-        }
-        .category-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-        .category-icon {
-            font-size: 22px;
-        }
-        .category-title a {
-            color: #fff;
-            text-decoration: none;
-        }
-        .category-title a:hover {
-            color: #f5a623;
-        }
-        .category-desc {
-            color: #a0a5b8;
-            font-size: 13px;
-            margin-top: 4px;
-            padding-left: 34px;
-        }
-        .category-sections {
-            padding: 8px 0;
-        }
-        .section-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 22px;
-            border-bottom: 1px solid #f5f5f7;
-            transition: background 0.15s;
-            gap: 15px;
-        }
-        .section-row:last-child {
-            border-bottom: none;
-        }
-        .section-row:hover {
-            background: #fafbff;
-        }
-        .section-row-main {
-            flex: 1;
-            min-width: 0;
-        }
-        .section-name {
-            font-size: 16px;
-            font-weight: 500;
-            color: #0066cc;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .section-name:hover {
-            text-decoration: underline;
-        }
-        .section-desc {
-            font-size: 13px;
-            color: #888;
-            margin-top: 3px;
-        }
-        .section-row-stats {
-            flex-shrink: 0;
-            font-size: 13px;
-            color: #888;
-        }
-        .stat-mini strong {
-            color: #1d1d1f;
-            font-weight: 600;
-        }
-        .category-empty {
-            padding: 20px 22px;
-            color: #999;
-            font-style: italic;
-            font-size: 14px;
-        }
-        /* ===== Шапка ===== */
-        header {
-            background: #1a1f2e;
-            color: #fff;
-            padding: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .header-inner {
-            display: flex;
-            align-items: center;
-            gap: 25px;
-            height: 64px;
-        }
-        .header-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #fff;
-            text-decoration: none;
-            font-size: 22px;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        .logo-icon {
-            font-size: 26px;
-        }
-        .logo-text span {
-            color: #f5a623;
-        }
-        .header-nav {
-            display: flex;
-            gap: 8px;
-        }
-        .nav-link {
-            color: #ccc;
-            text-decoration: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .nav-link:hover {
-            background: rgba(255,255,255,0.06);
-            color: #fff;
-            text-decoration: none;
-        }
-        .header-search {
-            flex: 1;
-            max-width: 380px;
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            font-size: 14px;
-            color: #888;
-            pointer-events: none;
-        }
-        .search-input {
-            width: 100%;
-            padding: 9px 14px 9px 38px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.05);
-            color: #fff;
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-        .search-input::placeholder {
-            color: #888;
-        }
-        .search-input:focus {
-            outline: none;
-            background: rgba(255,255,255,0.1);
-            border-color: #f5a623;
-        }
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-left: auto;
-            flex-shrink: 0;
-        }
-        .header-icon-btn {
-            position: relative;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #ccc;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            font-size: 18px;
-            transition: all 0.2s;
-        }
-        .header-icon-btn:hover {
-            background: rgba(255,255,255,0.12);
-            color: #fff;
-            text-decoration: none;
-        }
-        .notif-badge {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            background: #f5a623;
-            color: #1a1f2e;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 10px;
-            min-width: 18px;
-            text-align: center;
-        }
-        /* Меню пользователя */
-        .user-menu {
-            position: relative;
-        }
-        .user-menu-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #fff;
-            padding: 5px 12px 5px 5px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .user-menu-toggle:hover {
-            background: rgba(255,255,255,0.12);
-        }
-        .user-avatar-mini {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #f5a623;
-            color: #1a1f2e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .user-avatar-mini img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .user-name-mini {
-            font-weight: 500;
-            max-width: 100px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .user-menu-arrow {
-            font-size: 10px;
-            color: #888;
-        }
-        .user-menu-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            min-width: 200px;
-            padding: 6px;
-            display: none;
-            z-index: 1000;
-        }
-        .user-menu-dropdown.open {
-            display: block;
-            animation: dropdownFade 0.15s ease;
-        }
-        @keyframes dropdownFade {
-            from { opacity: 0; transform: translateY(-6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .dropdown-item {
-            display: block;
-            padding: 10px 14px;
-            color: #1d1d1f;
-            text-decoration: none;
-            font-size: 14px;
-            border-radius: 6px;
-            transition: background 0.15s;
-            background: none;
-            border: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        .dropdown-item:hover {
-            background: #f5f5f7;
-            text-decoration: none;
-        }
-        .dropdown-divider {
-            height: 1px;
-            background: #eee;
-            margin: 6px 0;
-        }
-        .dropdown-logout {
-            color: #d32f2f;
-        }
-        .dropdown-logout:hover {
-            background: #ffebee;
-        }
-        .btn-login,
-        .btn-register {
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .btn-login {
-            color: #ccc;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-        .btn-login:hover {
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-            text-decoration: none;
-        }
-        .btn-register {
-            background: #f5a623;
-            color: #1a1f2e;
-        }
-        .btn-register:hover {
-            background: #e0951f;
-            text-decoration: none;
-        }
 
-        @media (max-width: 900px) {
-            .header-search {
-                display: none;
-            }
-            .user-name-mini {
-                display: none;
-            }
-        }
-        @media (max-width: 600px) {
-            .header-nav {
-                display: none;
-            }
-            .header-inner {
-                gap: 15px;
-            }
-            .logo-text {
-                font-size: 18px;
-            }
-        }
-        /* ===== Страница поиска ===== */
-        .search-page-form {
-            margin: 25px 0;
-        }
-        .search-page-input-wrap {
-            display: flex;
-            align-items: center;
-            background: #fff;
-            border: 1px solid #d1d1d6;
-            border-radius: 10px;
-            padding: 6px 6px 6px 16px;
-            transition: all 0.2s;
-            max-width: 700px;
-        }
-        .search-page-input-wrap:focus-within {
-            border-color: #0066cc;
-            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
-        }
-        .search-page-icon {
-            font-size: 18px;
-            color: #888;
-            margin-right: 10px;
-        }
-        .search-page-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            font-size: 16px;
-            padding: 10px 0;
-            font-family: inherit;
-            background: transparent;
-        }
-        .search-page-btn {
-            background: #0066cc;
-            color: #fff;
-            border: none;
-            padding: 10px 22px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            font-family: inherit;
-            transition: background 0.2s;
-        }
-        .search-page-btn:hover {
-            background: #0052a3;
-        }
-        .search-info {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-        .search-empty {
-            color: #d32f2f;
-        }
-        .search-hint {
-            color: #888;
-            font-style: italic;
-            margin-top: 30px;
-        }
-        .search-section {
-            margin-bottom: 30px;
-        }
-        .search-section-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e5e5e7;
-        }
-        .search-results {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .search-result {
-            background: #fff;
-            border: 1px solid #e5e5e7;
-            border-radius: 8px;
-            padding: 15px 20px;
-            transition: box-shadow 0.2s;
-        }
-        .search-result:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .search-result-title a {
-            font-size: 16px;
-            font-weight: 600;
-            color: #0066cc;
-            text-decoration: none;
-        }
-        .search-result-title a:hover {
-            text-decoration: underline;
-        }
-        .search-result-meta {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-        }
-        .search-result-meta a {
-            color: #0066cc;
-        }
-        .search-result-snippet {
-            font-size: 14px;
-            color: #444;
-            margin-top: 8px;
-            line-height: 1.5;
-        }
-        /* Уведомления */
-        .notif-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .notif-read-all {
-            font-size: 13px;
-            color: #0066cc;
-            text-decoration: none;
-        }
-        .notif-read-all:hover {
-            text-decoration: underline;
-        }
-        .notif-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .notif-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #fff;
-            border: 1px solid #e5e5e7;
-            border-radius: 8px;
-            padding: 15px 20px;
-            transition: all 0.2s;
-        }
-        .notif-item.unread {
-            background: #f0f7ff;
-            border-color: #cce4ff;
-        }
-        .notif-item:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .notif-icon {
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-        .notif-body {
-            flex: 1;
-            min-width: 0;
-        }
-        .notif-text {
-            font-size: 14px;
-            color: #1d1d1f;
-            line-height: 1.5;
-        }
-        .notif-user {
-            font-weight: 600;
-            color: #0066cc;
-            text-decoration: none;
-        }
-        .notif-user:hover {
-            text-decoration: underline;
-        }
-        .notif-time {
-            font-size: 12px;
-            color: #999;
-            margin-top: 4px;
-        }
-        .notif-actions {
-            flex-shrink: 0;
-        }
-        .notif-open {
-            font-size: 13px;
-            color: #0066cc;
-            text-decoration: none;
-            white-space: nowrap;
-        }
-        .notif-open:hover {
-            text-decoration: underline;
-        }
-        .notif-empty {
-            background: #fff;
-            border: 1px solid #e5e5e7;
-            border-radius: 8px;
-            padding: 40px 20px;
+        /* ===== Главная ===== */
+        .home-header {
             text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
         }
-        .notif-empty p {
-            margin: 5px 0;
-        }
-        /* Уведомления — попап */
-        .notif-menu {
-            position: relative;
-        }
-        .notif-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            min-width: 340px;
-            max-width: 400px;
-            display: none;
-            z-index: 1000;
-            overflow: hidden;
-        }
-        .notif-dropdown.open {
-            display: block;
-            animation: dropdownFade 0.15s ease;
-        }
-        .notif-dropdown-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 18px;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-            font-weight: 700;
-            color: #1d1d1f;
-        }
-        .notif-mark-all {
-            font-size: 12px;
-            font-weight: 500;
-            color: #0066cc;
-            text-decoration: none;
-        }
-        .notif-mark-all:hover {
-            text-decoration: underline;
-        }
-        .notif-dropdown-body {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .notif-dropdown-item {
-            display: flex;
-            gap: 12px;
-            padding: 12px 18px;
-            text-decoration: none;
-            color: inherit;
-            border-bottom: 1px solid #f5f5f7;
-            transition: background 0.15s;
-        }
-        .notif-dropdown-item:last-child {
-            border-bottom: none;
-        }
-        .notif-dropdown-item:hover {
-            background: #f5f5f7;
-            text-decoration: none;
-        }
-        .notif-dropdown-item.unread {
-            background: #f0f7ff;
-        }
-        .notif-dropdown-item.unread:hover {
-            background: #e1efff;
-        }
-        .notif-dropdown-icon {
-            font-size: 20px;
-            flex-shrink: 0;
-            line-height: 1.4;
-        }
-        .notif-dropdown-content {
-            flex: 1;
-            min-width: 0;
-        }
-        .notif-dropdown-text {
-            font-size: 13px;
-            color: #1d1d1f;
-            line-height: 1.4;
-        }
-        .notif-dropdown-text strong {
-            color: #0066cc;
-        }
-        .notif-dropdown-time {
-            font-size: 11px;
-            color: #999;
-            margin-top: 3px;
-        }
-        .notif-dropdown-empty {
-            padding: 30px 20px;
-            text-align: center;
-            color: #999;
-            font-size: 14px;
-        }
-        .notif-dropdown-footer {
-            display: block;
-            padding: 12px 18px;
-            text-align: center;
-            background: #fafbfc;
-            border-top: 1px solid #eee;
-            color: #0066cc;
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: background 0.15s;
-        }
-        .notif-dropdown-footer:hover {
-            background: #f0f7ff;
-            text-decoration: none;
-        }
-        /* ЛС — список диалогов */
-        .conv-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .conv-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #fff;
-            border: 1px solid #e5e5e7;
-            border-radius: 8px;
-            padding: 15px 20px;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.2s;
-        }
-        .conv-item:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            text-decoration: none;
-        }
-        .conv-item.unread {
-            background: #f0f7ff;
-            border-color: #cce4ff;
-        }
-        .conv-avatar, .chat-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #f5a623;
-            color: #1a1f2e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            font-weight: 700;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .conv-avatar img, .chat-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .conv-body { flex: 1; min-width: 0; }
-        .conv-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1d1d1f;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .conv-unread-badge {
-            background: #0066cc;
-            color: #fff;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 10px;
-        }
-        .conv-last {
-            font-size: 13px;
-            color: #888;
-            margin-top: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .conv-time {
-            font-size: 12px;
-            color: #999;
-            flex-shrink: 0;
-        }
-        .conv-empty {
-            background: #fff;
-            border: 1px solid #e5e5e7;
-            border-radius: 8px;
-            padding: 40px 20px;
-            text-align: center;
-        }
-        .conv-empty p { margin: 5px 0; }
-        /* Чат */
-        .chat-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #fff;
-            padding: 15px 20px;
-            border-radius: 10px 10px 0 0;
-            border: 1px solid #e5e5e7;
-            border-bottom: none;
-        }
-        .chat-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1d1d1f;
-            text-decoration: none;
-        }
-        .chat-status { font-size: 12px; margin-top: 2px; }
-        .chat-messages {
-            background: #f5f5f7;
-            border-left: 1px solid #e5e5e7;
-            border-right: 1px solid #e5e5e7;
-            padding: 20px;
-            height: 500px;
-            min-height: 500px;
-            max-height: 500px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .chat-msg {
-            display: flex;
-            gap: 12px;
-            max-width: 75%;
-        }
-        .chat-msg.own {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-        .chat-msg-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #1a1f2e;
-            color: #f5a623;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .chat-msg-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .chat-msg-body {
-            background: #fff;
-            border-radius: 12px;
-            padding: 10px 15px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .chat-msg.own .chat-msg-body {
-            background: #0066cc;
-            color: #fff;
-        }
-        .chat-msg.own .chat-msg-head strong {
-            color: #fff;
-        }
-        .chat-msg-head {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            font-size: 12px;
-            margin-bottom: 4px;
-        }
-        .chat-msg-head strong { color: #0066cc; }
-        .chat-msg-time { color: #999; font-size: 11px; }
-        .chat-msg.own .chat-msg-time { color: #cce4ff; }
-        .chat-msg-content {
-            font-size: 14px;
-            line-height: 1.5;
-            word-wrap: break-word;
-        }
-        .chat-empty {
-            text-align: center;
-            color: #999;
-            padding: 30px;
-        }
-        .chat-form {
-            background: #fff;
-            padding: 15px 20px;
-            border-radius: 0 0 10px 10px;
-            border: 1px solid #e5e5e7;
-            border-top: none;
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-        .chat-form textarea {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #d1d1d6;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 14px;
-            resize: vertical;
-            min-height: 50px;
-        }
-        .chat-form textarea:focus {
-            outline: none;
-            border-color: #0066cc;
-            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
-        }
-        .chat-msg-role {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 1px 6px;
-            border-radius: 4px;
-            background: rgba(0,0,0,0.04);
-        }
-        .chat-msg.own .chat-msg-role {
-            background: rgba(255,255,255,0.15);
-            color: #fff !important;
-        }
-        .chat-form-inner {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .chat-form-hint {
-            font-size: 11px;
-            color: #999;
-        }
-        .chat-form-hint kbd {
-            background: #f0f0f0;
-            border: 1px solid #d1d1d6;
-            border-radius: 3px;
-            padding: 1px 5px;
-            font-family: monospace;
-            font-size: 10px;
-            color: #666;
-        }
-        .mention {
-            color: #0066cc;
-            font-weight: 600;
-            text-decoration: none;
-            background: #eef4ff;
-            padding: 1px 5px;
-            border-radius: 4px;
-        }
-        .mention:hover {
-            background: #0066cc;
-            color: #fff;
-            text-decoration: none;
-        }
-        .achievements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-            gap: 12px;
-        }
-        .achievement-card {
-            background: #f8f9fa;
-            border: 1px solid #e5e5e7;
-            border-radius: 8px;
-            padding: 15px 10px;
-            text-align: center;
-            transition: all 0.2s;
-            cursor: help;
-        }
-        .achievement-card:hover {
-            background: #fff;
-            border-color: #f5a623;
-            box-shadow: 0 2px 8px rgba(245,166,35,0.15);
-            transform: translateY(-2px);
-        }
-        .achievement-icon {
+        .home-header h1 {
             font-size: 32px;
-            line-height: 1;
             margin-bottom: 8px;
-        }
-        .achievement-name {
-            font-size: 12px;
-            font-weight: 600;
-            color: #333;
-        }
-        .highlight-post {
-            animation: highlightFade 2s ease;
-        }
-        @keyframes highlightFade {
-            0% {
-                background: #fff3cd;
-                box-shadow: 0 0 0 3px #f5a623;
-            }
-            50% {
-                background: #fff3cd;
-                box-shadow: 0 0 0 3px #f5a623;
-            }
-            100% {
-                background: #fff;
-                box-shadow: none;
-            }
-        }
-        .copy-link-btn {
-            cursor: pointer;
-        }
-        /* Пост — новый layout */
-        .post {
-            background: #fff;
-            padding: 0;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            border: 1px solid #e5e5e7;
-            /* overflow: hidden; ← УБИРАЕМ */
-            transition: box-shadow 0.2s;
-            position: relative;    /* ← добавляем для z-index */
-        }
-        .post:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .post-layout {
-            display: flex;
-            gap: 0;
-        }
-        /* Карточка автора */
-        .post-author-card {
-            width: 180px;
-            flex-shrink: 0;
-            background: #fafbfc;
-            border-right: 1px solid #e5e5e7;
-            padding: 20px 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        .post-author-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: #1a1f2e;
-            color: #f5a623;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: 700;
-            overflow: hidden;
-            text-decoration: none;
-            margin-bottom: 10px;
-            border: 3px solid #fff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            transition: transform 0.15s;
-        }
-        .post-author-avatar:hover {
-            transform: scale(1.05);
-        }
-        .post-author-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .post-author-name {
-            font-size: 15px;
-            font-weight: 700;
-            color: #0066cc;
-            text-decoration: none;
-            margin-bottom: 4px;
-            word-break: break-word;
-        }
-        .post-author-name:hover {
-            text-decoration: underline;
-        }
-        .post-author-role {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: #f0f0f0;
-            margin-bottom: 8px;
-            white-space: nowrap;
-        }
-        .post-author-status {
-            font-size: 11px;
-            color: #888;
-            font-style: italic;
-            margin-bottom: 10px;
-            line-height: 1.3;
-        }
-        .post-author-stats {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 8px 0;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-        }
-        .post-author-stat {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #666;
-            padding: 2px 5px;
-        }
-        .post-author-stat .stat-icon {
-            font-size: 13px;
-        }
-        .post-author-stat .stat-value {
-            font-weight: 600;
-            color: #333;
-        }
-        .post-author-online {
-            font-size: 11px;
-            color: #999;
-            margin-top: auto;
-        }
-        .post-author-online.online {
-            color: #22c55e;
-            font-weight: 600;
-        }
-        /* Основная часть поста */
-        .post-main {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        .post-header {
-            padding: 12px 20px;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fafbfc;
-        }
-        .post-header-time {
-            font-size: 12px;
-            color: #888;
-        }
-        .post-edited-mark-inline {
-            font-size: 11px;
-            color: #aaa;
-            font-style: italic;
-        }
-        .post-content {
-            padding: 20px;
-            flex: 1;
-            font-size: 15px;
-            line-height: 1.6;
-            word-wrap: break-word;
-        }
-        .post-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            padding: 10px 20px;
-            border-top: 1px solid #f0f0f0;
-            background: #fafbfc;
-            flex-wrap: wrap;
-            min-height: 54px;
-        }
-        .reaction-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            flex: 1;
-            min-width: 0;
-        }
-        .post-actions-right {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        .post-actions-right {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-left: auto;
-        }
-        /* Адаптив */
-        @media (max-width: 600px) {
-            .post-layout {
-                flex-direction: column;
-            }
-            .post-author-card {
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid #e5e5e7;
-                flex-direction: row;
-                text-align: left;
-                gap: 12px;
-                padding: 15px;
-                align-items: flex-start;
-            }
-            .post-author-avatar {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-                margin-bottom: 0;
-                flex-shrink: 0;
-            }
-            .post-author-card > *:not(.post-author-avatar) {
-                text-align: left;
-            }
-            .post-author-stats {
-                flex-direction: row;
-                gap: 8px;
-            }
-            .post-author-stat {
-                padding: 0 3px;
-            }
-            .post-author-online {
-                margin-top: 0;
-            }
-        }
-        /* Префиксы тем */
-        .topic-header {
-            margin-bottom: 15px;
-        }
-        .topic-title-display {
-            font-size: 26px;
-            font-weight: 700;
-            margin: 0;
-            line-height: 1.3;
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .topic-prefix {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 6px;
-            border: 1px solid;
-            white-space: nowrap;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .topic-prefix-small {
-            display: inline-block;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 7px;
-            border-radius: 4px;
-            border: 1px solid;
-            margin-right: 6px;
-            white-space: nowrap;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            vertical-align: middle;
-        }
-        .topic-badge-pin,
-        .topic-badge-lock {
-            font-size: 18px;
-        }
-        .topic-title-text {
-            flex: 1;
-            min-width: 0;
-        }
-
-        /* Префикс в списке тем */
-        .topics-list li {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        /* Золотой ник для команды форума */
-        .username-team {
-            background: linear-gradient(135deg, #f5a623 0%, #ffd700 50%, #f5a623 100%);
+            background: linear-gradient(135deg, #1a1f2e 0%, #f5a623 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            color: transparent;
+        }
+        .home-subtitle { color: #888; font-size: 15px; }
+        .categories-list {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .category-card {
+            background: #fff;
+            border: 1px solid #e5e5e7;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            transition: box-shadow 0.2s;
+        }
+        .category-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+        .category-card-header {
+            padding: 20px 25px;
+            background: linear-gradient(135deg, #1a1f2e 0%, #252c42 100%);
+            color: #fff;
+        }
+        .category-card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
             font-weight: 700;
-            text-shadow: 0 0 20px rgba(245, 166, 35, 0.4);
-            position: relative;
+            margin-bottom: 6px;
         }
-        .username-team:hover {
-            filter: brightness(1.15);
+        .category-card-icon { font-size: 26px; }
+        .category-card-name { color: #fff; text-decoration: none; }
+        .category-card-name:hover { color: #f5a623; }
+        .category-card-desc {
+            color: #a0a5b8;
+            font-size: 13px;
+            margin-bottom: 8px;
+            padding-left: 38px;
         }
-        /* Для ссылок */
-        a.username-team {
+        .category-card-stats {
+            font-size: 12px;
+            color: #7a8099;
+            padding-left: 38px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .category-card-sections {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        .section-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 16px;
+            background: #fafbfc;
+            border: 1px solid #e5e5e7;
+            border-radius: 10px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.15s;
+        }
+        .section-card:hover {
+            background: #fff;
+            border-color: #0066cc;
+            box-shadow: 0 2px 8px rgba(0,102,204,0.08);
+            transform: translateY(-1px);
             text-decoration: none;
         }
-        a.username-team:hover {
-            text-decoration: none;
+        .section-card-icon { font-size: 22px; flex-shrink: 0; line-height: 1.2; }
+        .section-card-main { flex: 1; min-width: 0; }
+        .section-card-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 3px;
         }
+        .section-card:hover .section-card-name { color: #0066cc; }
+        .section-card-desc {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .section-card-stats { display: flex; gap: 12px; font-size: 12px; color: #666; }
+        .section-card-stats .stat-item strong { color: #0066cc; }
+        .section-card-last {
+            display: none;
+            text-align: right;
+            font-size: 11px;
+            color: #999;
+            flex-shrink: 0;
+            max-width: 180px;
+            border-left: 1px solid #e5e5e7;
+            padding-left: 12px;
+        }
+        .last-topic-label { color: #aaa; margin-bottom: 3px; }
+        .last-topic-title {
+            display: block;
+            color: #0066cc;
+            font-size: 12px;
+            margin-bottom: 3px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .last-topic-title:hover { text-decoration: underline; }
+        .last-topic-author { color: #999; font-size: 11px; }
+        .last-topic-author a { color: #0066cc; text-decoration: none; }
+        @media (min-width: 1100px) {
+            .section-card-last { display: block; }
+        }
+        .category-card-empty {
+            padding: 25px;
+            color: #999;
+            font-size: 14px;
+            text-align: center;
+            font-style: italic;
+        }
+
         /* ===== Заголовок раздела ===== */
         .section-header {
             display: flex;
@@ -2335,11 +1442,7 @@
             font-size: 28px;
             margin: 0 0 5px 0;
         }
-        .section-desc {
-            color: #666;
-            font-size: 14px;
-            margin: 0;
-        }
+        .section-desc { color: #666; font-size: 14px; margin: 0; }
         .btn-create-topic {
             display: inline-flex;
             align-items: center;
@@ -2358,11 +1461,7 @@
             background: #0052a3;
             text-decoration: none;
         }
-
-        /* ===== Подразделы ===== */
-        .subsections-block {
-            margin-bottom: 30px;
-        }
+        .subsections-block { margin-bottom: 30px; }
         .subsections-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -2390,21 +1489,11 @@
             color: #1d1d1f;
             margin-bottom: 4px;
         }
-        .subsection-desc {
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 8px;
-        }
-        .subsection-stats {
-            font-size: 12px;
-            color: #0066cc;
-            font-weight: 500;
-        }
+        .subsection-desc { font-size: 13px; color: #888; margin-bottom: 8px; }
+        .subsection-stats { font-size: 12px; color: #0066cc; font-weight: 500; }
 
-        /* ===== Список тем ===== */
-        .topics-section {
-            margin-bottom: 25px;
-        }
+        /* Список тем */
+        .topics-section { margin-bottom: 25px; }
         .topics-section-title {
             font-size: 13px;
             font-weight: 700;
@@ -2464,14 +1553,10 @@
             overflow: hidden;
         }
         .topic-row-avatar img {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             object-fit: cover;
         }
-        .topic-row-main {
-            flex: 1;
-            min-width: 0;
-        }
+        .topic-row-main { flex: 1; min-width: 0; }
         .topic-row-title {
             font-size: 15px;
             font-weight: 600;
@@ -2483,28 +1568,12 @@
             gap: 6px;
             line-height: 1.3;
         }
-        .topic-row:hover .topic-row-title {
-            color: #0066cc;
-        }
-        .topic-row.pinned .topic-row-title {
-            color: #1d1d1f;
-        }
-        .topic-row-meta {
-            font-size: 12px;
-            color: #888;
-        }
-        .topic-row-meta a {
-            color: #0066cc;
-            text-decoration: none;
-        }
-        .topic-row-meta a:hover {
-            text-decoration: underline;
-        }
-        .topic-row-stats {
-            display: flex;
-            gap: 15px;
-            flex-shrink: 0;
-        }
+        .topic-row:hover .topic-row-title { color: #0066cc; }
+        .topic-row.pinned .topic-row-title { color: #1d1d1f; }
+        .topic-row-meta { font-size: 12px; color: #888; }
+        .topic-row-meta a { color: #0066cc; text-decoration: none; }
+        .topic-row-meta a:hover { text-decoration: underline; }
+        .topic-row-stats { display: flex; gap: 15px; flex-shrink: 0; }
         .topic-stat {
             display: flex;
             align-items: center;
@@ -2512,20 +1581,11 @@
             font-size: 13px;
             color: #666;
         }
-        .topic-stat .stat-value {
-            font-weight: 600;
-            color: #333;
-        }
-        .pin-icon {
-            color: #f5a623;
-            font-size: 14px;
-        }
-        .lock-icon {
-            color: #999;
-            font-size: 14px;
-        }
+        .topic-stat .stat-value { font-weight: 600; color: #333; }
+        .pin-icon { color: #f5a623; font-size: 14px; }
+        .lock-icon { color: #999; font-size: 14px; }
 
-        /* Empty state */
+        /* Empty */
         .empty-state {
             background: #fff;
             border: 1px solid #e5e5e7;
@@ -2533,26 +1593,679 @@
             padding: 50px 20px;
             text-align: center;
         }
-        .empty-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.5;
+        .empty-icon { font-size: 48px; margin-bottom: 15px; opacity: 0.5; }
+        .empty-text { font-size: 15px; color: #888; margin-bottom: 10px; }
+
+        /* ===== ПРЕФИКСЫ ТЕМ ===== */
+        .topic-header { margin-bottom: 15px; }
+        .topic-title-display {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.3;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .empty-text {
+        .topic-prefix {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .topic-prefix-small {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid;
+            margin-right: 6px;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            vertical-align: middle;
+        }
+        .topic-badge-pin, .topic-badge-lock { font-size: 18px; }
+        .topic-title-text { flex: 1; min-width: 0; }
+
+        /* Золотой ник */
+        .username-team {
+            background: linear-gradient(135deg, #f5a623 0%, #ffd700 50%, #f5a623 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(245, 166, 35, 0.4);
+            position: relative;
+        }
+        .username-team:hover { filter: brightness(1.15); }
+        a.username-team { text-decoration: none; }
+        a.username-team:hover { text-decoration: none; }
+
+        /* Страница категории */
+        .category-page-header {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e5e7;
+        }
+        .category-page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .category-page-icon { font-size: 32px; }
+        .category-page-desc { color: #666; font-size: 15px; margin: 0; }
+
+        /* ===== Поиск ===== */
+        .search-page-form { margin: 25px 0; }
+        .search-page-input-wrap {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid #d1d1d6;
+            border-radius: 10px;
+            padding: 6px 6px 6px 16px;
+            transition: all 0.2s;
+            max-width: 700px;
+        }
+        .search-page-input-wrap:focus-within {
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        .search-page-icon { font-size: 18px; color: #888; margin-right: 10px; }
+        .search-page-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 10px 0;
+            font-family: inherit;
+            background: transparent;
+        }
+        .search-page-btn {
+            background: #0066cc;
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
             font-size: 15px;
-            color: #888;
-            margin-bottom: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        .search-page-btn:hover { background: #0052a3; }
+        .search-info { color: #666; font-size: 14px; margin-bottom: 20px; }
+        .search-empty { color: #d32f2f; }
+        .search-hint { color: #888; font-style: italic; margin-top: 30px; }
+        .search-section { margin-bottom: 30px; }
+        .search-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+        .search-results { display: flex; flex-direction: column; gap: 10px; }
+        .search-result {
+            background: #fff;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 15px 20px;
+            transition: box-shadow 0.2s;
+        }
+        .search-result:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .search-result-title a {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .search-result-title a:hover { text-decoration: underline; }
+        .search-result-meta { font-size: 12px; color: #888; margin-top: 5px; }
+        .search-result-meta a { color: #0066cc; }
+        .search-result-snippet {
+            font-size: 14px;
+            color: #444;
+            margin-top: 8px;
+            line-height: 1.5;
         }
 
-        /* Адаптив */
+        /* Уведомления */
+        .notif-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .notif-read-all { font-size: 13px; color: #0066cc; text-decoration: none; }
+        .notif-read-all:hover { text-decoration: underline; }
+        .notif-list { display: flex; flex-direction: column; gap: 8px; }
+        .notif-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #fff;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 15px 20px;
+            transition: all 0.2s;
+        }
+        .notif-item.unread {
+            background: #f0f7ff;
+            border-color: #cce4ff;
+        }
+        .notif-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .notif-icon { font-size: 24px; flex-shrink: 0; }
+        .notif-body { flex: 1; min-width: 0; }
+        .notif-text { font-size: 14px; color: #1d1d1f; line-height: 1.5; }
+        .notif-user { font-weight: 600; color: #0066cc; text-decoration: none; }
+        .notif-user:hover { text-decoration: underline; }
+        .notif-time { font-size: 12px; color: #999; margin-top: 4px; }
+        .notif-actions { flex-shrink: 0; }
+        .notif-open { font-size: 13px; color: #0066cc; text-decoration: none; white-space: nowrap; }
+        .notif-open:hover { text-decoration: underline; }
+        .notif-empty {
+            background: #fff;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .notif-empty p { margin: 5px 0; }
+
+        /* ЛС */
+        .conv-list { display: flex; flex-direction: column; gap: 8px; }
+        .conv-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #fff;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+        }
+        .conv-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-decoration: none;
+        }
+        .conv-item.unread {
+            background: #f0f7ff;
+            border-color: #cce4ff;
+        }
+        .conv-avatar, .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #f5a623;
+            color: #1a1f2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .conv-avatar img, .chat-avatar img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .conv-body { flex: 1; min-width: 0; }
+        .conv-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .conv-unread-badge {
+            background: #0066cc;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 10px;
+        }
+        .conv-last {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .conv-time { font-size: 12px; color: #999; flex-shrink: 0; }
+        .conv-empty {
+            background: #fff;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .conv-empty p { margin: 5px 0; }
+
+        /* Чат */
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0;
+            border: 1px solid #e5e5e7;
+            border-bottom: none;
+        }
+        .chat-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1d1d1f;
+            text-decoration: none;
+        }
+        .chat-status { font-size: 12px; margin-top: 2px; }
+        .chat-messages {
+            background: #f5f5f7;
+            border-left: 1px solid #e5e5e7;
+            border-right: 1px solid #e5e5e7;
+            padding: 20px;
+            height: 500px;
+            min-height: 500px;
+            max-height: 500px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .chat-msg { display: flex; gap: 12px; max-width: 75%; }
+        .chat-msg.own { align-self: flex-end; flex-direction: row-reverse; }
+        .chat-msg-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #1a1f2e;
+            color: #f5a623;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .chat-msg-avatar img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .chat-msg-body {
+            background: #fff;
+            border-radius: 12px;
+            padding: 10px 15px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .chat-msg.own .chat-msg-body {
+            background: #0066cc;
+            color: #fff;
+        }
+        .chat-msg.own .chat-msg-head strong { color: #fff; }
+        .chat-msg-head {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            font-size: 12px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+        .chat-msg-head strong { color: #0066cc; }
+        .chat-msg-time { color: #999; font-size: 11px; }
+        .chat-msg.own .chat-msg-time { color: #cce4ff; }
+        .chat-msg-content {
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        .chat-empty { text-align: center; color: #999; padding: 30px; }
+        .chat-form {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 0 0 10px 10px;
+            border: 1px solid #e5e5e7;
+            border-top: none;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .chat-form textarea {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 50px;
+        }
+        .chat-form textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        .chat-msg-role {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.04);
+        }
+        .chat-msg.own .chat-msg-role {
+            background: rgba(255,255,255,0.15);
+            color: #fff !important;
+        }
+        .chat-form-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .chat-form-hint { font-size: 11px; color: #999; }
+        .chat-form-hint kbd {
+            background: #f0f0f0;
+            border: 1px solid #d1d1d6;
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-family: monospace;
+            font-size: 10px;
+            color: #666;
+        }
+
+        /* Меншены */
+        .mention {
+            color: #0066cc;
+            font-weight: 600;
+            text-decoration: none;
+            background: #eef4ff;
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+        .mention:hover {
+            background: #0066cc;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* Награды */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 12px;
+        }
+        .achievement-card {
+            background: #f8f9fa;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 15px 10px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: help;
+        }
+        .achievement-card:hover {
+            background: #fff;
+            border-color: #f5a623;
+            box-shadow: 0 2px 8px rgba(245,166,35,0.15);
+            transform: translateY(-2px);
+        }
+        .achievement-icon {
+            font-size: 32px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .achievement-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Подсветка якоря */
+        .highlight-post { animation: highlightFade 2s ease; }
+        @keyframes highlightFade {
+            0% { background: #fff3cd; box-shadow: 0 0 0 3px #f5a623; }
+            50% { background: #fff3cd; box-shadow: 0 0 0 3px #f5a623; }
+            100% { background: #fff; box-shadow: none; }
+        }
+
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            background: #1a1f2e;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            border-left: 4px solid #22c55e;
+        }
+        .toast.show { opacity: 1; transform: translateX(0); }
+
+        /* ============================================ */
+        /* ========== МОБИЛЬНАЯ АДАПТАЦИЯ ============== */
+        /* ============================================ */
+
+        @media (max-width: 900px) {
+            .header-search { display: none; }
+            .user-name-mini { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .profile-banner { height: 100px; }
+            .profile-top {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 0 15px 20px;
+            }
+            .profile-main { padding-top: 10px; width: 100%; }
+            .profile-name-row { justify-content: center; }
+            .profile-meta-row { justify-content: center; }
+            .profile-actions {
+                width: 100%;
+                justify-content: center;
+                margin-left: 0;
+                margin-top: 15px;
+            }
+            .profile-stats-row { grid-template-columns: repeat(2, 1fr); }
+            .stat-extra { display: none; }
+            .activity-time { margin-left: 0; width: 100%; }
+            .post-layout { flex-direction: column; }
+            .post-author-card {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e5e5e7;
+                flex-direction: row;
+                align-items: center;
+                text-align: left;
+                gap: 12px;
+                padding: 12px 15px;
+                flex-wrap: wrap;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+                border-bottom-left-radius: 0;
+            }
+            .post-author-avatar {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+                margin-bottom: 0;
+                flex-shrink: 0;
+                border-width: 2px;
+            }
+            .post-author-name {
+                font-size: 15px;
+                margin: 0;
+                flex: 1;
+                text-align: left;
+                min-width: 100px;
+            }
+            .post-author-role {
+                font-size: 10px;
+                padding: 2px 7px;
+                margin: 0;
+            }
+            .post-author-status { display: none; }
+            .post-author-stats {
+                flex-direction: row;
+                gap: 12px;
+                width: 100%;
+                margin: 0;
+                padding: 8px 0 0 0;
+                border: none;
+                border-top: 1px solid #f0f0f0;
+                justify-content: flex-start;
+                flex-basis: 100%;
+            }
+            .post-author-stat {
+                padding: 0;
+                gap: 4px;
+                font-size: 12px;
+                flex: none;
+            }
+            .post-author-online {
+                font-size: 10px;
+                margin: 0;
+                flex-basis: 100%;
+                text-align: left;
+            }
+            .post-main {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 10px;
+                border-bottom-left-radius: 10px;
+            }
+            .post-header { border-top-right-radius: 0; }
+            .post-actions {
+                border-bottom-left-radius: 10px;
+                border-bottom-right-radius: 10px;
+            }
+        }
+
         @media (max-width: 600px) {
+            /* Контейнер */
+            .container { padding: 0 12px; }
+            main { padding: 25px 0; }
+
+            /* Шапка */
+            .header-inner { gap: 8px; height: 56px; }
+            .logo-text { font-size: 16px; }
+            .logo-icon { font-size: 20px; }
+            .header-nav { display: none; }
+            .header-icon-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            .user-avatar-mini {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            .user-menu-toggle { padding: 4px 8px 4px 4px; }
+
+            /* Попапы на мобиле */
+            .notif-dropdown,
+            .user-menu-dropdown {
+                position: fixed;
+                top: 70px;
+                left: 10px;
+                right: 10px;
+                max-width: none;
+                min-width: 0;
+                transform: none;
+            }
+            .notif-dropdown.open,
+            .user-menu-dropdown.open { transform: none; }
+
+            /* Профиль */
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+                margin-top: -40px;
+            }
+            .profile-name-row h1 { font-size: 20px; }
+            .profile-block { padding: 15px 18px; }
+            .achievements-grid {
+                grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+                gap: 8px;
+            }
+            .achievement-card { padding: 10px 6px; }
+            .achievement-icon { font-size: 24px; }
+            .achievement-name { font-size: 11px; }
+
+            /* Главная */
+            .home-header h1 { font-size: 24px; }
+            .home-header { margin-bottom: 25px; padding: 10px 0; }
+            .category-card-header { padding: 15px 18px; }
+            .category-card-title { font-size: 17px; }
+            .category-card-icon { font-size: 22px; }
+            .category-card-desc,
+            .category-card-stats { padding-left: 34px; }
+            .category-card-sections {
+                padding: 10px;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .section-card { padding: 12px 14px; }
+            .section-card-icon { font-size: 18px; }
+            .section-card-name { font-size: 14px; }
+            .section-card-desc {
+                font-size: 11px;
+                -webkit-line-clamp: 1;
+            }
+
+            /* Категория */
+            .category-page-title { font-size: 22px; }
+            .category-page-icon { font-size: 26px; }
+            .category-page-desc { font-size: 13px; }
+
+            /* Раздел */
             .section-header {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 12px;
             }
-            .btn-create-topic {
-                justify-content: center;
-            }
+            .section-title-wrap h1 { font-size: 22px; }
+            .btn-create-topic { justify-content: center; }
             .topic-row {
                 padding: 12px 14px;
                 gap: 10px;
@@ -2562,130 +2275,190 @@
                 height: 36px;
                 font-size: 15px;
             }
-            .topic-row-stats {
-                display: none;
+            .topic-row-title { font-size: 14px; }
+            .topic-row-meta { font-size: 11px; }
+            .topic-row-stats { display: none; }
+            .subsections-grid { grid-template-columns: 1fr; }
+
+            /* Тема */
+            .topic-title-display { font-size: 20px; gap: 6px; }
+            .topic-prefix { font-size: 10px; padding: 3px 7px; }
+            .topic-badge-pin, .topic-badge-lock { font-size: 14px; }
+            .topic-info { font-size: 12px; }
+            .post-content { padding: 15px; font-size: 14px; }
+            .post-header { padding: 10px 15px; }
+            .post-actions { padding: 10px 15px; gap: 10px; }
+            .post-menu-dropdown {
+                bottom: auto;
+                top: calc(100% + 6px);
+                right: 0;
             }
-            .subsections-grid {
-                grid-template-columns: 1fr;
+            .reaction-picker { left: auto; right: 0; }
+            .reaction-picker-item { font-size: 20px; padding: 3px 5px; }
+
+            /* Чат */
+            .chat-msg { max-width: 90%; }
+            .chat-messages {
+                padding: 15px 12px;
+                height: 400px;
+                min-height: 400px;
+                max-height: 400px;
             }
+            .chat-form {
+                padding: 12px 15px;
+                flex-direction: column;
+                gap: 8px;
+                align-items: stretch;
+            }
+            .chat-form .btn-primary {
+                width: 100% !important;
+                padding: 12px !important;
+            }
+            .chat-form-hint { font-size: 10px; }
+            .chat-msg-avatar { width: 30px; height: 30px; font-size: 12px; }
+            .chat-msg-body { padding: 8px 12px; }
+            .chat-msg-content { font-size: 13px; }
+            .chat-msg-head { font-size: 11px; }
+
+            /* Уведомления */
+            .notif-item { padding: 12px 15px; gap: 10px; }
+            .notif-icon { font-size: 20px; }
+            .notif-text { font-size: 13px; }
+
+            /* ЛС */
+            .conv-item { padding: 12px 15px; gap: 12px; }
+            .conv-avatar { width: 42px; height: 42px; font-size: 18px; }
+            .conv-name { font-size: 15px; }
+
+            /* Поиск */
+            .search-page-input-wrap { padding: 4px 4px 4px 12px; }
+            .search-page-btn { padding: 9px 16px; font-size: 14px; }
+            .search-result { padding: 12px 15px; }
+
+            /* Toast */
+            #toast-container {
+                top: 70px;
+                right: 10px;
+                left: 10px;
+            }
+            .toast { font-size: 13px; padding: 10px 16px; }
+
+            h2 { font-size: 20px; }
+            h3 { font-size: 16px; }
         }
     </style>
 </head>
 <body>
     <header>
-    <div class="container header-inner">
-        <a href="/" class="header-logo">
-            <span class="logo-icon">🪺</span>
-            <span class="logo-text">Code<span>Nest</span></span>
-        </a>
+        <div class="container header-inner">
+            <a href="/" class="header-logo">
+                <span class="logo-icon">🪺</span>
+                <span class="logo-text">Code<span>Nest</span></span>
+            </a>
 
-        <nav class="header-nav">
-            <a href="/" class="nav-link">Главная</a>
-        </nav>
+            <nav class="header-nav">
+                <a href="/" class="nav-link">Главная</a>
+            </nav>
 
-        <form class="header-search" action="/search/" method="get">
-            <span class="search-icon">🔍</span>
-            <input type="text" name="q" placeholder="Поиск по форуму..." class="search-input">
-        </form>
-        <a href="{{ url('forum:conversations') }}" class="header-icon-btn" title="Личные сообщения">
-    ✉️
-    {% if unread_msgs > 0 %}
-        <span class="notif-badge">{{ unread_msgs }}</span>
-    {% endif %}
-</a>
-        <div class="header-actions">
-            {% if user.is_authenticated %}
-               <div class="notif-menu">
-    <button class="header-icon-btn" onclick="toggleNotifMenu(event)" title="Уведомления">
-    🔔
-    {% if unread_notifs > 0 %}
-        <span class="notif-badge">{{ unread_notifs }}</span>
-    {% endif %}
-</button>
+            <form class="header-search" action="/search/" method="get">
+                <span class="search-icon">🔍</span>
+                <input type="text" name="q" placeholder="Поиск по форуму..." class="search-input">
+            </form>
 
-    <div class="notif-dropdown" id="notifDropdown">
-        <div class="notif-dropdown-header">
-            <span>🔔 Уведомления</span>
-            {% set unread_count = user.notifications.filter(is_read=False).count() %}
-            {% if unread_count > 0 %}
-                <a href="{{ url('forum:notifications_read_all') }}" class="notif-mark-all">Прочитать все</a>
-            {% endif %}
-        </div>
+            <a href="{{ url('forum:conversations') }}" class="header-icon-btn" title="Личные сообщения">
+                ✉️
+                {% if unread_msgs > 0 %}
+                    <span class="notif-badge">{{ unread_msgs }}</span>
+                {% endif %}
+            </a>
 
-        <div class="notif-dropdown-body">
-            {% set recent_notifs = user.notifications.select_related('sender', 'topic')[:5] %}
-            {% if recent_notifs %}
-                {% for notif in recent_notifs %}
-                    <a href="{{ url('forum:notification_read', kwargs={'notif_id': notif.id}) }}" class="notif-dropdown-item {% if not notif.is_read %}unread{% endif %}">
-                        <div class="notif-dropdown-icon">
-                            {% if notif.notification_type == 'like' %}👍
-                            {% elif notif.notification_type == 'reply' %}💬
-                            {% elif notif.notification_type == 'mention' %}📣
-                            {% else %}🛡️{% endif %}
-                        </div>
-                        <div class="notif-dropdown-content">
-                            <div class="notif-dropdown-text">
-                                {% if notif.sender %}<strong>{{ notif.sender.username }}</strong>{% else %}Система{% endif %}
-                                {{ notif.message }}
-                            </div>
-                            <div class="notif-dropdown-time">{{ notif.created_at.strftime('%d.%m %H:%M') }}</div>
-                        </div>
-                    </a>
-                {% endfor %}
-            {% else %}
-                <div class="notif-dropdown-empty">
-                    🔕 Нет уведомлений
-                </div>
-            {% endif %}
-        </div>
-
-        <a href="{{ url('forum:notifications') }}" class="notif-dropdown-footer">
-            Все уведомления →
-        </a>
-    </div>
-</div>
-
-                <div class="user-menu">
-                    <button class="user-menu-toggle" onclick="toggleUserMenu(event)">
-                        <div class="user-avatar-mini">
-                            {% if user.profile.avatar %}
-                                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
-                            {% else %}
-                                {{ user.username[0]|upper }}
+            <div class="header-actions">
+                {% if user.is_authenticated %}
+                    <div class="notif-menu">
+                        <button class="header-icon-btn" onclick="toggleNotifMenu(event)" title="Уведомления">
+                            🔔
+                            {% if unread_notifs > 0 %}
+                                <span class="notif-badge">{{ unread_notifs }}</span>
                             {% endif %}
-                        </div>
-                        <span class="user-name-mini">{{ user.username }}</span>
-                        <span class="user-menu-arrow">▾</span>
-                    </button>
+                        </button>
 
-                    <div class="user-menu-dropdown" id="userMenuDropdown">
-                        <a href="{{ url('forum:profile', kwargs={'username': user.username}) }}" class="dropdown-item">
-                            👤 Мой профиль
-                        </a>
-                        <a href="{{ url('forum:profile_edit', kwargs={'username': user.username}) }}" class="dropdown-item">
-                            ⚙️ Настройки
-                        </a>
-                        {% if user.is_staff %}
-                            <a href="/admin/" class="dropdown-item">
-                                🛠️ Админка
+                        <div class="notif-dropdown" id="notifDropdown">
+                            <div class="notif-dropdown-header">
+                                <span>🔔 Уведомления</span>
+                                {% if unread_notifs > 0 %}
+                                    <a href="{{ url('forum:notifications_read_all') }}" class="notif-mark-all">Прочитать все</a>
+                                {% endif %}
+                            </div>
+
+                            <div class="notif-dropdown-body">
+                                {% if recent_notifications %}
+                                    {% for notif in recent_notifications %}
+                                        <a href="{{ url('forum:notification_read', kwargs={'notif_id': notif.id}) }}" class="notif-dropdown-item {% if not notif.is_read %}unread{% endif %}">
+                                            <div class="notif-dropdown-icon">
+                                                {% if notif.notification_type == 'like' %}👍
+                                                {% elif notif.notification_type == 'reply' %}💬
+                                                {% elif notif.notification_type == 'mention' %}📣
+                                                {% else %}🛡️{% endif %}
+                                            </div>
+                                            <div class="notif-dropdown-content">
+                                                <div class="notif-dropdown-text">
+                                                    {% if notif.sender %}<strong>{{ notif.sender.username }}</strong>{% else %}Система{% endif %}
+                                                    {{ notif.message }}
+                                                </div>
+                                                <div class="notif-dropdown-time">{{ notif.created_at.strftime('%d.%m %H:%M') }}</div>
+                                            </div>
+                                        </a>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="notif-dropdown-empty">🔕 Нет уведомлений</div>
+                                {% endif %}
+                            </div>
+
+                            <a href="{{ url('forum:notifications') }}" class="notif-dropdown-footer">
+                                Все уведомления →
                             </a>
-                        {% endif %}
-                        <div class="dropdown-divider"></div>
-                        <form method="post" action="{{ url('logout') }}">
-                            {{ csrf_input|safe }}
-                            <button type="submit" class="dropdown-item dropdown-logout">
-                                🚪 Выйти
-                            </button>
-                        </form>
+                        </div>
                     </div>
-                </div>
-            {% else %}
-                <a href="{{ url('login') }}" class="btn-login">Войти</a>
-                <a href="{{ url('forum:register') }}" class="btn-register">Регистрация</a>
-            {% endif %}
+
+                    <div class="user-menu">
+                        <button class="user-menu-toggle" onclick="toggleUserMenu(event)">
+                            <div class="user-avatar-mini">
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                                {% else %}
+                                    {{ user.username[0]|upper }}
+                                {% endif %}
+                            </div>
+                            <span class="user-name-mini">{{ user.username }}</span>
+                            <span class="user-menu-arrow">▾</span>
+                        </button>
+
+                        <div class="user-menu-dropdown" id="userMenuDropdown">
+                            <a href="{{ url('forum:profile', kwargs={'username': user.username}) }}" class="dropdown-item">
+                                👤 Мой профиль
+                            </a>
+                            <a href="{{ url('forum:profile_edit', kwargs={'username': user.username}) }}" class="dropdown-item">
+                                ⚙️ Настройки
+                            </a>
+                            {% if user.is_staff %}
+                                <a href="/admin/" class="dropdown-item">🛠️ Админка</a>
+                            {% endif %}
+                            <div class="dropdown-divider"></div>
+                            <form method="post" action="{{ url('logout') }}">
+                                {{ csrf_input|safe }}
+                                <button type="submit" class="dropdown-item dropdown-logout">
+                                    🚪 Выйти
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{{ url('login') }}" class="btn-login">Войти</a>
+                    <a href="{{ url('forum:register') }}" class="btn-register">Регистрация</a>
+                {% endif %}
+            </div>
         </div>
-    </div>
-</header>
+    </header>
 
     <main>
         <div class="container">
@@ -2699,6 +2472,8 @@
         </div>
     </footer>
 
+    <div id="toast-container"></div>
+
     <!-- Quill -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 
@@ -2710,16 +2485,14 @@
     <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/javascript.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/bash.min.js"></script>
 
-    <!-- Инициализация Quill -->
+    <!-- Quill init -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('textarea.editor').forEach(function(el) {
                 el.style.display = 'none';
-
                 const editorDiv = document.createElement('div');
                 editorDiv.innerHTML = el.value;
                 el.parentNode.insertBefore(editorDiv, el);
-
                 const quill = new Quill(editorDiv, {
                     theme: 'snow',
                     placeholder: el.placeholder || 'Напишите что-нибудь...',
@@ -2735,36 +2508,25 @@
                         ]
                     }
                 });
-
-                function syncContent() {
-                    el.value = quill.root.innerHTML;
-                }
-
+                function syncContent() { el.value = quill.root.innerHTML; }
                 quill.on('text-change', syncContent);
-
                 const form = el.closest('form');
-                if (form) {
-                    form.addEventListener('submit', syncContent);
-                }
+                if (form) form.addEventListener('submit', syncContent);
             });
         });
     </script>
 
-    <!-- Подсветка кода: Quill сохраняет <pre>, а не <pre><code>, поэтому оборачиваем -->
+    <!-- Code highlight -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. Обрабатываем Quill 2.x code blocks (div.ql-code-block)
         document.querySelectorAll('.post-content .ql-code-block').forEach(function(block) {
-            // Создаём <pre><code> для highlight.js
             const code = document.createElement('code');
-            code.className = 'language-c';  // по умолчанию C (Pawn похож на C)
+            code.className = 'language-c';
             code.textContent = block.textContent;
             hljs.highlightElement(code);
             block.innerHTML = '';
             block.appendChild(code);
         });
-
-        // 2. Обрабатываем классические <pre> (если есть)
         document.querySelectorAll('.post-content pre').forEach(function(pre) {
             if (pre.querySelector('code')) {
                 hljs.highlightElement(pre.querySelector('code'));
@@ -2777,38 +2539,15 @@
             pre.innerHTML = '';
             pre.appendChild(code);
         });
-
-        // 3. Обрабатываем блоки в редакторе Quill (для предпросмотра)
-        document.querySelectorAll('.ql-editor .ql-code-block').forEach(function(block) {
-            const code = document.createElement('code');
-            code.className = 'language-c';
-            code.textContent = block.textContent;
-            hljs.highlightElement(code);
-            block.innerHTML = '';
-            block.appendChild(code);
-        });
     });
-
-            // 2. В редакторе Quill (предпросмотр)
-            document.querySelectorAll('.ql-editor pre').forEach(function(pre) {
-                if (pre.querySelector('code')) return;
-                const code = document.createElement('code');
-                code.innerHTML = pre.innerHTML;
-                pre.innerHTML = '';
-                pre.appendChild(code);
-                code.className = 'language-c';
-                hljs.highlightElement(code);
-            });
     </script>
-    <!-- Попап профиля -->
+
+    <!-- User popup -->
     <div id="user-popup" class="user-popup" style="display: none;">
         <div class="user-popup-content">
             <button class="user-popup-close" onclick="closeUserPopup()">×</button>
-
             <div class="user-popup-banner" id="popup-banner"></div>
-
             <div class="user-popup-avatar" id="popup-avatar"></div>
-
             <div class="user-popup-info">
                 <div class="user-popup-name">
                     <a id="popup-username" href="#"></a>
@@ -2837,123 +2576,90 @@
             </div>
         </div>
     </div>
+
     <script>
     function openUserPopup(el) {
         const data = el.dataset;
-
-        // Баннер
         const bannerEl = document.getElementById('popup-banner');
         if (data.banner) {
-            bannerEl.style.backgroundImage = `url('${data.banner}')`;
+            bannerEl.style.backgroundImage = "url('" + data.banner + "')";
         } else {
             bannerEl.style.background = 'linear-gradient(135deg, #1a1f2e 0%, #f5a623 100%)';
         }
-
-        // Аватар
         const avatarEl = document.getElementById('popup-avatar');
         if (data.avatar) {
-            avatarEl.innerHTML = `<img src="${data.avatar}" alt="${data.username}">`;
+            avatarEl.innerHTML = '<img src="' + data.avatar + '" alt="' + data.username + '">';
         } else {
             avatarEl.textContent = data.username.charAt(0).toUpperCase();
         }
-
-        // Имя
         const nameEl = document.getElementById('popup-username');
         nameEl.textContent = data.username;
         nameEl.href = data.profileUrl;
-
-        // Роль
         const roleEl = document.getElementById('popup-role');
-        roleEl.textContent = `${data.roleIcon} ${data.roleName}`.trim();
+        roleEl.textContent = (data.roleIcon + ' ' + data.roleName).trim();
         roleEl.style.color = data.roleColor;
-
-        // Статус
         document.getElementById('popup-status').textContent = data.status || '';
-
-        // Мета
-        document.getElementById('popup-joined').textContent = `📅 С ${data.joined}`;
+        document.getElementById('popup-joined').textContent = '📅 С ' + data.joined;
         document.getElementById('popup-online').textContent = data.online;
-
-        // Статистика
         document.getElementById('popup-posts').textContent = data.posts;
         document.getElementById('popup-topics').textContent = data.topics;
         document.getElementById('popup-reputation').textContent = data.reputation;
-
-        // Ссылка на профиль
         document.getElementById('popup-profile-link').href = data.profileUrl;
-
-        // Показываем
         document.getElementById('user-popup').style.display = 'flex';
     }
-
     function closeUserPopup() {
         document.getElementById('user-popup').style.display = 'none';
     }
-
-    // Закрытие по клику вне попапа
     document.getElementById('user-popup').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeUserPopup();
-        }
+        if (e.target === this) closeUserPopup();
     });
-
-    // Закрытие по Escape
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeUserPopup();
-        }
+        if (e.key === 'Escape') closeUserPopup();
     });
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.reaction-bar').forEach(function(bar) {
-        const postId = bar.dataset.postId;
-        const pickerItems = bar.querySelectorAll('.reaction-picker-item');
+    </script>
 
-        pickerItems.forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const reactionType = btn.dataset.reaction;
-                const url = '/post/' + postId + '/react/';
-
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-                const csrf = csrfToken ? csrfToken.value : '';
-
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrf,
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'reaction_type=' + encodeURIComponent(reactionType),
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                        return;
-                    }
-                    // Перезагружаем страницу, чтобы обновить состояние
-                    location.reload();
-                })
-                .catch(err => console.error('Ошибка:', err));
+    <!-- Reactions -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.reaction-bar').forEach(function(bar) {
+            const postId = bar.dataset.postId;
+            const pickerItems = bar.querySelectorAll('.reaction-picker-item');
+            pickerItems.forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const reactionType = btn.dataset.reaction;
+                    const url = '/post/' + postId + '/react/';
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                    const csrf = csrfToken ? csrfToken.value : '';
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrf,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'reaction_type=' + encodeURIComponent(reactionType),
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.error) { alert(data.error); return; }
+                        location.reload();
+                    })
+                    .catch(err => console.error('Ошибка:', err));
+                });
             });
         });
     });
-});
-</script>
-<script>
+    </script>
+
+    <!-- User menu -->
+    <script>
     function toggleUserMenu(event) {
         event.stopPropagation();
         const dropdown = document.getElementById('userMenuDropdown');
-        if (dropdown) {
-            dropdown.classList.toggle('open');
-        }
+        if (dropdown) dropdown.classList.toggle('open');
     }
-
-    // Закрытие по клику вне меню
     document.addEventListener('click', function(e) {
         const dropdown = document.getElementById('userMenuDropdown');
         const toggle = document.querySelector('.user-menu-toggle');
@@ -2963,27 +2669,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-
-    // Закрытие по Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const dropdown = document.getElementById('userMenuDropdown');
             if (dropdown) dropdown.classList.remove('open');
         }
     });
-</script>
-<script>
+    </script>
+
+    <!-- Notif menu -->
+    <script>
     function toggleNotifMenu(event) {
         event.stopPropagation();
         const dropdown = document.getElementById('notifDropdown');
-        if (dropdown) {
-            dropdown.classList.toggle('open');
-        }
-        // Закрываем user menu
+        if (dropdown) dropdown.classList.toggle('open');
         const userMenu = document.getElementById('userMenuDropdown');
         if (userMenu) userMenu.classList.remove('open');
     }
-
     document.addEventListener('click', function(e) {
         const dropdown = document.getElementById('notifDropdown');
         const toggle = document.querySelector('.notif-menu .header-icon-btn');
@@ -2993,100 +2695,103 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-</script>
-<script>
+    </script>
+
+    <!-- Chat autoscroll -->
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
         const chatMessages = document.querySelector('.chat-messages');
-        if (chatMessages) {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+        if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
     });
-</script>
-<script>
+    </script>
+
+    <!-- Chat enter-to-send -->
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
         const chatForm = document.querySelector('.chat-form');
         if (!chatForm) return;
-
         const textarea = chatForm.querySelector('textarea');
         if (!textarea) return;
-
-        // Определяем сенсорное устройство
         const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
         textarea.addEventListener('keydown', function(e) {
-            // На мобильных — Enter = новая строка (не перехватываем)
             if (isTouchDevice) return;
-
-            // Enter без Shift — отправка
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                if (textarea.value.trim()) {
-                    chatForm.submit();
-                }
+                if (textarea.value.trim()) chatForm.submit();
             }
-            // Shift+Enter — новая строка (стандартное поведение)
         });
     });
-</script>
-<script>
-function copyPostLink(postId, btn) {
-    const url = window.location.origin + window.location.pathname + '#post-' + postId;
+    </script>
 
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(url).then(function() {
-            showCopySuccess(btn);
-        }).catch(function() {
-            fallbackCopy(url, btn);
-        });
-    } else {
-        fallbackCopy(url, btn);
-    }
-}
-
-function fallbackCopy(text, btn) {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.left = '-9999px';
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-
-    try {
-        const successful = document.execCommand('copy');
-        if (successful) {
-            showCopySuccess(btn);
+    <!-- Copy post link -->
+    <script>
+    function copyPostLink(postId, btn) {
+        const url = window.location.origin + window.location.pathname + '#post-' + postId;
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(url).then(function() {
+                showCopySuccess(btn);
+            }).catch(function() {
+                fallbackCopy(url, btn);
+            });
         } else {
-            alert('Не удалось скопировать. Ссылка:\n' + text);
+            fallbackCopy(url, btn);
         }
-    } catch (err) {
-        alert('Не удалось скопировать. Ссылка:\n' + text);
+    }
+    function fallbackCopy(text, btn) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+            const ok = document.execCommand('copy');
+            if (ok) showCopySuccess(btn);
+            else alert('Не удалось скопировать: ' + text);
+        } catch (err) {
+            alert('Не удалось скопировать: ' + text);
+        }
+        document.body.removeChild(textarea);
+    }
+    function showCopySuccess(btn) {
+        const original = btn.innerHTML;
+        btn.innerHTML = '✅';
+        btn.style.background = '#d4edda';
+        btn.style.borderColor = '#22c55e';
+        btn.style.color = '#155724';
+        setTimeout(function() {
+            btn.innerHTML = original;
+            btn.style.background = '';
+            btn.style.borderColor = '';
+            btn.style.color = '';
+        }, 1500);
     }
 
-    document.body.removeChild(textarea);
-}
+    // Anchor highlight
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.location.hash && window.location.hash.startsWith('#post-')) {
+            const target = document.querySelector(window.location.hash);
+            if (target) {
+                setTimeout(function() {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    target.classList.add('highlight-post');
+                    setTimeout(function() {
+                        target.classList.remove('highlight-post');
+                    }, 2000);
+                }, 100);
+            }
+        }
+    });
+    </script>
 
-function showCopySuccess(btn) {
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '✅';
-    btn.style.background = '#d4edda';
-    btn.style.borderColor = '#22c55e';
-    btn.style.color = '#155724';
-    setTimeout(function() {
-        btn.innerHTML = originalText;
-        btn.style.background = '';
-        btn.style.borderColor = '';
-        btn.style.color = '';
-    }, 1500);
-}
-</script>
-<script>
+    <!-- Topic menu -->
+    <script>
     function toggleTopicMenu(event) {
         event.stopPropagation();
         const menu = document.getElementById('topicMenu');
         if (menu) menu.classList.toggle('open');
     }
-
     document.addEventListener('click', function(e) {
         const menu = document.getElementById('topicMenu');
         const toggle = document.querySelector('.topic-menu-btn');
@@ -3096,18 +2801,18 @@ function showCopySuccess(btn) {
             }
         }
     });
-</script>
-<script>
+    </script>
+
+    <!-- Post menu -->
+    <script>
     function togglePostMenu(event, postId) {
         event.stopPropagation();
-        // Закрываем все другие меню
         document.querySelectorAll('.post-menu-dropdown').forEach(function(m) {
             if (m.id !== 'postMenu-' + postId) m.classList.remove('open');
         });
         const menu = document.getElementById('postMenu-' + postId);
         if (menu) menu.classList.toggle('open');
     }
-
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.post-menu-wrapper')) {
             document.querySelectorAll('.post-menu-dropdown').forEach(function(m) {
@@ -3115,6 +2820,6 @@ function showCopySuccess(btn) {
             });
         }
     });
-</script>
+    </script>
 </body>
 </html>

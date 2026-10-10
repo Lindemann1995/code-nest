@@ -3,50 +3,79 @@
 {% block title %}Главная — Code Nest{% endblock %}
 
 {% block content %}
-<h2>Категории форума</h2>
+<div class="home-header">
+    <h1>Форум программистов</h1>
+    <p class="home-subtitle">Обсуждайте код, задавайте вопросы, делитесь опытом</p>
+</div>
 
 {% if categories_data %}
     <div class="categories-list">
     {% for item in categories_data %}
-        <div class="category-block">
-            <div class="category-header">
-                <div class="category-title">
-                    {% if item.category.icon %}<span class="category-icon">{{ item.category.icon }}</span>{% endif %}
-                    <a href="{{ url('forum:category', kwargs={'slug': item.category.slug}) }}">{{ item.category.name }}</a>
+        <div class="category-card">
+            <div class="category-card-header">
+                <div class="category-card-title">
+                    {% if item.category.icon %}
+                        <span class="category-card-icon">{{ item.category.icon }}</span>
+                    {% endif %}
+                    <a href="{{ url('forum:category', kwargs={'slug': item.category.slug}) }}" class="category-card-name">
+                        {{ item.category.name }}
+                    </a>
                 </div>
                 {% if item.category.description %}
-                    <div class="category-desc">{{ item.category.description }}</div>
+                    <div class="category-card-desc">{{ item.category.description }}</div>
                 {% endif %}
+                <div class="category-card-stats">
+                    <span>💬 {{ item.total_topics }} тем</span>
+                    <span class="meta-dot">·</span>
+                    <span>📝 {{ item.total_posts }} сообщений</span>
+                </div>
             </div>
 
             {% if item.sections %}
-                <div class="category-sections">
-                    {% for section in item.sections %}
-                        <div class="section-row">
-                            <div class="section-row-main">
-                                <a href="{{ url('forum:section', kwargs={'slug': section.slug}) }}" class="section-name">
-                                    {{ section.name }}
-                                </a>
-                                {% if section.description %}
-                                    <div class="section-desc">{{ section.description }}</div>
+                <div class="category-card-sections">
+                    {% for s in item.sections %}
+                        <a href="{{ url('forum:section', kwargs={'slug': s.section.slug}) }}" class="section-card">
+                            <div class="section-card-icon">📂</div>
+                            <div class="section-card-main">
+                                <div class="section-card-name">{{ s.section.name }}</div>
+                                {% if s.section.description %}
+                                    <div class="section-card-desc">{{ s.section.description }}</div>
                                 {% endif %}
+                                <div class="section-card-stats">
+                                    <span class="stat-item">
+                                        <strong>{{ s.topics_count }}</strong> тем
+                                    </span>
+                                    <span class="stat-item">
+                                        <strong>{{ s.posts_count }}</strong> сообщ.
+                                    </span>
+                                </div>
                             </div>
-                            <div class="section-row-stats">
-                                <span class="stat-mini">
-                            <strong>{{ section.total_topics_count() }}</strong> тем
-                        </span>
-                                </span>
-                            </div>
-                        </div>
+                            {% if s.last_topic %}
+                                <div class="section-card-last">
+                                    <div class="last-topic-label">Последнее:</div>
+                                    <a href="{{ url('forum:topic', kwargs={'section_slug': s.section.slug, 'slug': s.last_topic.slug}) }}" class="last-topic-title">
+                                        {{ s.last_topic.title[:40] }}{% if s.last_topic.title|length > 40 %}...{% endif %}
+                                    </a>
+                                    <div class="last-topic-author">
+                                        от <a href="{{ url('forum:profile', kwargs={'username': s.last_topic.author.username}) }}"
+                                              class="{% if s.last_topic.author.profile.role == 'team' %}username-team{% endif %}">{{ s.last_topic.author.username }}</a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </a>
                     {% endfor %}
                 </div>
             {% else %}
-                <div class="category-empty">В этой категории пока нет разделов.</div>
+                <div class="category-card-empty">В этой категории пока нет разделов</div>
             {% endif %}
         </div>
     {% endfor %}
     </div>
 {% else %}
-    <p>Пока нет ни одной категории. Создайте их в <a href="/admin/">админке</a>.</p>
+    <div class="empty-state">
+        <div class="empty-icon">🌱</div>
+        <div class="empty-text">Пока нет ни одной категории</div>
+        <p style="font-size: 13px; color: #999;">Создайте первую в <a href="/admin/">админке</a></p>
+    </div>
 {% endif %}
 {% endblock %}

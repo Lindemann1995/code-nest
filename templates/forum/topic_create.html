@@ -14,19 +14,27 @@
 <form method="post" class="topic-form">
     {{ csrf_input|safe }}
 
-    <div class="form-field">
-        <label for="id_title">Заголовок темы</label>
-        {{ topic_form.title }}
-        {% if topic_form.title.errors %}
-            <div class="field-error">{{ topic_form.title.errors }}</div>
+    {% for field in topic_form %}
+        {% if field.name != 'content' %}
+            <div class="form-field">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="field-error">
+                        {% for error in field.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
         {% endif %}
-    </div>
+    {% endfor %}
 
     <div class="form-field">
         <label for="id_content">Сообщение</label>
         {{ post_form.content }}
         {% if post_form.content.errors %}
-            <div class="field-error">{{ post_form.content.errors }}</div>
+            <div class="field-error">
+                {% for error in post_form.content.errors %}{{ error }}{% endfor %}
+            </div>
         {% endif %}
     </div>
 

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Смена префикса темы — Code Nest{% endblock %}
+
+{% block content %}
+<div class="auth-form" style="max-width: 600px;">
+    <h2>Смена префикса темы</h2>
+
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin: 20px 0;">
+        <strong>{{ topic.title }}</strong>
+    </div>
+
+    <form method="post">
+        {{ csrf_input|safe }}
+
+        <div class="form-field">
+            <label for="id_prefix">Префикс</label>
+            <select name="prefix" id="id_prefix" class="form-select">
+                <option value="" {% if not topic.prefix %}selected{% endif %}>— Без префикса —</option>
+                <option value="rules" {% if topic.prefix == 'rules' %}selected{% endif %}>📜 Правила</option>
+                <option value="recommend" {% if topic.prefix == 'recommend' %}selected{% endif %}>💡 Рекомендации</option>
+                <option value="solved" {% if topic.prefix == 'solved' %}selected{% endif %}>✅ Решено</option>
+                <option value="bug" {% if topic.prefix == 'bug' %}selected{% endif %}>🐛 Баг</option>
+                <option value="help" {% if topic.prefix == 'help' %}selected{% endif %}>❓ Вопрос</option>
+                <option value="news" {% if topic.prefix == 'news' %}selected{% endif %}>📰 Новость</option>
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="btn-primary">Сохранить</button>
+            <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
+               class="btn-primary"
+               style="background: #999; text-decoration: none; text-align: center; line-height: 1.4;">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

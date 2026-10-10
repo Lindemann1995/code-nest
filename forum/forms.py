@@ -24,6 +24,7 @@ class RegisterForm(UserCreationForm):
 
 class TopicForm(forms.ModelForm):
     """Форма создания новой темы."""
+
     content = forms.CharField(
         widget=forms.Textarea(attrs={
             'class': 'editor',
@@ -47,6 +48,14 @@ class TopicForm(forms.ModelForm):
                 'maxlength': 200,
             })
         }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        # Показываем префикс только модераторам+
+        if user and not user.profile.is_staff_role:
+            self.fields.pop('prefix', None)
 
 class PostForm(forms.ModelForm):
     """Форма ответа в теме."""
@@ -135,3 +144,15 @@ class TopicMoveForm(forms.Form):
         empty_label="— Выберите раздел —",
         widget=forms.Select(attrs={'class': 'form-select'})
     )
+
+class TopicPrefixForm(forms.ModelForm):
+    """Форма смены префикса темы."""
+    class Meta:
+        model = Topic
+        fields = ('prefix',)
+        labels = {
+            'prefix': 'Префикс',
+        }
+        widgets = {
+            'prefix': forms.Select(attrs={'class': 'form-select'}),
+        }

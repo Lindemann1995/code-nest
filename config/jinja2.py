@@ -8,6 +8,7 @@ def environment(**options):
     env = Environment(**options)
     env.globals.update({
         'url': reverse,
+        'render_field': render_field, 
     })
     return env
 
@@ -42,3 +43,7 @@ def unread_counts(request):
         'unread_notifs': unread_notifs,
         'unread_msgs': unread_msgs,
     }
+
+def render_field(field, **attrs):
+    """Рендерит поле Django-формы в Jinja2."""
+    return field.as_widget(attrs=attrs)

@@ -3,7 +3,7 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 from .models import Category, Section, Topic, Post, Reaction, Notification, Conversation, Message
 from django.contrib.auth.decorators import login_required
-from .forms import RegisterForm, TopicForm, PostForm, ProfileEditForm, TopicMoveForm
+from .forms import RegisterForm, TopicForm, PostForm, ProfileEditForm, TopicMoveForm, TopicPrefixForm
 from django.http import JsonResponse
 from django.utils import timezone
 from .utils import parse_mentions, linkify_mentions
@@ -14,13 +14,29 @@ def index(request):
     """Главная страница — категории с разделами."""
     categories = Category.objects.all().prefetch_related('sections')
 
-    # Для каждой категории — только корневые разделы (без родителя)
     categories_data = []
     for category in categories:
         root_sections = category.sections.filter(parent__isnull=True)
+
+        # Считаем статистику по разделам
+        sections_data = []
+        for section in root_sections:
+            sections_data.append({
+                'section': section,
+                'topics_count': section.total_topics_count(),
+                'posts_count': section.total_posts_count(),
+                'last_topic': section.topics.order_by('-updated_at').first(),
+            })
+
+        # Общая статистика категории
+        total_topics = sum(s['topics_count'] for s in sections_data)
+        total_posts = sum(s['posts_count'] for s in sections_data)
+
         categories_data.append({
             'category': category,
-            'sections': root_sections,
+            'sections': sections_data,
+            'total_topics': total_topics,
+            'total_posts': total_posts,
         })
 
     return render(request, 'forum/index.html', {
@@ -74,7 +90,7 @@ def topic_create(request, section_slug):
     section = get_object_or_404(Section, slug=section_slug)
 
     if request.method == 'POST':
-        topic_form = TopicForm(request.POST)
+        topic_form = TopicForm(request.POST, user=request.user)
         post_form = PostForm(request.POST)
 
         if topic_form.is_valid() and post_form.is_valid():
@@ -94,7 +110,7 @@ def topic_create(request, section_slug):
 
             return redirect('forum:topic', section_slug=section_slug, slug=topic.slug)
     else:
-        topic_form = TopicForm()
+        topic_form = TopicForm(user=request.user)
         post_form = PostForm()
 
     return render(request, 'forum/topic_create.html', {
@@ -476,13 +492,25 @@ def user_unban(request, username):
 
 
 def category_detail(request, slug):
-    """Страница категории — список всех разделов."""
+    """Страница категории — список разделов."""
     category = get_object_or_404(Category, slug=slug)
     sections = category.sections.filter(parent__isnull=True)
+
+    # Считаем статистику по каждому разделу
+    sections_data = []
+    for section in sections:
+        sections_data.append({
+            'section': section,
+            'topics_count': section.total_topics_count(),
+            'posts_count': section.total_posts_count(),
+            'last_topic': section.topics.order_by('-updated_at').first(),
+            'subsections': section.children.all(),
+        })
+
     return render(request, 'forum/category.html', {
         'category': category,
-        'sections': sections,
-})
+        'sections_data': sections_data,
+    })
 
 def search(request):
     """Поиск по темам и сообщениям."""
@@ -626,3 +654,23 @@ def start_conversation(request, username):
     conv.participants.add(request.user, other)
 
     return redirect('forum:conversation', conv_id=conv.id)
+
+@login_required
+def topic_set_prefix(request, section_slug, slug):
+    """Смена префикса темы (модератор+)."""
+    topic = get_object_or_404(Topic, slug=slug, section__slug=section_slug)
+
+    if not request.user.profile.is_staff_role:
+        return redirect('forum:topic', section_slug=section_slug, slug=slug)
+
+    if request.method == 'POST':
+        prefix = request.POST.get('prefix', '')
+        valid_prefixes = [c[0] for c in Topic.PREFIX_CHOICES]
+        if prefix in valid_prefixes:
+            topic.prefix = prefix
+            topic.save(update_fields=['prefix'])
+        return redirect('forum:topic', section_slug=section_slug, slug=slug)
+
+    return render(request, 'forum/topic_set_prefix.html', {
+        'topic': topic,
+    })

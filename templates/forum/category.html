@@ -8,36 +8,55 @@
     / <span>{{ category.name }}</span>
 </nav>
 
-<h2>
-    {% if category.icon %}<span style="font-size: 28px;">{{ category.icon }}</span> {% endif %}
-    {{ category.name }}
-</h2>
+<div class="category-page-header">
+    <h1 class="category-page-title">
+        {% if category.icon %}<span class="category-page-icon">{{ category.icon }}</span> {% endif %}
+        {{ category.name }}
+    </h1>
+    {% if category.description %}
+        <p class="category-page-desc">{{ category.description }}</p>
+    {% endif %}
+</div>
 
-{% if category.description %}
-    <p class="description">{{ category.description }}</p>
-{% endif %}
-
-{% if sections %}
-    <div class="category-sections" style="background: #fff; border-radius: 10px; border: 1px solid #e5e5e7; padding: 8px 0;">
-        {% for section in sections %}
-            <div class="section-row">
-                <div class="section-row-main">
-                    <a href="{{ url('forum:section', kwargs={'slug': section.slug}) }}" class="section-name">
-                        {{ section.name }}
-                    </a>
-                    {% if section.description %}
-                        <div class="section-desc">{{ section.description }}</div>
+{% if sections_data %}
+    <div class="category-card-sections" style="padding: 0;">
+        {% for s in sections_data %}
+            <a href="{{ url('forum:section', kwargs={'slug': s.section.slug}) }}" class="section-card">
+                <div class="section-card-icon">📂</div>
+                <div class="section-card-main">
+                    <div class="section-card-name">{{ s.section.name }}</div>
+                    {% if s.section.description %}
+                        <div class="section-card-desc">{{ s.section.description }}</div>
                     {% endif %}
+                    <div class="section-card-stats">
+                        <span class="stat-item">
+                            <strong>{{ s.topics_count }}</strong> тем
+                        </span>
+                        <span class="stat-item">
+                            <strong>{{ s.posts_count }}</strong> сообщ.
+                        </span>
+                    </div>
                 </div>
-                <div class="section-row-stats">
-                    <span class="stat-mini">
-                        <strong>{{ section.total_topics_count() }}</strong> тем
-                    </span>
-                </div>
-            </div>
+                {% if s.last_topic %}
+                    <div class="section-card-last">
+                        <div class="last-topic-label">Последнее:</div>
+                        <a href="{{ url('forum:topic', kwargs={'section_slug': s.section.slug, 'slug': s.last_topic.slug}) }}" class="last-topic-title">
+                            {{ s.last_topic.title[:40] }}{% if s.last_topic.title|length > 40 %}...{% endif %}
+                        </a>
+                        <div class="last-topic-author">
+                            от <a href="{{ url('forum:profile', kwargs={'username': s.last_topic.author.username}) }}"
+                                  class="{% if s.last_topic.author.profile.role == 'team' %}username-team{% endif %}">{{ s.last_topic.author.username }}</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </a>
         {% endfor %}
     </div>
 {% else %}
-    <p>В этой категории пока нет разделов.</p>
+    <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <div class="empty-text">В этой категории пока нет разделов</div>
+        <p style="font-size: 13px; color: #999;">Создайте первый в <a href="/admin/">админке</a></p>
+    </div>
 {% endif %}
 {% endblock %}

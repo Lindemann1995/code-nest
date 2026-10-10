@@ -29,4 +29,5 @@ urlpatterns = [
     path('messages/', views.conversations_list, name='conversations'),
     path('messages/<int:conv_id>/', views.conversation_detail, name='conversation'),
     path('messages/start/<str:username>/', views.start_conversation, name='start_conversation'),
+    path('section/<slug:section_slug>/topic/<slug:slug>/prefix/', views.topic_set_prefix, name='topic_set_prefix'),
 ]

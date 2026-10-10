@@ -16,18 +16,18 @@
 </nav>
 
 <div class="topic-header">
-    <h1 class="topic-title-display">
-        {% if topic.is_pinned %}<span class="topic-badge-pin" title="Закреплено">📌</span>{% endif %}
-        {% if topic.is_closed %}<span class="topic-badge-lock" title="Закрыто">🔒</span>{% endif %}
+<h1 class="topic-title-display">
+    {% if topic.is_pinned %}<span class="topic-badge-pin">📌</span>{% endif %}
+    {% if topic.is_closed %}<span class="topic-badge-lock">🔒</span>{% endif %}
 
-        {% if topic.prefix %}
-            <span class="topic-prefix" style="background: {{ topic.prefix_color() }}15; color: {{ topic.prefix_color() }}; border-color: {{ topic.prefix_color() }}40;">
-                {{ topic.prefix_icon() }} {{ topic.prefix_label() }}
-            </span>
-        {% endif %}
+    {% if topic.prefix %}
+        <span class="topic-prefix" style="background: {{ topic.prefix_color() }}15; color: {{ topic.prefix_color() }}; border-color: {{ topic.prefix_color() }}40;">
+            {{ topic.prefix_icon() }} {{ topic.prefix_label() }}
+        </span>
+    {% endif %}
 
-        <span class="topic-title-text">{{ topic.title }}</span>
-    </h1>
+    <span class="topic-title-text">{{ topic.title }}</span>
+</h1>
 </div>
 
 {% if user.is_authenticated %}
@@ -46,6 +46,9 @@
                     {% if user.profile.is_staff_role %}
                         <a href="{{ url('forum:topic_toggle_pin', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}" class="topic-menu-item">
                             {% if topic.is_pinned %}📌 Открепить тему{% else %}📌 Закрепить тему{% endif %}
+                        </a>
+                        <a href="{{ url('forum:topic_set_prefix', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}" class="topic-menu-item">
+                            🏷️ Изменить префикс
                         </a>
 
                         {% if user.profile.role in ('senior_mod', 'admin', 'manager', 'team') %}
