@@ -14,47 +14,147 @@
     / <span>{{ section.name }}</span>
 </nav>
 
-<h2>{{ section.name }}</h2>
-{% if user.is_authenticated %}
-    <a href="{{ url('forum:topic_create', kwargs={'section_slug': section.slug}) }}" class="btn-primary" style="display:inline-block; text-decoration:none; width:auto; padding:10px 20px; margin-bottom:20px;">+ Создать тему</a>
-{% endif %}
-{% if section.description %}
-    <p class="description">{{ section.description }}</p>
-{% endif %}
+<div class="section-header">
+    <div class="section-title-wrap">
+        <h1>{{ section.name }}</h1>
+        {% if section.description %}
+            <p class="section-desc">{{ section.description }}</p>
+        {% endif %}
+    </div>
+    {% if user.is_authenticated %}
+        <a href="{{ url('forum:topic_create', kwargs={'section_slug': section.slug}) }}" class="btn-create-topic">
+            ✏️ Создать тему
+        </a>
+    {% endif %}
+</div>
 
 {% if subsections %}
-    <h3>Подразделы</h3>
-    <ul class="subsections-list">
-    {% for sub in subsections %}
-        <li>
-            <a href="{{ url('forum:section', kwargs={'slug': sub.slug}) }}">{{ sub.name }}</a>
-            {% if sub.description %}
-                <p>{{ sub.description }}</p>
-            {% endif %}
-        </li>
-    {% endfor %}
-    </ul>
+    <div class="subsections-block">
+        <h3 class="block-title">📂 Подразделы</h3>
+        <div class="subsections-grid">
+            {% for sub in subsections %}
+                <a href="{{ url('forum:section', kwargs={'slug': sub.slug}) }}" class="subsection-card">
+                    <div class="subsection-name">{{ sub.name }}</div>
+                    {% if sub.description %}
+                        <div class="subsection-desc">{{ sub.description }}</div>
+                    {% endif %}
+                    <div class="subsection-stats">{{ sub.total_topics_count() }} тем</div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
 {% endif %}
 
-<h3>Темы</h3>
-{% if topics %}
-    <ul class="topics-list">
-    {% for topic in topics %}
-        <li>
-            {% if topic.is_pinned %}<span class="badge">📌</span>{% endif %}
-            {% if topic.is_closed %}<span class="badge">🔒</span>{% endif %}
-            <a href="{{ url('forum:topic', kwargs={'section_slug': section.slug, 'slug': topic.slug}) }}">
-                {{ topic.title }}
-            </a>
-            <div class="topic-meta">
-                Автор: <a href="{{ url('forum:profile', kwargs={'username': topic.author.username}) }}">{{ topic.author.username }}</a>·
-                {{ topic.created_at.strftime('%d.%m.%Y %H:%M') }} ·
-                Просмотров: {{ topic.views }}
-            </div>
-        </li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>В этом разделе пока нет тем.</p>
+{% if pinned_topics %}
+    <div class="topics-section">
+        <div class="topics-section-title pinned-title">
+            📌 Закреплённые темы
+        </div>
+        <div class="topics-list">
+            {% for topic in pinned_topics %}
+                <div class="topic-row pinned">
+                    <div class="topic-row-avatar">
+                        {% if topic.author.profile.avatar %}
+                            <img src="{{ topic.author.profile.avatar.url }}" alt="">
+                        {% else %}
+                            {{ topic.author.username[0]|upper }}
+                        {% endif %}
+                    </div>
+
+                    <div class="topic-row-main">
+                        <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}" class="topic-row-title">
+                            <span class="pin-icon" title="Закреплено">📌</span>
+                            {% if topic.prefix %}
+                                <span class="topic-prefix-small" style="background: {{ topic.prefix_color() }}15; color: {{ topic.prefix_color() }}; border-color: {{ topic.prefix_color() }}40;">
+                                    {{ topic.prefix_icon() }} {{ topic.prefix_label() }}
+                                </span>
+                            {% endif %}
+                            {{ topic.title }}
+                        </a>
+                        <div class="topic-row-meta">
+                            <a href="{{ url('forum:profile', kwargs={'username': topic.author.username}) }}"
+                               class="{% if topic.author.profile.role == 'team' %}username-team{% endif %}">
+                                {{ topic.author.username }}
+                            </a>
+                            · {{ topic.created_at.strftime('%d.%m.%Y %H:%M') }}
+                        </div>
+                    </div>
+
+                    <div class="topic-row-stats">
+                        <div class="topic-stat" title="Ответы">
+                            <span class="stat-icon">💬</span>
+                            <span class="stat-value">{{ topic.posts.count() }}</span>
+                        </div>
+                        <div class="topic-stat" title="Просмотры">
+                            <span class="stat-icon">👁️</span>
+                            <span class="stat-value">{{ topic.views }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endif %}
+
+<div class="topics-section">
+    <div class="topics-section-title">
+        💬 Темы
+    </div>
+    {% if regular_topics %}
+        <div class="topics-list">
+            {% for topic in regular_topics %}
+                <div class="topic-row">
+                    <div class="topic-row-avatar">
+                        {% if topic.author.profile.avatar %}
+                            <img src="{{ topic.author.profile.avatar.url }}" alt="">
+                        {% else %}
+                            {{ topic.author.username[0]|upper }}
+                        {% endif %}
+                    </div>
+
+                    <div class="topic-row-main">
+                        <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}" class="topic-row-title">
+                            {% if topic.is_closed %}<span class="lock-icon" title="Закрыто">🔒</span>{% endif %}
+                            {% if topic.prefix %}
+                                <span class="topic-prefix-small" style="background: {{ topic.prefix_color() }}15; color: {{ topic.prefix_color() }}; border-color: {{ topic.prefix_color() }}40;">
+                                    {{ topic.prefix_icon() }} {{ topic.prefix_label() }}
+                                </span>
+                            {% endif %}
+                            {{ topic.title }}
+                        </a>
+                        <div class="topic-row-meta">
+                            <a href="{{ url('forum:profile', kwargs={'username': topic.author.username}) }}"
+                               class="{% if topic.author.profile.role == 'team' %}username-team{% endif %}">
+                                {{ topic.author.username }}
+                            </a>
+                            · {{ topic.created_at.strftime('%d.%m.%Y %H:%M') }}
+                        </div>
+                    </div>
+
+                    <div class="topic-row-stats">
+                        <div class="topic-stat" title="Ответы">
+                            <span class="stat-icon">💬</span>
+                            <span class="stat-value">{{ topic.posts.count() }}</span>
+                        </div>
+                        <div class="topic-stat" title="Просмотры">
+                            <span class="stat-icon">👁️</span>
+                            <span class="stat-value">{{ topic.views }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">💭</div>
+            <div class="empty-text">В этом разделе пока нет тем</div>
+            {% if user.is_authenticated %}
+                <a href="{{ url('forum:topic_create', kwargs={'section_slug': section.slug}) }}" class="btn-create-topic" style="margin-top: 15px;">
+                    ✏️ Создать первую тему
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
 {% endblock %}

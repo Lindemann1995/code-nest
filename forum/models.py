@@ -100,6 +100,42 @@ class Section(models.Model):
 
 class Topic(models.Model):
     """Тема в разделе."""
+    PREFIX_CHOICES = [
+        ('', '— Без префикса —'),
+        ('rules', '📜 Правила'),
+        ('recommend', '💡 Рекомендации'),
+        ('solved', '✅ Решено'),
+        ('bug', '🐛 Баг'),
+        ('help', '❓ Вопрос'),
+        ('news', '📰 Новость'),
+    ]
+
+    PREFIX_COLORS = {
+        '': None,
+        'rules': '#ef4444',       # красный
+        'recommend': '#22c55e',   # зелёный
+        'solved': '#3b82f6',      # синий
+        'bug': '#dc2626',         # тёмно-красный
+        'help': '#f5a623',        # оранжевый
+        'news': '#a855f7',        # фиолетовый
+    }
+
+    PREFIX_ICONS = {
+        '': '',
+        'rules': '📜',
+        'recommend': '💡',
+        'solved': '✅',
+        'bug': '🐛',
+        'help': '❓',
+        'news': '📰',
+    }
+    prefix = models.CharField(
+        max_length=20,
+        choices=PREFIX_CHOICES,
+        blank=True,
+        default='',
+        verbose_name="Префикс"
+    )
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='topics')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='topics')
     title = models.CharField(max_length=200)
@@ -117,6 +153,15 @@ class Topic(models.Model):
 
     def __str__(self):
         return self.title
+
+    def prefix_color(self):
+        return self.PREFIX_COLORS.get(self.prefix) or None
+
+    def prefix_icon(self):
+        return self.PREFIX_ICONS.get(self.prefix, '')
+
+    def prefix_label(self):
+        return dict(self.PREFIX_CHOICES).get(self.prefix, '')
 
     def save(self, *args, **kwargs):
         """Автоматическая генерация из titile"""
@@ -155,10 +200,31 @@ class Post(models.Model):
         return self.reactions.count()
     
     def user_reaction(self, user):
-        """Реакция конкретного пользователя (или None)"""
+        """Возвращает реакцию пользователя на этот пост (или None)."""
         if not user.is_authenticated:
             return None
-        return self.reactions.filter(user=user).first()
+        reaction = self.reactions.filter(user=user).first()
+        return reaction.reaction_type if reaction else None
+
+    def reaction_counts(self):
+        """Возвращает dict со счётчиками по типам."""
+        counts = {}
+        for code, _ in Reaction.REACTION_CHOICES:
+            counts[code] = self.reactions.filter(reaction_type=code).count()
+        return counts
+
+    def reaction_icons_list(self):
+        """Возвращает список активных иконок + количество."""
+        result = []
+        for code, _ in Reaction.REACTION_CHOICES:
+            count = self.reactions.filter(reaction_type=code).count()
+            if count > 0:
+                result.append({
+                    'icon': Reaction.REACTION_ICONS[code],
+                    'count': count,
+                    'code': code,
+                })
+        return result
     
     def content_with_mentions(self):
         """Возвращает HTML с обработанными @упоминаниями."""
@@ -276,6 +342,8 @@ class Profile(models.Model):
         blank=True,
         verbose_name="Последняя активность"
     )
+
+    
     reputation = models.IntegerField(
         default=0,
         verbose_name="Репутация",
@@ -393,7 +461,27 @@ class Reaction(models.Model):
 
     REACTION_CHOICES = [
         ('like', '👍 Нравится'),
+        ('love', '❤️ Люблю'),
+        ('fire', '🔥 Огонь'),
+        ('target', '🎯 В точку'),
+        ('funny', '😄 Смешно'),
     ]
+
+    REACTION_WEIGHTS = {
+        'like': 1,
+        'love': 2,
+        'fire': 3,
+        'target': 2,
+        'funny': 1,
+    }
+
+    REACTION_ICONS = {
+        'like': '👍',
+        'love': '❤️',
+        'fire': '🔥',
+        'target': '🎯',
+        'funny': '😄',
+    }
 
     user = models.ForeignKey(
         User,
@@ -421,8 +509,7 @@ class Reaction(models.Model):
     class Meta:
         verbose_name = "Реакция"
         verbose_name_plural = "Реакции"
-        # Один пользователь = 1 реакция.
-        unique_together = ('user', 'post', 'reaction_type')
+        unique_together = ('user', 'post')  # один юзер — одна реакция на пост
         ordering = ['-created_at']
 
     def __str__(self):

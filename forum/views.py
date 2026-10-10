@@ -28,14 +28,19 @@ def index(request):
     })
 
 def section_detail(request, slug):
-    """Страница раздела - список тем + подразделы."""
+    """Страница раздела — список тем + подразделы."""
     section = get_object_or_404(Section, slug=slug)
-    topics = section.topics.all()
     subsections = section.children.all()
+
+    # Разделяем темы на закреплённые и обычные
+    pinned_topics = section.topics.filter(is_pinned=True).order_by('-updated_at')
+    regular_topics = section.topics.filter(is_pinned=False).order_by('-updated_at')
+
     return render(request, 'forum/section.html', {
         'section': section,
-        'topics': topics,
         'subsections': subsections,
+        'pinned_topics': pinned_topics,
+        'regular_topics': regular_topics,
     })
 
 def topic_detail(request, section_slug, slug):
@@ -187,7 +192,7 @@ def profile_edit(request, username):
 
 @login_required
 def toggle_reaction(request, post_id):
-    """Поставить/снять лайк на пост."""
+    """Поставить/изменить/снять реакцию на пост."""
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
@@ -196,50 +201,92 @@ def toggle_reaction(request, post_id):
     # Свои лайки не считаем
     if post.author == request.user:
         return JsonResponse({
-            'error': 'Нельзя лайкать свои посты',
-            'liked': False,
-            'count': post.reactions.count(),
+            'error': 'Нельзя реагировать на свои посты',
+            'reaction': None,
         }, status=400)
 
-    reaction, created = Reaction.objects.get_or_create(
-        user=request.user,
-        post=post,
-        reaction_type='like'
-    )
+    reaction_type = request.POST.get('reaction_type', 'like')
+    if reaction_type not in dict(Reaction.REACTION_CHOICES):
+        reaction_type = 'like'
 
-    # Профиль автора поста
     author_profile = post.author.profile
 
-    if not created:
-        reaction.delete()
-        liked = False
-        author_profile.reputation -= 1
-        # Удаляем уведомление
-        Notification.objects.filter(
-            user=post.author,
-            sender=request.user,
-            notification_type='like',
-            post=post
-        ).delete()
+    # Ищем существующую реакцию
+    existing = Reaction.objects.filter(user=request.user, post=post).first()
+
+    if existing:
+        # Если та же реакция — удаляем (снимаем)
+        if existing.reaction_type == reaction_type:
+            # Снимаем репутацию
+            author_profile.reputation -= Reaction.REACTION_WEIGHTS.get(existing.reaction_type, 1)
+            existing.delete()
+            author_profile.save(update_fields=['reputation'])
+
+            # Удаляем уведомление
+            Notification.objects.filter(
+                user=post.author,
+                sender=request.user,
+                notification_type='like',
+                post=post
+            ).delete()
+
+            return JsonResponse({
+                'action': 'removed',
+                'reaction': None,
+                'counts': get_reaction_counts(post),
+                'total': post.reactions.count(),
+            })
+        else:
+            # Меняем реакцию
+            # Снимаем старую репутацию
+            author_profile.reputation -= Reaction.REACTION_WEIGHTS.get(existing.reaction_type, 1)
+            # Меняем тип
+            existing.reaction_type = reaction_type
+            existing.save(update_fields=['reaction_type'])
+            # Добавляем новую репутацию
+            author_profile.reputation += Reaction.REACTION_WEIGHTS.get(reaction_type, 1)
+            author_profile.save(update_fields=['reputation'])
+
+            return JsonResponse({
+                'action': 'changed',
+                'reaction': reaction_type,
+                'counts': get_reaction_counts(post),
+                'total': post.reactions.count(),
+            })
     else:
-        liked = True
-        author_profile.reputation += 1
-        # Создаём уведомление
+        # Создаём новую
+        Reaction.objects.create(
+            user=request.user,
+            post=post,
+            reaction_type=reaction_type
+        )
+        author_profile.reputation += Reaction.REACTION_WEIGHTS.get(reaction_type, 1)
+        author_profile.save(update_fields=['reputation'])
+
+        # Уведомление
         Notification.objects.create(
             user=post.author,
             sender=request.user,
             notification_type='like',
             topic=post.topic,
             post=post,
-            message=f"поставил 👍 вашему сообщению в теме «{post.topic.title}»"
+            message=f"поставил {Reaction.REACTION_ICONS.get(reaction_type, '👍')} вашему сообщению в теме «{post.topic.title}»"
         )
 
-    author_profile.save(update_fields=['reputation'])
+        return JsonResponse({
+            'action': 'added',
+            'reaction': reaction_type,
+            'counts': get_reaction_counts(post),
+            'total': post.reactions.count(),
+        })
 
-    return JsonResponse({
-        'liked': liked,
-        'count': post.reactions.count(),
-    })
+
+def get_reaction_counts(post):
+    """Считает количество реакций каждого типа."""
+    counts = {}
+    for code, _ in Reaction.REACTION_CHOICES:
+        counts[code] = post.reactions.filter(reaction_type=code).count()
+    return counts
 
 @login_required
 def post_edit(request, post_id):

@@ -15,100 +15,217 @@
     / <span>{{ topic.title }}</span>
 </nav>
 
-<h2>
-    {% if topic.is_pinned %}<span class="badge">📌</span>{% endif %}
-    {% if topic.is_closed %}<span class="badge">🔒</span>{% endif %}
-    {{ topic.title }}
-    {% if user.is_authenticated %}
+<div class="topic-header">
+    <h1 class="topic-title-display">
+        {% if topic.is_pinned %}<span class="topic-badge-pin" title="Закреплено">📌</span>{% endif %}
+        {% if topic.is_closed %}<span class="topic-badge-lock" title="Закрыто">🔒</span>{% endif %}
+
+        {% if topic.prefix %}
+            <span class="topic-prefix" style="background: {{ topic.prefix_color() }}15; color: {{ topic.prefix_color() }}; border-color: {{ topic.prefix_color() }}40;">
+                {{ topic.prefix_icon() }} {{ topic.prefix_label() }}
+            </span>
+        {% endif %}
+
+        <span class="topic-title-text">{{ topic.title }}</span>
+    </h1>
+</div>
+
+{% if user.is_authenticated %}
     {% if user == topic.author or user.profile.is_staff_role %}
         <div class="topic-moderator-actions">
-            <a href="{{ url('forum:topic_toggle_close', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
-               class="post-action-link">
-                {% if topic.is_closed %}🔓 Открыть тему{% else %}🔒 Закрыть тему{% endif %}
-            </a>
+            <div class="topic-menu-wrapper">
+                <button class="topic-menu-btn" onclick="toggleTopicMenu(event)">
+                    ⚙️ Управление
+                </button>
 
-            {% if user.profile.is_staff_role %}
-                <a href="{{ url('forum:topic_toggle_pin', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
-                   class="post-action-link">
-                    {% if topic.is_pinned %}📌 Открепить{% else %}📌 Закрепить{% endif %}
-                </a>
-                {% if user.profile.role in ('senior_mod', 'admin', 'manager', 'team') %}
-                <a href="{{ url('forum:topic_move', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
-                class="post-action-link">
-                    📁 Перенести
-                </a>
-            {% endif %}
-                <a href="{{ url('forum:topic_delete', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}"
-                class="post-action-link post-action-delete">
-                    🗑️ Удалить тему
-                </a>
-            {% endif %}
+                <div class="topic-menu-dropdown" id="topicMenu">
+                    <a href="{{ url('forum:topic_toggle_close', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}" class="topic-menu-item">
+                        {% if topic.is_closed %}🔓 Открыть тему{% else %}🔒 Закрыть тему{% endif %}
+                    </a>
+
+                    {% if user.profile.is_staff_role %}
+                        <a href="{{ url('forum:topic_toggle_pin', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}" class="topic-menu-item">
+                            {% if topic.is_pinned %}📌 Открепить тему{% else %}📌 Закрепить тему{% endif %}
+                        </a>
+
+                        {% if user.profile.role in ('senior_mod', 'admin', 'manager', 'team') %}
+                            <a href="{{ url('forum:topic_move', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}" class="topic-menu-item">
+                                📁 Перенести в раздел
+                            </a>
+                        {% endif %}
+
+                        <div class="topic-menu-divider"></div>
+
+                        <a href="{{ url('forum:topic_delete', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}" class="topic-menu-item topic-menu-danger">
+                            🗑️ Удалить тему
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     {% endif %}
 {% endif %}
-</h2>
 
 <div class="topic-info">
-    Автор: {{ topic.author.username }} ·
+Автор: <a href="{{ url('forum:profile', kwargs={'username': topic.author.username}) }}"
+          class="{% if topic.author.profile.role == 'team' %}username-team{% endif %}"
+          style="text-decoration: none;">{{ topic.author.username }}</a>
     Создано: {{ topic.created_at.strftime('%d.%m.%Y %H:%M') }} ·
     Просмотров: {{ topic.views }}
 </div>
-            <div class="posts">
-            {% for post in posts %}
-                <div class="post">
-                    <div class="post-author">
-                        <a href="{{ url('forum:profile', kwargs={'username': post.author.username}) }}"
-                        class="post-author-link user-link"
-                        data-username="{{ post.author.username }}"
-                        data-profile-url="{{ url('forum:profile', kwargs={'username': post.author.username}) }}"
-                        data-avatar="{% if post.author.profile.avatar %}{{ post.author.profile.avatar.url }}{% endif %}"
-                        data-banner="{% if post.author.profile.banner %}{{ post.author.profile.banner.url }}{% endif %}"
-                        data-role-name="{{ post.author.profile.role_name }}"
-                        data-role-color="{{ post.author.profile.role_color }}"
-                        data-role-icon="{{ post.author.profile.role_icon }}"
-                        data-status="{{ post.author.profile.status }}"
-                        data-joined="{{ post.author.date_joined.strftime('%d.%m.%Y') }}"
-                        data-online="{% if post.author.profile.is_online %}🟢 Онлайн{% else %}⚫ {{ post.author.profile.last_seen_display }}{% endif %}"
-                        data-posts="{{ post.author.profile.posts_count }}"
-                        data-topics="{{ post.author.profile.topics_count }}"
-                        data-reputation="{{ post.author.profile.reputation }}"
-                        onclick="event.preventDefault(); openUserPopup(this);">
-                            <strong>{{ post.author.username }}</strong>
-                        </a>
-                        <div class="post-author-role" style="color: {{ post.author.profile.role_color }}">
-                            {% if post.author.profile.role_icon %}{{ post.author.profile.role_icon }} {% endif %}
-                            {{ post.author.profile.role_name }}
-                        </div>
-                        <div class="post-date">{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+
+<div class="posts">
+{% for post in posts %}
+    <div class="post" id="post-{{ post.id }}">
+        <div class="post-layout">
+            <div class="post-author-card">
+                <a href="{{ url('forum:profile', kwargs={'username': post.author.username}) }}"
+                   class="post-author-avatar user-link"
+                   data-username="{{ post.author.username }}"
+                   data-profile-url="{{ url('forum:profile', kwargs={'username': post.author.username}) }}"
+                   data-avatar="{% if post.author.profile.avatar %}{{ post.author.profile.avatar.url }}{% endif %}"
+                   data-banner="{% if post.author.profile.banner %}{{ post.author.profile.banner.url }}{% endif %}"
+                   data-role-name="{{ post.author.profile.role_name }}"
+                   data-role-color="{{ post.author.profile.role_color }}"
+                   data-role-icon="{{ post.author.profile.role_icon }}"
+                   data-status="{{ post.author.profile.status }}"
+                   data-joined="{{ post.author.date_joined.strftime('%d.%m.%Y') }}"
+                   data-online="{% if post.author.profile.is_online %}🟢 Онлайн{% else %}⚫ {{ post.author.profile.last_seen_display }}{% endif %}"
+                   data-posts="{{ post.author.profile.posts_count }}"
+                   data-topics="{{ post.author.profile.topics_count }}"
+                   data-reputation="{{ post.author.profile.reputation }}"
+                   onclick="event.preventDefault(); openUserPopup(this);">
+                    {% if post.author.profile.avatar %}
+                        <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}">
+                    {% else %}
+                        {{ post.author.username[0]|upper }}
+                    {% endif %}
+                </a>
+
+                <a href="{{ url('forum:profile', kwargs={'username': post.author.username}) }}"
+                class="post-author-name {% if post.author.profile.role == 'team' %}username-team{% endif %}">
+                    {{ post.author.username }}
+                </a>
+
+                <div class="post-author-role" style="color: {{ post.author.profile.role_color }};">
+                    {% if post.author.profile.role_icon %}{{ post.author.profile.role_icon }} {% endif %}{{ post.author.profile.role_name }}
+                </div>
+
+                {% if post.author.profile.status %}
+                    <div class="post-author-status">{{ post.author.profile.status }}</div>
+                {% endif %}
+
+                <div class="post-author-stats">
+                    <div class="post-author-stat" title="Сообщений">
+                        <span class="stat-icon">📝</span>
+                        <span class="stat-value">{{ post.author.profile.posts_count }}</span>
                     </div>
-                    <div class="post-content">
+                    <div class="post-author-stat" title="Тем">
+                        <span class="stat-icon">💬</span>
+                        <span class="stat-value">{{ post.author.profile.topics_count }}</span>
+                    </div>
+                    <div class="post-author-stat" title="Репутация">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-value">{{ post.author.profile.reputation }}</span>
+                    </div>
+                </div>
+
+                <div class="post-author-online {% if post.author.profile.is_online %}online{% endif %}">
+                    {% if post.author.profile.is_online %}🟢 Онлайн{% else %}⚫ {{ post.author.profile.last_seen_display }}{% endif %}
+                </div>
+            </div>
+
+            <div class="post-main">
+                <div class="post-header">
+                    <span class="post-header-time">{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                    {% if post.is_edited %}
+                        <span class="post-edited-mark-inline">(отредактировано)</span>
+                    {% endif %}
+                </div>
+
+                <div class="post-content">
                     {{ post.content_with_mentions()|safe }}
                 </div>
-                    <div class="post-actions">
-                <button class="reaction-btn {% if post.user_reaction(user) %}active{% endif %}"
-                        data-post-id="{{ post.id }}"
-                        data-url="{{ url('forum:toggle_reaction', kwargs={'post_id': post.id}) }}"
-                        {% if not user.is_authenticated %}disabled title="Войдите, чтобы поставить лайк"{% endif %}>
-                    👍 <span class="reaction-count">{{ post.reactions.count() }}</span>
-                </button>
 
-                {% if user.is_authenticated %}
-                    {% if user == post.author or user.profile.is_staff_role %}
-                        <a href="{{ url('forum:post_edit', kwargs={'post_id': post.id}) }}" class="post-action-link">
-                            ✏️ Редактировать
-                        </a>
-                        <a href="{{ url('forum:post_delete', kwargs={'post_id': post.id}) }}" class="post-action-link post-action-delete">
-                    🗑️ Удалить
-                </a>
-                {% endif %}
-                {% endif %}
+                <div class="post-actions">
+                    <div class="reaction-bar" data-post-id="{{ post.id }}">
+                        {% set user_reaction = post.user_reaction(user) %}
+                        {% set icons = {
+                            'like': '👍', 'love': '❤️', 'fire': '🔥', 'target': '🎯', 'funny': '😄'
+                        } %}
+                        {% set total = post.reactions.count() %}
 
-                {% if post.is_edited %}
-                    <span class="post-edited-mark">
-                        (отредактировано {{ post.updated_at.strftime('%d.%m.%Y %H:%M') }})
-                    </span>
-                {% endif %}
+                        {% if not user.is_authenticated %}
+                            <div class="reaction-trigger disabled" title="Войдите, чтобы реагировать">
+                                👍
+                                {% if total > 0 %}<span class="reaction-total">{{ total }}</span>{% endif %}
+                            </div>
+                        {% else %}
+                            <div class="reaction-wrapper">
+                                <button class="reaction-trigger {% if user_reaction %}has-reaction{% endif %}"
+                                        type="button"
+                                        data-user-reaction="{{ user_reaction or '' }}">
+                                    {% if user_reaction %}
+                                        {{ icons[user_reaction] }}
+                                    {% else %}
+                                        👍
+                                    {% endif %}
+                                    {% if total > 0 %}<span class="reaction-total">{{ total }}</span>{% endif %}
+                                </button>
+
+                                <div class="reaction-picker" role="menu">
+                                    {% for code, icon in icons.items() %}
+                                        <button class="reaction-picker-item {% if user_reaction == code %}active{% endif %}"
+                                                type="button"
+                                                data-reaction="{{ code }}"
+                                                title="{{ code }}">
+                                            {{ icon }}
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if total > 1 %}
+    <div class="reaction-summary">
+        {% for item in post.reaction_icons_list() %}
+            <span class="reaction-badge" title="{{ item.count }} реакций">
+                {{ item.icon }} <span>{{ item.count }}</span>
+            </span>
+        {% endfor %}
+    </div>
+{% endif %}
+                    </div>
+
+                    <div class="post-actions-right">
+                        <button class="post-action-icon copy-link-btn"
+                                data-post-id="{{ post.id }}"
+                                onclick="copyPostLink({{ post.id }}, this)"
+                                title="Скопировать ссылку на пост">
+                            🔗
+                        </button>
+
+                        {% if user.is_authenticated %}
+                            {% if user == post.author or user.profile.is_staff_role %}
+                                <div class="post-menu-wrapper">
+                                    <button class="post-action-icon post-menu-btn" onclick="togglePostMenu(event, {{ post.id }})" title="Действия">
+                                        ⋯
+                                    </button>
+                                    <div class="post-menu-dropdown" id="postMenu-{{ post.id }}">
+                                        <a href="{{ url('forum:post_edit', kwargs={'post_id': post.id}) }}" class="post-menu-item">
+                                            ✏️ Редактировать
+                                        </a>
+                                        <a href="{{ url('forum:post_delete', kwargs={'post_id': post.id}) }}" class="post-menu-item post-menu-danger">
+                                            🗑️ Удалить
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
             </div>
+        </div>
     </div>
 {% else %}
     <p>В этой теме пока нет сообщений.</p>

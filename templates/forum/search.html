@@ -57,9 +57,11 @@
                 {% for post in posts %}
                     <div class="search-result">
                         <div class="search-result-title">
-                            <a href="{{ url('forum:topic', kwargs={'section_slug': post.topic.section.slug, 'slug': post.topic.slug}) }}#post-{{ post.id }}">
-                                {{ post.topic.title }}
-                            </a>
+                            {% if topic.prefix %}
+                            <span class="topic-prefix-small" style="background: {{ topic.prefix_color() }}15; color: {{ topic.prefix_color() }}; border-color: {{ topic.prefix_color() }}40;">
+                                {{ topic.prefix_icon() }} {{ topic.prefix_label() }}
+                            </span>
+                        {% endif %}
                         </div>
                         <div class="search-result-meta">
                             Автор: {{ post.author.username }}

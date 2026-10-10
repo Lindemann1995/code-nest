@@ -22,8 +22,8 @@ class SectionAdmin(admin.ModelAdmin):
 
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
-    list_display = ('title', 'section', 'author', 'created_at', 'is_pinned', 'is_closed', 'views')
-    list_filter = ('section', 'is_pinned', 'is_closed', 'created_at')
+    list_display = ('title', 'prefix', 'section', 'author', 'created_at', 'is_pinned', 'is_closed', 'views')
+    list_filter = ('prefix', 'section', 'is_pinned', 'is_closed', 'created_at')
     search_fields = ('title', 'author__username')
     list_editable = ('is_pinned', 'is_closed')
     date_hierarchy = 'created_at'
