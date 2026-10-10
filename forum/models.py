@@ -374,6 +374,14 @@ class Profile(models.Model):
             return f"Был(а) {days} дн. назад"
         else:
             return f"Был(а) {self.last_activity.strftime('%d.%m.%Y')}"
+    
+    @property
+    def unread_messages_count(self):
+        """Сколько непрочитанных ЛС у пользователя."""
+        count = 0
+        for conv in self.user.conversations.all():
+            count += conv.unread_count_for(self.user)
+        return count
 
 class Reaction(models.Model):
     """Реакция пользователя на пост (Like)."""
@@ -487,3 +495,58 @@ class Notification(models.Model):
         if self.topic:
             return f"/section/{self.topic.section.slug}/topic/{self.topic.slug}/"
         return '/'
+
+class Conversation(models.Model):
+    """Диалог между двумя пользователями."""
+    participants = models.ManyToManyField(
+        User,
+        related_name='conversations',
+        verbose_name="Участники"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создан")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлён")
+
+    class Meta:
+        verbose_name = "Диалог"
+        verbose_name_plural = "Диалоги"
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        users = ', '.join([u.username for u in self.participants.all()])
+        return f"Диалог: {users}"
+
+    def last_message(self):
+        return self.messages.order_by('-created_at').first()
+
+    def unread_count_for(self, user):
+        return self.messages.filter(is_read=False).exclude(author=user).count()
+
+    def other_user(self, user):
+        return self.participants.exclude(id=user.id).first()
+
+
+class Message(models.Model):
+    """Сообщение в диалоге."""
+    conversation = models.ForeignKey(
+        Conversation,
+        on_delete=models.CASCADE,
+        related_name='messages',
+        verbose_name="Диалог"
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='sent_messages',
+        verbose_name="Отправитель"
+    )
+    content = models.TextField(verbose_name="Сообщение")
+    is_read = models.BooleanField(default=False, verbose_name="Прочитано")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
+
+    class Meta:
+        verbose_name = "Сообщение"
+        verbose_name_plural = "Сообщения"
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.author.username}: {self.content[:50]}"

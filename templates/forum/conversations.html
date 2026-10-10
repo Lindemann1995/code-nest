@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Личные сообщения — Code Nest{% endblock %}
+
+{% block content %}
+<h2>✉️ Личные сообщения</h2>
+
+{% if conv_data %}
+    <div class="conv-list">
+        {% for item in conv_data %}
+            <a href="{{ url('forum:conversation', kwargs={'conv_id': item.conversation.id}) }}" class="conv-item {% if item.unread > 0 %}unread{% endif %}">
+                <div class="conv-avatar">
+                    {% if item.other_user.profile.avatar %}
+                        <img src="{{ item.other_user.profile.avatar.url }}" alt="{{ item.other_user.username }}">
+                    {% else %}
+                        {{ item.other_user.username[0]|upper }}
+                    {% endif %}
+                </div>
+                <div class="conv-body">
+                    <div class="conv-name">
+                        {{ item.other_user.username }}
+                        {% if item.unread > 0 %}
+                            <span class="conv-unread-badge">{{ item.unread }}</span>
+                        {% endif %}
+                    </div>
+                    {% if item.last_message %}
+                        <div class="conv-last">
+                            <strong>{{ item.last_message.author.username }}:</strong>
+                            {{ item.last_message.content[:60] }}{% if item.last_message.content|length > 60 %}...{% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="conv-time">
+                    {% if item.last_message %}
+                        {{ item.last_message.created_at.strftime('%d.%m %H:%M') }}
+                    {% endif %}
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="conv-empty">
+        <p>📭 У вас пока нет диалогов.</p>
+        <p style="font-size: 13px; color: #999;">Откройте чей-нибудь профиль и нажмите «Сообщение» — начнётся диалог.</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -26,4 +26,7 @@ urlpatterns = [
     path('notifications/', views.notifications, name='notifications'),
     path('notifications/<int:notif_id>/read/', views.notification_read, name='notification_read'),
     path('notifications/read-all/', views.notifications_read_all, name='notifications_read_all'),
+    path('messages/', views.conversations_list, name='conversations'),
+    path('messages/<int:conv_id>/', views.conversation_detail, name='conversation'),
+    path('messages/start/<str:username>/', views.start_conversation, name='start_conversation'),
 ]

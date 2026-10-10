@@ -65,6 +65,7 @@ TEMPLATES = [
             'context_processors': [
                 'config.jinja2.user_context',
                 'config.jinja2.csrf_context',
+                'config.jinja2.unread_counts',
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.request',
             ],

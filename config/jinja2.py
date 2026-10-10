@@ -26,3 +26,19 @@ def csrf_context(request):
     return {
         'csrf_input': mark_safe(html),
     }
+
+def unread_counts(request):
+    """Счётчики непрочитанных уведомлений и ЛС."""
+    if not request.user.is_authenticated:
+        return {'unread_notifs': 0, 'unread_msgs': 0}
+
+    unread_notifs = request.user.notifications.filter(is_read=False).count()
+
+    unread_msgs = 0
+    for conv in request.user.conversations.all():
+        unread_msgs += conv.unread_count_for(request.user)
+
+    return {
+        'unread_notifs': unread_notifs,
+        'unread_msgs': unread_msgs,
+    }

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
 from django.contrib.auth.models import User
-from .models import Category, Section, Topic, Post, Reaction, Notification
+from .models import Category, Section, Topic, Post, Reaction, Notification, Conversation, Message
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, TopicForm, PostForm, ProfileEditForm, TopicMoveForm
 from django.http import JsonResponse
@@ -482,3 +482,91 @@ def notifications_read_all(request):
     """Пометить все уведомления прочитанными."""
     request.user.notifications.filter(is_read=False).update(is_read=True)
     return redirect('forum:notifications')
+
+@login_required
+def conversations_list(request):
+    """Список диалогов пользователя."""
+    conversations = request.user.conversations.prefetch_related(
+        'participants', 'messages'
+    ).all()
+
+    # Готовим данные для шаблона
+    conv_data = []
+    for conv in conversations:
+        conv_data.append({
+            'conversation': conv,
+            'other_user': conv.other_user(request.user),
+            'last_message': conv.last_message(),
+            'unread': conv.unread_count_for(request.user),
+        })
+
+    return render(request, 'forum/conversations.html', {
+        'conv_data': conv_data,
+    })
+
+
+@login_required
+def conversation_detail(request, conv_id):
+    """Страница диалога."""
+    conversation = get_object_or_404(Conversation, id=conv_id)
+
+    # Проверяем, что пользователь участвует
+    if request.user not in conversation.participants.all():
+        return redirect('forum:conversations')
+
+    other = conversation.other_user(request.user)
+
+    if request.method == 'POST':
+        content = request.POST.get('content', '').strip()
+        if content:
+            Message.objects.create(
+                conversation=conversation,
+                author=request.user,
+                content=content
+            )
+            conversation.save()  # обновить updated_at
+
+            # Уведомление другому участнику
+            if other:
+                Notification.objects.create(
+                    user=other,
+                    sender=request.user,
+                    notification_type='mention',
+                    message=f"отправил вам личное сообщение"
+                )
+
+            return redirect('forum:conversation', conv_id=conv_id)
+
+    # Помечаем сообщения как прочитанные
+    conversation.messages.filter(is_read=False).exclude(author=request.user).update(is_read=True)
+
+    messages_list = conversation.messages.select_related('author').all()
+
+    return render(request, 'forum/conversation.html', {
+        'conversation': conversation,
+        'other_user': other,
+        'messages_list': messages_list,
+    })
+
+
+@login_required
+def start_conversation(request, username):
+    """Начать новый диалог с пользователем."""
+    if username == request.user.username:
+        return redirect('forum:profile', username=username)
+
+    other = get_object_or_404(User, username=username)
+
+    # Ищем существующий диалог
+    existing = Conversation.objects.filter(
+        participants=request.user
+    ).filter(participants=other).first()
+
+    if existing:
+        return redirect('forum:conversation', conv_id=existing.id)
+
+    # Создаём новый
+    conv = Conversation.objects.create()
+    conv.participants.add(request.user, other)
+
+    return redirect('forum:conversation', conv_id=conv.id)

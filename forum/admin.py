@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Section, Topic, Post, Profile, Reaction, Notification
+from .models import Category, Section, Topic, Post, Profile, Reaction, Notification, Conversation, Message
 
 
 @admin.register(Category)
@@ -93,3 +93,33 @@ class NotificationAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'sender__username', 'message')
     list_editable = ('is_read',)
     date_hierarchy = 'created_at'
+
+class MessageInline(admin.TabularInline):
+    model = Message
+    extra = 0
+    readonly_fields = ('author', 'content', 'is_read', 'created_at')
+    can_delete = True
+
+
+@admin.register(Conversation)
+class ConversationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'get_participants', 'created_at', 'updated_at')
+    filter_horizontal = ('participants',)
+    inlines = [MessageInline]
+    date_hierarchy = 'created_at'
+
+    def get_participants(self, obj):
+        return ', '.join([u.username for u in obj.participants.all()])
+    get_participants.short_description = "Участники"
+
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'author', 'conversation', 'content_short', 'is_read', 'created_at')
+    list_filter = ('is_read', 'created_at')
+    search_fields = ('content', 'author__username')
+    date_hierarchy = 'created_at'
+
+    def content_short(self, obj):
+        return obj.content[:60]
+    content_short.short_description = "Сообщение"

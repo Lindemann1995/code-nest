@@ -71,6 +71,18 @@
                     {% endif %}
                 {% endif %}
             {% endif %}
+            {% if user.is_authenticated and user != profile_user %}
+    <a href="{{ url('forum:start_conversation', kwargs={'username': profile_user.username}) }}" class="btn-edit" style="background: #22c55e;">
+        ✉️ Сообщение
+    </a>
+{% endif %}
+<a href="{{ url('forum:conversations') }}" class="header-icon-btn" title="Личные сообщения">
+    ✉️
+    {% set unread_msgs = user.profile.unread_messages_count %}
+    {% if unread_msgs > 0 %}
+        <span class="notif-badge">{{ unread_msgs }}</span>
+    {% endif %}
+</a>
         </div>
     </div>
 

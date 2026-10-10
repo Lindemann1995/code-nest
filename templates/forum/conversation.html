@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Диалог с {{ other_user.username }} — Code Nest{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="{{ url('forum:index') }}">Главная</a>
+    / <a href="{{ url('forum:conversations') }}">Личные сообщения</a>
+    / <span>{{ other_user.username }}</span>
+</nav>
+
+<div class="chat-header">
+    <div class="chat-avatar">
+        {% if other_user.profile.avatar %}
+            <img src="{{ other_user.profile.avatar.url }}" alt="{{ other_user.username }}">
+        {% else %}
+            {{ other_user.username[0]|upper }}
+        {% endif %}
+    </div>
+    <div>
+        <a href="{{ url('forum:profile', kwargs={'username': other_user.username}) }}" class="chat-name">
+            {{ other_user.username }}
+        </a>
+        <div class="chat-status">
+            {% if other_user.profile.is_online %}
+                <span style="color: #22c55e;">🟢 Онлайн</span>
+            {% else %}
+                <span style="color: #888;">⚫ {{ other_user.profile.last_seen_display }}</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="chat-messages">
+    {% for msg in messages_list %}
+        <div class="chat-msg {% if msg.author == user %}own{% endif %}">
+            <div class="chat-msg-avatar">
+                {% if msg.author.profile.avatar %}
+                    <img src="{{ msg.author.profile.avatar.url }}" alt="">
+                {% else %}
+                    {{ msg.author.username[0]|upper }}
+                {% endif %}
+            </div>
+            <div class="chat-msg-body">
+                <div class="chat-msg-head">
+    <strong>{{ msg.author.username }}</strong>
+    <span class="chat-msg-role" style="color: {{ msg.author.profile.role_color }};">
+        {% if msg.author.profile.role_icon %}{{ msg.author.profile.role_icon }} {% endif %}
+        {{ msg.author.profile.role_name }}
+    </span>
+    <span class="chat-msg-time">{{ msg.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+</div>
+                <div class="chat-msg-content">{{ msg.content }}</div>
+            </div>
+        </div>
+    {% else %}
+        <div class="chat-empty">Начните диалог — напишите первое сообщение.</div>
+    {% endfor %}
+</div>
+
+<form method="post" class="chat-form">
+    {{ csrf_input|safe }}
+    <div class="chat-form-inner">
+        <textarea name="content" placeholder="Напишите сообщение..." rows="3" required></textarea>
+        <div class="chat-form-hint">
+            <kbd>Enter</kbd> — отправить, <kbd>Shift</kbd>+<kbd>Enter</kbd> — новая строка
+        </div>
+    </div>
+    <button type="submit" class="btn-primary" style="width: auto; padding: 10px 25px;">
+        Отправить
+    </button>
+</form>
+{% endblock %}
