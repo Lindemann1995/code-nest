@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from django.utils import timezone
+from datetime import timedelta
 from unidecode import unidecode
 
 
@@ -88,3 +90,204 @@ class Post(models.Model):
 
     def __str__(self):
         return f"Сообщение от {self.author.username} в {self.topic.title}"
+
+class Profile(models.Model):
+    """Профиль пользователя - расширение стандартной модели User."""
+
+    ROLE_CHOICES = [
+        ('user', 'Пользователь'),
+        ('moderator', 'Модератор'),
+        ('senior_mod', 'Старший модератор'),
+        ('admin', 'Администратор'),
+        ('manager', 'Руководитель форума'),
+        ('team', 'Команда форума'),
+    ]
+
+    ROLE_COLORS = {
+        'user': '#666666',
+        'moderator': '#22c55e',
+        'senior_mod': '#3b82f6',
+        'admin': '#ef4444',
+        'manager': '#a855f7',
+        'team': '#f5a623',
+    }
+
+    ROLE_ICONS = {
+        'user': '',
+        'moderator': '🛡️',
+        'senior_mod': '⚔️',
+        'admin': '👑',
+        'manager': '🎖️',
+        'team': '⭐',
+    }
+
+    # Связь с User (один к одному).
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='profile'
+    )
+
+    # Роль
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default='user',
+        verbose_name="Роль"
+    )
+
+    # Медиа (позже с облаком).
+    avatar = models.ImageField(
+        upload_to='avatars/',
+        blank=True,
+        null=True,
+        verbose_name='Аватар'
+    )
+    banner = models.ImageField(
+        upload_to='banners/',
+        blank=True,
+        null=True,
+        verbose_name="Баннер"
+    )
+
+    # Публичная информация
+    status = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Статус",
+        help_text="Короткий статус (до 100 символов)"
+    )
+
+    bio = models.TextField(
+        max_length=500,
+        blank=True,
+        verbose_name="О себе",
+        help_text="Подпись под сообщениями (до 500 символов)"
+    )
+
+    signature = models.TextField(
+        max_length=300,
+        blank=True,
+        verbose_name="Подпись",
+        help_text="Подпись под сообщениями (до 300 символов)"
+    )
+
+    city = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='Город'
+    )
+
+    age = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Возраст",
+        help_text="Указывается по желанию."
+    )
+
+    vk_url = models.URLField(
+        blank=True,
+        verbose_name="Вконтакте",
+        help_text="Ссылка на ваш профиль Вконтакте."
+    )
+
+    github_url = models.URLField(
+        blank=True,
+        verbose_name="GitHub",
+        help_text="Ссылка на ваш профиль GitHub",
+    )
+
+    last_activity = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Последняя активность"
+    )
+    reputation = models.IntegerField(
+        default=0,
+        verbose_name="Репутация",
+        help_text="Будет разработано в ближайшее время."
+    )
+
+    is_email_public = models.BooleanField(
+        default=False,
+        verbose_name="Показывать email"
+    )
+    is_online_public = models.BooleanField(
+        default=True,
+        verbose_name="Показывать онлайн-статус"
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Создан"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Обновлён"
+    )
+
+    class Meta:
+        verbose_name = "Профиль"
+        verbose_name_plural = "Профили"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Профиль {self.user.username}"
+
+    # Методы для отображения
+    @property
+    def role_name(self):
+        """Название роли на русском."""
+        return dict(self.ROLE_CHOICES).get(self.role, 'Пользователь')
+    
+    def role_color(self):
+        """Цвет роли (HEX)."""
+        return self.ROLE_COLORS.get(self.role, '#666666')
+
+    @property
+    def role_icon(self):
+        """Значок роли (эмодзи)."""
+        return self.ROLE_ICONS.get(self.role, '')
+    
+    @property
+    def is_online(self):
+        """Онлайн, если активность меньше 5 минут назад."""
+        if not self.last_activity:
+            return False
+        
+        return timezone.now() - self.last_activity < timedelta(minutes=5)
+
+    @property
+    def is_staff_role(self):
+        """Есть ли права модератора и выше."""
+        return self.role in ('moderator', 'senior_mod', 'admin', 'manager', 'team')
+
+    @property
+    def topics_count(self):
+        """Сколько тем создал пользователь."""
+        return self.user.topics.count()
+    
+    @property
+    def posts_count(self):
+        """Сколько сообщений написал пользователь."""
+        return self.user.posts.count()
+
+    @property
+    def last_seen_display(self):
+        """Человеку понятное отображение последней активности"""
+        if not self.last_activity:
+            return "Не был(а) в сети"
+        delta = timezone.now() - self.last_activity
+        if delta < timedelta(minutes=5):
+            return "Онлайн"
+        elif delta < timedelta(hours=1):
+            minutes = int(delta.total_seconds() / 60)
+            return f"Был(а) {minutes} мин. назад"
+        elif delta < timedelta(days=1):
+            hours = int(delta.total_seconds() / 3600)
+            return f"Был(а) {hours} ч. назад"
+        elif delta < timedelta(days=30):
+            days = delta.days
+            return f"Был(а) {days} дн. назад"
+        else:
+            return f"Был(а) {self.last_activity.strftime('%d.%m.%Y')}"
