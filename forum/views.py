@@ -131,22 +131,23 @@ def profile_detail(request, username):
 
 @login_required
 def profile_edit(request, username):
-    """Редактирование профиля - только для владельца профилем."""
     user_obj = get_object_or_404(User, username=username)
-    # Только владелец может менять информацию.
+
     if request.user != user_obj:
         return redirect('forum:profile', username=username)
-    
+
     profile = user_obj.profile
+
     if request.method == 'POST':
-        form = ProfileEditForm(request.POST, instance=profile)
-        return redirect('forum:profile', username=username)
-    
+        form = ProfileEditForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('forum:profile', username=username)
     else:
         form = ProfileEditForm(instance=profile)
-    
+
     return render(request, 'forum/profile_edit.html', {
         'form': form,
         'profile': profile,
-        'profile_user': user_obj
+        'profile_user': user_obj,
     })

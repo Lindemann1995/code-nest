@@ -7,7 +7,7 @@
     <h2>Редактирование профиля</h2>
     <p style="color: #666; margin-bottom: 25px;">Пользователь: <strong>{{ profile_user.username }}</strong></p>
 
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {{ csrf_input|safe }}
 
         {% for field in form %}

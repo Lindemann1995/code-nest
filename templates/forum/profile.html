@@ -6,13 +6,23 @@
 <div class="profile-page">
 
     <!-- Баннер -->
-    <div class="profile-banner" style="background: linear-gradient(135deg, #1a1f2e 0%, #f5a623 100%);"></div>
+    <div class="profile-banner" style="
+    {% if profile.banner %}
+        background: url('{{ profile.banner.url }}') center/cover no-repeat;
+    {% else %}
+        background: linear-gradient(135deg, #1a1f2e 0%, #f5a623 100%);
+    {% endif %}
+"></div>
 
     <!-- Шапка профиля -->
     <div class="profile-header">
-        <div class="profile-avatar">
+            <div class="profile-avatar">
+        {% if profile.avatar %}
+            <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}">
+        {% else %}
             {{ profile_user.username[0]|upper }}
-        </div>
+        {% endif %}
+    </div>
 
         <div class="profile-info">
             <h1>{{ profile_user.username }}</h1>

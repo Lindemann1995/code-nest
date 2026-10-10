@@ -65,9 +65,12 @@ class PostForm(forms.ModelForm):
 
 class ProfileEditForm(forms.ModelForm):
     """Форма редактирования профиля."""
+
     class Meta:
         model = Profile
         fields = (
+            'avatar',       # ← ДОБАВИЛИ
+            'banner',       # ← ДОБАВИЛИ
             'status',
             'bio',
             'signature',
@@ -79,17 +82,17 @@ class ProfileEditForm(forms.ModelForm):
             'is_online_public',
         )
         widgets = {
-            'status': forms.Textarea(attrs={
+            'status': forms.TextInput(attrs={
                 'placeholder': 'Короткий статус',
                 'maxlength': 100,
             }),
             'bio': forms.Textarea(attrs={
-                'placeholder': 'Расскажите о себе.',
+                'placeholder': 'Расскажите о себе...',
                 'rows': 5,
                 'maxlength': 500,
             }),
             'signature': forms.Textarea(attrs={
-                'placeholder': 'Подпись под сообщением.',
+                'placeholder': 'Подпись под сообщениями...',
                 'rows': 3,
                 'maxlength': 300,
             }),
@@ -102,19 +105,21 @@ class ProfileEditForm(forms.ModelForm):
                 'max': 120,
             }),
             'vk_url': forms.URLInput(attrs={
-                'placeholder': 'https://vk.com/id',
+                'placeholder': 'https://vk.com/ваш_профиль',
             }),
             'github_url': forms.URLInput(attrs={
                 'placeholder': 'https://github.com/ваш_профиль',
             }),
         }
         labels = {
+            'avatar': 'Аватар',
+            'banner': 'Баннер',
             'status': 'Статус',
             'bio': 'О себе',
             'signature': 'Подпись',
             'city': 'Город',
             'age': 'Возраст',
-            'vk_url': 'Вконтакте',
+            'vk_url': 'ВКонтакте',
             'github_url': 'GitHub',
             'is_email_public': 'Показывать email в профиле',
             'is_online_public': 'Показывать онлайн-статус',

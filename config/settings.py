@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages',
     'forum',
 ]
 
@@ -148,3 +149,27 @@ MAILERS = {
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'forum:index'
 LOGOUT_REDIRECT_URL = 'forum:index'
+
+# === Хранилище файлов (Yandex Object Storage) ===
+AWS_ACCESS_KEY_ID = 'YCAJEO3RjAUb8Q9FYwgfrGuLX'          # Access Key ID
+AWS_SECRET_ACCESS_KEY = 'YCOnnkcD_-CVTkuH90AlqU9olzj9ESRaNSJBn9lX'  # Secret Key
+AWS_STORAGE_BUCKET_NAME = 'code-nest-media'
+AWS_S3_ENDPOINT_URL = 'https://storage.yandexcloud.net'
+AWS_S3_REGION_NAME = 'ru-central1'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = False
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.storage.yandexcloud.net'
+
+# URL для медиа-файлов
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+
+# Хранилища по умолчанию
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
