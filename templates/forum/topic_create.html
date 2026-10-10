@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Создать тему в {{ section.name }} — Code Nest{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="{{ url('forum:index') }}">Главная</a>
+    / <a href="{{ url('forum:section', kwargs={'slug': section.slug}) }}">{{ section.name }}</a>
+    / <span>Новая тема</span>
+</nav>
+
+<h2>Создать тему в разделе «{{ section.name }}»</h2>
+
+<form method="post" class="topic-form">
+    {{ csrf_input|safe }}
+
+    <div class="form-field">
+        <label for="id_title">Заголовок темы</label>
+        {{ topic_form.title }}
+        {% if topic_form.title.errors %}
+            <div class="field-error">{{ topic_form.title.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-field">
+        <label for="id_content">Сообщение</label>
+        {{ post_form.content }}
+        {% if post_form.content.errors %}
+            <div class="field-error">{{ post_form.content.errors }}</div>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn-primary">Создать тему</button>
+</form>
+{% endblock %}

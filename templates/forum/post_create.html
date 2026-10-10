@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Ответ в тему {{ topic.title }} — Code Nest{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="{{ url('forum:index') }}">Главная</a>
+    / <a href="{{ url('forum:section', kwargs={'slug': topic.section.slug}) }}">{{ topic.section.name }}</a>
+    / <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}">{{ topic.title }}</a>
+    / <span>Ответ</span>
+</nav>
+
+<h2>Ответ в тему «{{ topic.title }}»</h2>
+
+<form method="post" class="topic-form">
+    {{ csrf_input|safe }}
+
+    <div class="form-field">
+        {{ form.content }}
+        {% if form.content.errors %}
+            <div class="field-error">{{ form.content.errors }}</div>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn-primary">Отправить ответ</button>
+</form>
+{% endblock %}

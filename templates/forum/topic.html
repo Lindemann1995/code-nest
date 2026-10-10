@@ -29,13 +29,22 @@
             <div class="post-date">{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
         </div>
         <div class="post-content">
-            {{ post.content }}
+            {{ post.content|safe }}
         </div>
     </div>
 {% else %}
     <p>В этой теме пока нет сообщений.</p>
 {% endfor %}
 </div>
+{% if user.is_authenticated and not topic.is_closed %}
+    <div style="margin-top: 30px;">
+        <a href="{{ url('forum:post_create', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}" class="btn-primary" style="display:inline-block; text-decoration:none;">Ответить в теме</a>
+    </div>
+{% elif not user.is_authenticated %}
+    <p class="notice">Чтобы ответить, <a href="{{ url('login') }}">войдите</a> или <a href="{{ url('forum:register') }}">зарегистрируйтесь</a>.</p>
+{% elif topic.is_closed %}
+    <p class="notice">🔒 Тема закрыта.</p>
+{% endif %}
 
 {% if topic.is_closed %}
     <p class="notice">🔒 Эта тема закрыта.</p>

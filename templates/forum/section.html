@@ -12,6 +12,9 @@
 </nav>
 
 <h2>{{ section.name }}</h2>
+{% if user.is_authenticated %}
+    <a href="{{ url('forum:topic_create', kwargs={'section_slug': section.slug}) }}" class="btn-primary" style="display:inline-block; text-decoration:none; width:auto; padding:10px 20px; margin-bottom:20px;">+ Создать тему</a>
+{% endif %}
 {% if section.description %}
     <p class="description">{{ section.description }}</p>
 {% endif %}

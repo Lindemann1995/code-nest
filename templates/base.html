@@ -221,7 +221,146 @@
         .logout-btn:hover {
             color: #f5a623;
         }
+                /* Код в постах */
+        .post-content pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 15px 0;
+            position: relative;
+        }
+        .post-content code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .post-content p code {
+            background: #f0f0f0;
+            color: #c7254e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .post-content blockquote {
+            border-left: 4px solid #f5a623;
+            padding: 10px 20px;
+            margin: 15px 0;
+            background: #fafafa;
+            color: #555;
+        }
+        /* Quill — редактор */
+            /* Quill — редактор (контрастная тема) */
+        .ql-toolbar.ql-snow {
+            background: #f8f9fa;
+            border: 1px solid #d1d1d6;
+            border-radius: 6px 6px 0 0;
+            padding: 8px 12px;
+        }
+        .ql-container.ql-snow {
+            background: #ffffff;
+            border: 1px solid #d1d1d6;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            font-size: 15px;
+            min-height: 300px;
+        }
+        .ql-editor {
+            color: #1d1d1f;
+            min-height: 250px;
+        }
+        .ql-editor.ql-blank::before {
+            color: #999;
+            font-style: normal;
+        }
+
+        /* Иконки и кнопки в панели */
+        .ql-snow .ql-stroke {
+            stroke: #444;
+        }
+        .ql-snow .ql-fill,
+        .ql-snow .ql-stroke.ql-fill {
+            fill: #444;
+        }
+        .ql-snow .ql-picker {
+            color: #444;
+        }
+        .ql-snow .ql-picker-options {
+            background: #fff;
+            border: 1px solid #d1d1d6;
+        }
+        .ql-snow .ql-picker-item {
+            color: #444;
+        }
+        .ql-snow button:hover .ql-stroke,
+        .ql-snow button.ql-active .ql-stroke {
+            stroke: #0066cc;
+        }
+        .ql-snow button:hover .ql-fill,
+        .ql-snow button.ql-active .ql-fill {
+            fill: #0066cc;
+        }
+        .ql-snow .ql-picker-label:hover,
+        .ql-snow .ql-picker-label.ql-active {
+            color: #0066cc;
+        }
+        .ql-snow .ql-picker-label:hover .ql-stroke,
+        .ql-snow .ql-picker-label.ql-active .ql-stroke {
+            stroke: #0066cc;
+        }
+
+        /* Контент внутри редактора */
+        .ql-editor a {
+            color: #0066cc;
+        }
+        .ql-editor blockquote {
+            border-left: 4px solid #f5a623;
+            padding-left: 15px;
+            margin: 10px 0;
+            color: #555;
+        }
+        .ql-editor pre.ql-syntax {
+            background: #2d2d2d !important;
+            color: #f8f8f2 !important;
+            border-radius: 6px;
+            padding: 12px 15px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+        }
+        /* Выравнивание в Quill */
+        .ql-editor .ql-align-center,
+        .post-content .ql-align-center {
+            text-align: center;
+        }
+        .ql-editor .ql-align-right,
+        .post-content .ql-align-right {
+            text-align: right;
+        }
+        .ql-editor .ql-align-justify,
+        .post-content .ql-align-justify {
+            text-align: justify;
+        }
     </style>
+
+    <!-- Quill — визуальный редактор -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/cpp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/c.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/bash.min.js"></script>
 </head>
 <body>
     <header>
@@ -257,5 +396,64 @@
             © 2026 Code Nest - Форум для программистов.
         </div>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('textarea.editor').forEach(function(el) {
+            // Скрываем textarea
+            el.style.display = 'none';
+
+            // Создаём div для Quill
+            const editorDiv = document.createElement('div');
+            editorDiv.innerHTML = el.value;
+            el.parentNode.insertBefore(editorDiv, el);
+
+            // Инициализируем Quill
+            const quill = new Quill(editorDiv, {
+                theme: 'snow',
+                placeholder: el.placeholder || 'Напишите что-нибудь...',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        [{ 'align': [] }],
+                        ['blockquote', 'code-block'],
+                        ['link', 'image'],
+                        ['clean']
+                    ]
+                }
+            });
+
+            // Функция синхронизации Quill → textarea
+            function syncContent() {
+                el.value = quill.root.innerHTML;
+            }
+
+            // Синхронизируем при каждом изменении
+            quill.on('text-change', syncContent);
+
+            // И на всякий случай перед отправкой формы
+            const form = el.closest('form');
+            if (form) {
+                form.addEventListener('submit', syncContent);
+            }
+        });
+    });
+</script>
+
+<script>
+    // Подсветка кода на странице темы
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.post-content pre code').forEach(function(block) {
+            hljs.highlightElement(block);
+        });
+        document.querySelectorAll('.ql-editor pre').forEach(function(block) {
+            hljs.highlightElement(block);
+        });
+    });
+</script>
 </body>
 </html>
