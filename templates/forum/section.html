@@ -5,9 +5,12 @@
 {% block content %}
 <nav class="breadcrumb">
     <a href="{{ url('forum:index') }}">Главная</a>
-    {% if section.parent %}
-        / <a href="{{ url('forum:section', kwargs={'slug': section.parent.slug}) }}">{{ section.parent.name }}</a>
+    {% if section.category %}
+        / <a href="{{ url('forum:category', kwargs={'slug': section.category.slug}) }}">{{ section.category.name }}</a>
     {% endif %}
+    {% for ancestor in section.get_ancestors() %}
+        / <a href="{{ url('forum:section', kwargs={'slug': ancestor.slug}) }}">{{ ancestor.name }}</a>
+    {% endfor %}
     / <span>{{ section.name }}</span>
 </nav>
 

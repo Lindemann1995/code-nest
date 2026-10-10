@@ -394,3 +394,13 @@ def user_unban(request, username):
     target.profile.save(update_fields=['is_banned', 'ban_reason', 'banned_at'])
 
     return redirect('forum:profile', username=username)
+
+
+def category_detail(request, slug):
+    """Страница категории — список всех разделов."""
+    category = get_object_or_404(Category, slug=slug)
+    sections = category.sections.filter(parent__isnull=True)
+    return render(request, 'forum/category.html', {
+        'category': category,
+        'sections': sections,
+})

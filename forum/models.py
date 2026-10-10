@@ -79,6 +79,24 @@ class Section(models.Model):
         for child in self.children.all():
             count += child.total_posts_count()
         return count
+    
+    def get_ancestors(self):
+        """Возвращает список предков-разделов (от корня до родителя)."""
+        ancestors = []
+        current = self.parent
+        while current:
+            ancestors.insert(0, current)
+            current = current.parent
+        return ancestors
+
+    def get_breadcrumb(self):
+        """Возвращает полный путь: категория + предки + сам раздел."""
+        crumbs = []
+        if self.category:
+            crumbs.append(self.category)
+        crumbs.extend(self.get_ancestors())
+        crumbs.append(self)
+        return crumbs
 
 class Topic(models.Model):
     """Тема в разделе."""

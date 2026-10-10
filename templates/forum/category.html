@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} — Code Nest{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="{{ url('forum:index') }}">Главная</a>
+    / <span>{{ category.name }}</span>
+</nav>
+
+<h2>
+    {% if category.icon %}<span style="font-size: 28px;">{{ category.icon }}</span> {% endif %}
+    {{ category.name }}
+</h2>
+
+{% if category.description %}
+    <p class="description">{{ category.description }}</p>
+{% endif %}
+
+{% if sections %}
+    <div class="category-sections" style="background: #fff; border-radius: 10px; border: 1px solid #e5e5e7; padding: 8px 0;">
+        {% for section in sections %}
+            <div class="section-row">
+                <div class="section-row-main">
+                    <a href="{{ url('forum:section', kwargs={'slug': section.slug}) }}" class="section-name">
+                        {{ section.name }}
+                    </a>
+                    {% if section.description %}
+                        <div class="section-desc">{{ section.description }}</div>
+                    {% endif %}
+                </div>
+                <div class="section-row-stats">
+                    <span class="stat-mini">
+                        <strong>{{ section.total_topics_count() }}</strong> тем
+                    </span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>В этой категории пока нет разделов.</p>
+{% endif %}
+{% endblock %}

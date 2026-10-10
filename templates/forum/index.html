@@ -12,7 +12,7 @@
             <div class="category-header">
                 <div class="category-title">
                     {% if item.category.icon %}<span class="category-icon">{{ item.category.icon }}</span>{% endif %}
-                    <a href="#">{{ item.category.name }}</a>
+                    <a href="{{ url('forum:category', kwargs={'slug': item.category.slug}) }}">{{ item.category.name }}</a>
                 </div>
                 {% if item.category.description %}
                     <div class="category-desc">{{ item.category.description }}</div>

@@ -5,6 +5,12 @@
 {% block content %}
 <nav class="breadcrumb">
     <a href="{{ url('forum:index') }}">Главная</a>
+    {% if topic.section.category %}
+        / <a href="{{ url('forum:category', kwargs={'slug': topic.section.category.slug}) }}">{{ topic.section.category.name }}</a>
+    {% endif %}
+    {% for ancestor in topic.section.get_ancestors() %}
+        / <a href="{{ url('forum:section', kwargs={'slug': ancestor.slug}) }}">{{ ancestor.name }}</a>
+    {% endfor %}
     / <a href="{{ url('forum:section', kwargs={'slug': topic.section.slug}) }}">{{ topic.section.name }}</a>
     / <span>{{ topic.title }}</span>
 </nav>

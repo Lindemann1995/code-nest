@@ -21,4 +21,5 @@ urlpatterns = [
     path('section/<slug:section_slug>/topic/<slug:slug>/move/', views.topic_move, name='topic_move'),
     path('user/<str:username>/ban/', views.user_ban, name='user_ban'),
     path('user/<str:username>/unban/', views.user_unban, name='user_unban'),
+    path('category/<slug:slug>/', views.category_detail, name='category'),
 ]
