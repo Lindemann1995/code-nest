@@ -890,7 +890,6 @@
         const url = btn.dataset.url;
         const countEl = btn.querySelector('.reaction-count');
 
-        // CSRF-токен
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
         const csrf = csrfToken ? csrfToken.value : '';
 
@@ -903,6 +902,10 @@
         })
         .then(response => response.json())
         .then(data => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
             if (data.liked) {
                 btn.classList.add('active');
             } else {
@@ -912,6 +915,7 @@
         })
         .catch(error => console.error('Ошибка:', error));
     });
+</script>
 </script>
 </body>
 </html>

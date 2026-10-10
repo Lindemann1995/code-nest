@@ -156,26 +156,43 @@ def profile_edit(request, username):
 
 @login_required
 def toggle_reaction(request, post_id):
-    """Поставить или снять лайк."""
+    """Поставить/снять лайк на пост."""
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
+
     post = get_object_or_404(Post, id=post_id)
+
+    # Свои лайки не считаем
+    if post.author == request.user:
+        return JsonResponse({
+            'error': 'Нельзя лайкать свои посты',
+            'liked': False,
+            'count': post.reactions.count(),
+        }, status=400)
 
     reaction, created = Reaction.objects.get_or_create(
         user=request.user,
         post=post,
         reaction_type='like'
     )
+
+    # Профиль автора поста
+    author_profile = post.author.profile
+
     if not created:
-        # Уже была - удаляем.
+        # Уже была — удаляем
         reaction.delete()
         liked = False
+        # Снимаем репутацию
+        author_profile.reputation -= 1
     else:
         liked = True
-    
+        # Начисляем репутацию
+        author_profile.reputation += 1
+
+    author_profile.save(update_fields=['reputation'])
+
     return JsonResponse({
         'liked': liked,
         'count': post.reactions.count(),
     })
-
