@@ -44,7 +44,7 @@
                 {{ topic.title }}
             </a>
             <div class="topic-meta">
-                Автор: {{ topic.author.username }} ·
+                Автор: <a href="{{ url('forum:profile', kwargs={'username': topic.author.username}) }}">{{ topic.author.username }}</a>·
                 {{ topic.created_at.strftime('%d.%m.%Y %H:%M') }} ·
                 Просмотров: {{ topic.views }}
             </div>

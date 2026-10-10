@@ -1,9 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
+from django.contrib.auth.models import User
 from .models import Section, Topic
-from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
-from .forms import TopicForm, PostForm
+from .forms import TopicForm, PostForm, ProfileEditForm, RegisterForm
 
 
 def index(request):
@@ -104,4 +104,49 @@ def post_create(request, section_slug, slug):
     return render(request, 'forum/post_create.html', {
         'topic': topic,
         'form': form,
+    })
+
+def profile_detail(request, username):
+    """Страница профиля пользователя."""
+    user_obj = get_object_or_404(User, username=username)
+    profile = user_obj.profile
+
+    # Статистика
+    topics_count = user_obj.topics.count()
+    posts_count = user_obj.posts.count()
+
+    # Последние темы пользователя (5 шт.)
+    recent_topics = user_obj.topics.order_by('-created_at')[:5]
+    # Последние сообщения (5 шт.)
+    recent_posts = user_obj.posts.order_by('-created_at')[:5]
+    
+    return render(request, 'forum/profile.html', {
+        'profile': profile,
+        'profile_user': user_obj,
+        'topics_count': topics_count,
+        'posts_count': posts_count,
+        'recent_topics': recent_topics,
+        'recent_posts': recent_posts,
+    })
+
+@login_required
+def profile_edit(request, username):
+    """Редактирование профиля - только для владельца профилем."""
+    user_obj = get_object_or_404(User, username=username)
+    # Только владелец может менять информацию.
+    if request.user != user_obj:
+        return redirect('forum:profile', username=username)
+    
+    profile = user_obj.profile
+    if request.method == 'POST':
+        form = ProfileEditForm(request.POST, instance=profile)
+        return redirect('forum:profile', username=username)
+    
+    else:
+        form = ProfileEditForm(instance=profile)
+    
+    return render(request, 'forum/profile_edit.html', {
+        'form': form,
+        'profile': profile,
+        'profile_user': user_obj
     })

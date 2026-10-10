@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Section, Topic, Post
+from .models import Section, Topic, Post, Profile
 
 
 @admin.register(Section)
@@ -27,3 +27,41 @@ class PostAdmin(admin.ModelAdmin):
     list_filter = ('created_at', 'is_edited')
     search_fields = ('content', 'author__username', 'topic__titile')
     date_hierarchy = 'created_at'
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'role', 'city', 'reputation', 'last_activity', 'created_at')
+    list_filter = ('role', 'created_at', 'is_email_public', 'is_online_public')
+    search_fields = ('user__username', 'user__email', 'city', 'status')
+    list_editable = ('role',)
+    readonly_fields = ('created_at', 'updated_at', 'last_activity', 'reputation')
+    date_hierarchy = 'created_at'
+
+    fieldsets = (
+        ('Пользователь', {
+            'fields': ('user', 'role')
+        }),
+        ('Медиа', {
+            'fields': ('avatar', 'banner'),
+            'classes': ('collapse',)
+        }),
+        ('Публичная информация', {
+            'fields': ('status', 'bio', 'signature', 'city', 'age')
+        }),
+        ('Соцсети', {
+            'fields': ('vk_url', 'github_url'),
+            'classes': ('collapse',)
+        }),
+        ('Активность', {
+            'fields': ('last_activity', 'reputation'),
+            'classes': ('collapse',)
+        }),
+        ('Приватность', {
+            'fields': ('is_email_public', 'is_online_public')
+        }),
+        ('Служебное', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )

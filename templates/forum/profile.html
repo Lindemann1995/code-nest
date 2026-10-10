@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.username }} — Code Nest{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+
+    <!-- Баннер -->
+    <div class="profile-banner" style="background: linear-gradient(135deg, #1a1f2e 0%, #f5a623 100%);"></div>
+
+    <!-- Шапка профиля -->
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {{ profile_user.username[0]|upper }}
+        </div>
+
+        <div class="profile-info">
+            <h1>{{ profile_user.username }}</h1>
+            <div class="profile-role" style="color: {{ profile.role_color }}">
+                {{ profile.role_icon }} {{ profile.role_name }}
+            </div>
+            {% if profile.status %}
+                <div class="profile-status">{{ profile.status }}</div>
+            {% endif %}
+            <div class="profile-meta">
+                <span>📅 На форуме с {{ profile_user.date_joined.strftime('%d.%m.%Y') }}</span>
+                <span>
+                    {% if profile.is_online %}
+                        <span style="color: #22c55e;">🟢 Онлайн</span>
+                    {% else %}
+                        ⚫ {{ profile.last_seen_display }}
+                    {% endif %}
+                </span>
+                {% if profile.city %}
+                    <span>📍 {{ profile.city }}</span>
+                {% endif %}
+                {% if profile.age %}
+                    <span>🎂 {{ profile.age }} лет</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if user == profile_user %}
+            <div class="profile-actions">
+                <a href="{{ url('forum:profile_edit', kwargs={'username': profile_user.username}) }}" class="btn-edit">
+                    ✏️ Редактировать
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Статистика -->
+    <div class="profile-stats">
+        <div class="stat-box">
+            <div class="stat-value">{{ posts_count }}</div>
+            <div class="stat-label">Сообщений</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">{{ topics_count }}</div>
+            <div class="stat-label">Тем</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">{{ profile.reputation }}</div>
+            <div class="stat-label">Репутация</div>
+        </div>
+    </div>
+
+    <!-- О себе -->
+    {% if profile.bio %}
+        <div class="profile-section">
+            <h3>О себе</h3>
+            <p>{{ profile.bio }}</p>
+        </div>
+    {% endif %}
+
+    <!-- Соцсети -->
+    {% if profile.vk_url or profile.github_url %}
+        <div class="profile-section">
+            <h3>Ссылки</h3>
+            {% if profile.vk_url %}
+                <a href="{{ profile.vk_url }}" target="_blank" class="social-link">ВКонтакте</a>
+            {% endif %}
+            {% if profile.github_url %}
+                <a href="{{ profile.github_url }}" target="_blank" class="social-link">GitHub</a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- Последние темы -->
+    {% if recent_topics %}
+        <div class="profile-section">
+            <h3>Последние темы</h3>
+            <ul class="profile-topics">
+            {% for topic in recent_topics %}
+                <li>
+                    <a href="{{ url('forum:topic', kwargs={'section_slug': topic.section.slug, 'slug': topic.slug}) }}">
+                        {{ topic.title }}
+                    </a>
+                    <span class="topic-meta">· {{ topic.created_at.strftime('%d.%m.%Y') }}</span>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

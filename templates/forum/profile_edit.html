@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование профиля — Code Nest{% endblock %}
+
+{% block content %}
+<div class="auth-form" style="max-width: 600px;">
+    <h2>Редактирование профиля</h2>
+    <p style="color: #666; margin-bottom: 25px;">Пользователь: <strong>{{ profile_user.username }}</strong></p>
+
+    <form method="post">
+        {{ csrf_input|safe }}
+
+        {% for field in form %}
+            <div class="form-field">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                    <div class="field-error">
+                        {% for error in field.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="btn-primary">Сохранить</button>
+            <a href="{{ url('forum:profile', kwargs={'username': profile_user.username}) }}" 
+               class="btn-primary" 
+               style="background: #999; text-decoration: none; text-align: center; line-height: 1.4;">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
