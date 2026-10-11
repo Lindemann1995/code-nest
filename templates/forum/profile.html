@@ -58,31 +58,35 @@
                     ✏️ Редактировать
                 </a>
             {% endif %}
-            {% if user.is_authenticated and user.profile.role in ('manager', 'team') %}
-                {% if user != profile_user and profile_user.profile.role not in ('manager', 'team') %}
-                    {% if profile.is_banned %}
-                        <a href="{{ url('forum:user_unban', kwargs={'username': profile_user.username}) }}" class="btn-edit btn-unban">
-                            ✅ Разблокировать
-                        </a>
-                    {% else %}
-                        <a href="{{ url('forum:user_ban', kwargs={'username': profile_user.username}) }}" class="btn-edit btn-ban">
-                            🚫 Заблокировать
-                        </a>
+
+            {% if user.is_authenticated %}
+                {% if user.profile.role in ('manager', 'team') %}
+                    {% if user != profile_user and profile_user.profile.role not in ('manager', 'team') %}
+                        {% if profile.is_banned %}
+                            <a href="{{ url('forum:user_unban', kwargs={'username': profile_user.username}) }}" class="btn-edit btn-unban">
+                                ✅ Разблокировать
+                            </a>
+                        {% else %}
+                            <a href="{{ url('forum:user_ban', kwargs={'username': profile_user.username}) }}" class="btn-edit btn-ban">
+                                🚫 Заблокировать
+                            </a>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
+
+                {% if user != profile_user %}
+                    <a href="{{ url('forum:start_conversation', kwargs={'username': profile_user.username}) }}" class="btn-edit" style="background: #22c55e;">
+                        ✉️ Сообщение
+                    </a>
+                {% endif %}
+
+                <a href="{{ url('forum:conversations') }}" class="header-icon-btn" title="Личные сообщения">
+                    ✉️
+                    {% if user.profile.unread_messages_count > 0 %}
+                        <span class="notif-badge">{{ user.profile.unread_messages_count }}</span>
+                    {% endif %}
+                </a>
             {% endif %}
-            {% if user.is_authenticated and user != profile_user %}
-    <a href="{{ url('forum:start_conversation', kwargs={'username': profile_user.username}) }}" class="btn-edit" style="background: #22c55e;">
-        ✉️ Сообщение
-    </a>
-{% endif %}
-<a href="{{ url('forum:conversations') }}" class="header-icon-btn" title="Личные сообщения">
-    ✉️
-    {% set unread_msgs = user.profile.unread_messages_count %}
-    {% if unread_msgs > 0 %}
-        <span class="notif-badge">{{ unread_msgs }}</span>
-    {% endif %}
-</a>
         </div>
     </div>
 
@@ -115,21 +119,22 @@
             <div class="block-content">{{ profile.bio }}</div>
         </div>
     {% endif %}
+
     {% if profile_user.achievements.all() %}
-    <div class="profile-block">
-        <div class="block-title">Награды</div>
-        <div class="block-content">
-            <div class="achievements-grid">
-                {% for ua in profile_user.achievements.all() %}
-                    <div class="achievement-card" title="{{ ua.achievement.description }}">
-                        <div class="achievement-icon">{{ ua.achievement.icon }}</div>
-                        <div class="achievement-name">{{ ua.achievement.name }}</div>
-                    </div>
-                {% endfor %}
+        <div class="profile-block">
+            <div class="block-title">Награды</div>
+            <div class="block-content">
+                <div class="achievements-grid">
+                    {% for ua in profile_user.achievements.all() %}
+                        <div class="achievement-card" title="{{ ua.achievement.description }}">
+                            <div class="achievement-icon">{{ ua.achievement.icon }}</div>
+                            <div class="achievement-name">{{ ua.achievement.name }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
-    </div>
-{% endif %}
+    {% endif %}
 
     {% if profile.vk_url or profile.github_url %}
         <div class="profile-block">
