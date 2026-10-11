@@ -8,6 +8,12 @@ from django.http import JsonResponse
 from django.utils import timezone
 from .utils import parse_mentions, linkify_mentions, render_markdown
 from .achievements import check_user_achievements
+import os
+import uuid
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.conf import settings
+from django.views.decorators.http import require_POST
 
 
 def index(request):
@@ -702,3 +708,47 @@ def users_search(request):
             for u in users
         ]
     })
+
+ALLOWED_IMAGE_TYPES = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/gif': 'gif',
+    'image/webp': 'webp',
+}
+
+MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5 МБ
+
+
+@login_required
+@require_POST
+def upload_image(request):
+    """Загрузка картинки в пост. Возвращает {url: '...'}."""
+    file = request.FILES.get('image')
+    if not file:
+        return JsonResponse({'error': 'Файл не передан'}, status=400)
+
+    if file.size > MAX_IMAGE_SIZE:
+        return JsonResponse(
+            {'error': 'Файл больше 5 МБ'},
+            status=400
+        )
+
+    content_type = file.content_type or ''
+    if content_type not in ALLOWED_IMAGE_TYPES:
+        return JsonResponse(
+            {'error': 'Разрешены только JPEG, PNG, GIF, WEBP'},
+            status=400
+        )
+
+    ext = ALLOWED_IMAGE_TYPES[content_type]
+    filename = f"{uuid.uuid4().hex}.{ext}"
+
+    # Сохраняем через default_storage (Yandex Object Storage)
+    # Путь: uploads/YYYY/MM/<uuid>.<ext>
+    now = timezone.now()
+    path = f"uploads/{now.year}/{now.month:02d}/{filename}"
+
+    saved_path = default_storage.save(path, ContentFile(file.read()))
+    url = default_storage.url(saved_path)
+
+    return JsonResponse({'url': url})

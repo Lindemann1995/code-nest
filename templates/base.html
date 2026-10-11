@@ -2518,6 +2518,67 @@
             h2 { font-size: 20px; }
             h3 { font-size: 16px; }
         }
+                /* Drag&drop для картинок */
+        .editor-pane-editor {
+            position: relative;
+        }
+        .editor-drop-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 102, 204, 0.08);
+            border: 2px dashed #0066cc;
+            border-radius: 6px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            pointer-events: none;
+        }
+        .editor-drop-overlay.active {
+            display: flex;
+        }
+        .editor-drop-overlay-text {
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #0066cc;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        /* Индикатор загрузки в редакторе */
+        .editor-upload-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1a1f2e;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #0066cc;
+        }
+        .editor-upload-toast.error {
+            border-left-color: #d32f2f;
+        }
+        .editor-upload-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: editorSpin 0.8s linear infinite;
+        }
+        @keyframes editorSpin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -2645,6 +2706,7 @@
     </footer>
 
     <div id="toast-container"></div>
+    <input type="file" id="editor-image-input" accept="image/*" style="display: none;">
 
     <!-- highlight.js -->
     <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
@@ -3254,9 +3316,173 @@
             cm.focus();
         }
 
-        function insertImage(cm) {
-            cm.replaceSelection('![alt-текст](https://example.com/image.png)');
+                // ============================================================
+        // Загрузка картинок: кнопка + drag&drop + paste
+        // ============================================================
+        const UPLOAD_URL = '{{ url("forum:upload_image") }}';
+
+        function showUploadToast(message, isError) {
+            const toast = document.createElement('div');
+            toast.className = 'editor-upload-toast' + (isError ? ' error' : '');
+            toast.innerHTML = (isError ? '❌ ' : '<div class="editor-upload-spinner"></div> ') + message;
+            document.body.appendChild(toast);
+            return toast;
+        }
+
+        function uploadImageFile(file, callback) {
+            if (!file || !file.type.startsWith('image/')) {
+                if (callback) callback(null, 'Не картинка');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                if (callback) callback(null, 'Файл больше 5 МБ');
+                return;
+            }
+
+            const toast = showUploadToast('Загружаю картинку...', false);
+
+            const fd = new FormData();
+            fd.append('image', file);
+
+            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+            const csrf = csrfInput ? csrfInput.value : '';
+
+            fetch(UPLOAD_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrf },
+                body: fd,
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                toast.remove();
+                if (data.error) {
+                    showUploadToast(data.error, true);
+                    setTimeout(function() {
+                        document.querySelectorAll('.editor-upload-toast.error').forEach(function(t) { t.remove(); });
+                    }, 3000);
+                    if (callback) callback(null, data.error);
+                    return;
+                }
+                if (callback) callback(data.url, null);
+            })
+            .catch(function(err) {
+                toast.remove();
+                showUploadToast('Ошибка загрузки', true);
+                setTimeout(function() {
+                    document.querySelectorAll('.editor-upload-toast.error').forEach(function(t) { t.remove(); });
+                }, 3000);
+                if (callback) callback(null, String(err));
+            });
+        }
+
+        function insertUploadedImage(cm, url, altText) {
+            const alt = altText || 'картинка';
+            const md = '![' + alt + '](' + url + ')\n';
+            const cursor = cm.getCursor();
+            cm.replaceRange(md, cursor, cursor);
             cm.focus();
+        }
+
+        function insertImage(cm) {
+            // Открываем file picker
+            const input = document.getElementById('editor-image-input');
+            if (!input) return;
+
+            // Запоминаем активный редактор в data-атрибуте
+            input.dataset.target = '1';
+            input._activeEditor = cm;
+
+            input.onchange = function() {
+                const file = input.files[0];
+                if (!file) return;
+                const editor = input._activeEditor;
+                uploadImageFile(file, function(url, err) {
+                    if (url && editor) insertUploadedImage(editor, url, file.name.replace(/\.[^.]+$/, ''));
+                });
+                input.value = '';  // сброс, чтобы можно было выбрать тот же файл снова
+            };
+
+            input.click();
+        }
+
+        function setupImageDrop(editor, editorPane) {
+            // Overlay для индикации drag&drop
+            const overlay = document.createElement('div');
+            overlay.className = 'editor-drop-overlay';
+            overlay.innerHTML = '<div class="editor-drop-overlay-text">📷 Отпустите, чтобы загрузить</div>';
+            editorPane.appendChild(overlay);
+
+            let dragCounter = 0;
+
+            function isImageDrag(e) {
+                if (!e.dataTransfer) return false;
+                const items = e.dataTransfer.items;
+                if (!items) return false;
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type && items[i].type.startsWith('image/')) return true;
+                }
+                return false;
+            }
+
+            editorPane.addEventListener('dragenter', function(e) {
+                if (!isImageDrag(e)) return;
+                e.preventDefault();
+                dragCounter++;
+                overlay.classList.add('active');
+            });
+
+            editorPane.addEventListener('dragover', function(e) {
+                if (!isImageDrag(e)) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            });
+
+            editorPane.addEventListener('dragleave', function(e) {
+                dragCounter--;
+                if (dragCounter <= 0) {
+                    dragCounter = 0;
+                    overlay.classList.remove('active');
+                }
+            });
+
+            editorPane.addEventListener('drop', function(e) {
+                if (!isImageDrag(e)) return;
+                e.preventDefault();
+                dragCounter = 0;
+                overlay.classList.remove('active');
+
+                const files = Array.from(e.dataTransfer.files).filter(function(f) {
+                    return f.type.startsWith('image/');
+                });
+
+                files.forEach(function(file) {
+                    uploadImageFile(file, function(url) {
+                        if (url) insertUploadedImage(editor, url, file.name.replace(/\.[^.]+$/, ''));
+                    });
+                });
+            });
+
+            // Ctrl+V — вставка из буфера
+            editor.getWrapperElement().addEventListener('paste', function(e) {
+                const items = e.clipboardData && e.clipboardData.items;
+                if (!items) return;
+
+                let handled = false;
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.kind === 'file' && item.type.startsWith('image/')) {
+                        e.preventDefault();
+                        const file = item.getAsFile();
+                        if (file) {
+                            uploadImageFile(file, function(url) {
+                                if (url) insertUploadedImage(editor, url, 'вставленная картинка');
+                            });
+                        }
+                        handled = true;
+                        break;
+                    }
+                }
+            });
         }
 
         function insertCodeBlock(cm) {
@@ -3335,6 +3561,8 @@
 
             // Автодополнение @username
             setupMentionAutocomplete(editor);
+
+            setupImageDrop(editor, shell.editorPane);
 
             // Синхронизация при submit
             editors.set(textarea, editor);

@@ -5,6 +5,7 @@ app_name = 'forum'
 
 urlpatterns = [
     path('api/users/search/', views.users_search, name='users_search'),
+    path('api/upload/image/', views.upload_image, name='upload_image'),
     path('', views.index, name='index'),
     path('register/', views.register, name='register'),
     path('section/<slug:slug>/', views.section_detail, name='section'),
