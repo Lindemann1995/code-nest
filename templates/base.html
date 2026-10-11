@@ -76,7 +76,7 @@
             font-size: 18px;
             color: #333;
         }
-                /* ===== Markdown-редактор: тулбар + сплит с preview ===== */
+        /* ===== Markdown-редактор: тулбар + сплит с preview ===== */
         .editor-wrap {
             border: 1px solid #d1d1d6;
             border-radius: 8px;
@@ -211,7 +211,54 @@
         }
         .editor-pane-preview th { background: #fff; font-weight: 600; }
         .editor-pane-preview img { max-width: 100%; height: auto; border-radius: 4px; }
-
+                /* Автодополнение @username */
+        .cm-mention-popup {
+            position: fixed;
+            background: #fff;
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            z-index: 10000;
+            max-height: 260px;
+            overflow-y: auto;
+            min-width: 200px;
+            padding: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .cm-mention-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #1d1d1f;
+            transition: background 0.1s;
+        }
+        .cm-mention-item:hover,
+        .cm-mention-item.active {
+            background: #eef4ff;
+            color: #0066cc;
+        }
+        .cm-mention-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #f5a623;
+            color: #1a1f2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .cm-mention-avatar img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
         @media (max-width: 900px) {
             .editor-split { grid-template-columns: 1fr; }
             .editor-pane-editor { border-right: none; border-bottom: 1px solid #e5e5e7; }
@@ -335,6 +382,24 @@
             border-top: none;
             margin-bottom: 20px;
             align-items: flex-start;
+        }
+                /* Редактор и автодополнение на мобиле */
+        .editor-toolbar button {
+            width: 40px;
+            height: 40px;
+            font-size: 15px;
+        }
+        .editor-toolbar {
+            padding: 8px 10px;
+        }
+        .cm-mention-item {
+            padding: 12px 14px;
+            font-size: 15px;
+        }
+        .cm-mention-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
         }
         .profile-avatar {
             width: 120px;
@@ -2881,6 +2946,178 @@
         <!-- CodeMirror 5 + Markdown toolbar + Live preview -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+                // ============================================================
+        // Автодополнение @username
+        // ============================================================
+        const MENTION_URL = '{{ url("forum:users_search") }}';
+        const IS_TOUCH = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+        function setupMentionAutocomplete(editor) {
+            let popup = null;
+            let items = [];
+            let activeIndex = 0;
+            let mentionStart = null;
+            let currentQuery = '';
+
+            function closePopup() {
+                if (popup) { popup.remove(); popup = null; }
+                items = [];
+                activeIndex = 0;
+                mentionStart = null;
+                currentQuery = '';
+            }
+
+            function renderPopup() {
+                if (!popup) return;
+                popup.innerHTML = items.map(function(u, i) {
+                    const avatarHtml = u.avatar
+                        ? '<div class="cm-mention-avatar"><img src="' + u.avatar + '" alt=""></div>'
+                        : '<div class="cm-mention-avatar">' + u.username[0].toUpperCase() + '</div>';
+                    return '<div class="cm-mention-item' + (i === activeIndex ? ' active' : '') +
+                           '" data-index="' + i + '">' +
+                           avatarHtml +
+                           '<span>' + u.username + '</span>' +
+                           '</div>';
+                }).join('');
+
+                popup.querySelectorAll('.cm-mention-item').forEach(function(el) {
+                    function handle(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const i = parseInt(el.dataset.index);
+                        insertMention(items[i].username);
+                    }
+                    el.addEventListener('mousedown', handle);
+                    el.addEventListener('touchstart', handle, { passive: false });
+                });
+            }
+
+            function positionPopup() {
+                if (!popup || !mentionStart) return;
+                const coords = editor.cursorCoords(
+                    { line: mentionStart.line, ch: mentionStart.ch },
+                    'window'
+                );
+                const vv = window.visualViewport;
+                const vvHeight = vv ? vv.height : window.innerHeight;
+                const vvTop = vv ? vv.offsetTop : 0;
+
+                let top = coords.bottom + 4;
+                let left = coords.left;
+
+                // Если попап уходит за нижнюю границу видимой области — ставим ВЫШЕ курсора
+                if (top + 264 > vvTop + vvHeight) {
+                    top = coords.top - 264;
+                }
+                if (left < 8) left = 8;
+                if (left + 220 > window.innerWidth) left = window.innerWidth - 228;
+
+                popup.style.left = left + 'px';
+                popup.style.top = top + 'px';
+            }
+
+            function showPopup(users) {
+                items = users;
+                activeIndex = 0;
+                if (items.length === 0) { closePopup(); return; }
+
+                if (!popup) {
+                    popup = document.createElement('div');
+                    popup.className = 'cm-mention-popup';
+                    document.body.appendChild(popup);
+                }
+                renderPopup();
+                positionPopup();
+            }
+
+            function insertMention(username) {
+                if (!mentionStart) return;
+                const cursor = editor.getCursor();
+                editor.replaceRange(
+                    username + ' ',
+                    { line: mentionStart.line, ch: mentionStart.ch },
+                    { line: cursor.line, ch: cursor.ch }
+                );
+                editor.focus();
+                closePopup();
+            }
+
+            function fetchUsers(query, callback) {
+                if (query.length < 1) { callback([]); return; }
+                fetch(MENTION_URL + '?q=' + encodeURIComponent(query))
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) { callback(data.users || []); })
+                    .catch(function() { callback([]); });
+            }
+
+            editor.on('change', function(cm, change) {
+                if (change.origin !== '+input' && change.origin !== 'paste') {
+                    if (popup) closePopup();
+                    return;
+                }
+                const cursor = editor.getCursor();
+                const line = editor.getLine(cursor.line).slice(0, cursor.ch);
+                const m = line.match(/@([\w.\-]*)$/);
+                if (!m) { if (popup) closePopup(); return; }
+
+                const query = m[1];
+                mentionStart = { line: cursor.line, ch: cursor.ch - query.length };
+                currentQuery = query;
+
+                fetchUsers(query, function(users) {
+                    if (currentQuery !== query) return;
+                    showPopup(users);
+                });
+            });
+
+            editor.on('cursorActivity', function() {
+                if (popup) positionPopup();
+            });
+
+            editor.on('blur', function() {
+                setTimeout(closePopup, 150);
+            });
+
+            // Клавиши
+            const existing = editor.getOption('extraKeys') || {};
+            const newKeys = Object.assign({}, existing, {
+                'Up': function(cm) {
+                    if (popup && items.length > 0) {
+                        activeIndex = (activeIndex - 1 + items.length) % items.length;
+                        renderPopup();
+                        return;
+                    }
+                    return CodeMirror.Pass;
+                },
+                'Down': function(cm) {
+                    if (popup && items.length > 0) {
+                        activeIndex = (activeIndex + 1) % items.length;
+                        renderPopup();
+                        return;
+                    }
+                    return CodeMirror.Pass;
+                },
+                'Enter': function(cm) {
+                    if (popup && items.length > 0) {
+                        insertMention(items[activeIndex].username);
+                        return;
+                    }
+                    return CodeMirror.Pass;
+                },
+                'Esc': function(cm) {
+                    if (popup) { closePopup(); return; }
+                    return CodeMirror.Pass;
+                },
+            });
+            editor.setOption('extraKeys', newKeys);
+
+            // На мобиле — закрываем попап при скролле страницы
+            if (IS_TOUCH) {
+                window.addEventListener('scroll', function() {
+                    if (popup) closePopup();
+                }, { passive: true });
+            }
+        }
         // Настройка marked.js — GitHub-подобный Markdown
         if (window.marked) {
             marked.setOptions({
@@ -3093,9 +3330,11 @@
                 previewBody.innerHTML = html;
             }
 
-            // Первый рендер + при каждом изменении
             updatePreview();
             editor.on('change', updatePreview);
+
+            // Автодополнение @username
+            setupMentionAutocomplete(editor);
 
             // Синхронизация при submit
             editors.set(textarea, editor);

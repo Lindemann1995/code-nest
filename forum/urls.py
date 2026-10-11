@@ -4,6 +4,7 @@ from . import views
 app_name = 'forum'
 
 urlpatterns = [
+    path('api/users/search/', views.users_search, name='users_search'),
     path('', views.index, name='index'),
     path('register/', views.register, name='register'),
     path('section/<slug:slug>/', views.section_detail, name='section'),

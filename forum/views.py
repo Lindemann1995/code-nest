@@ -679,3 +679,26 @@ def topic_set_prefix(request, section_slug, slug):
     return render(request, 'forum/topic_set_prefix.html', {
         'topic': topic,
     })
+
+def users_search(request):
+    """AJAX-поиск юзеров для автодополнения @username."""
+    q = request.GET.get('q', '').strip()
+    if len(q) < 1:
+        return JsonResponse({'users': []})
+
+    users = (
+        User.objects
+        .filter(username__istartswith=q)
+        .exclude(is_active=False)
+        .select_related('profile')[:8]
+    )
+
+    return JsonResponse({
+        'users': [
+            {
+                'username': u.username,
+                'avatar': u.profile.avatar.url if u.profile.avatar else None,
+            }
+            for u in users
+        ]
+    })
