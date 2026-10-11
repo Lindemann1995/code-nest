@@ -18,3 +18,4 @@ Unidecode==1.4.0
 urllib3==2.8.0
 bleach==6.4.0
 Markdown==3.11
+emoji==2.16.0

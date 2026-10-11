@@ -19,6 +19,8 @@
     <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
     <!-- DOMPurify — очистка HTML в preview -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.5/dist/purify.min.js"></script>
+        <!-- emoji-mart — emoji picker -->
+    <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
 
     <!-- highlight.js CSS (для подсветки кода в постах) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
@@ -2579,6 +2581,38 @@
         @keyframes editorSpin {
             to { transform: rotate(360deg); }
         }
+                /* Emoji picker */
+        .cm-emoji-popup {
+            position: fixed;
+            z-index: 10001;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .cm-emoji-popup em-emoji-picker {
+            --em-rgb-background: 255, 255, 255;
+            --em-rgb-color: 29, 29, 31;
+            --em-rgb-input: 245, 245, 247;
+            --em-rgb-accent: 0, 102, 204;
+            --em-color-border: #e5e5e7;
+            --em-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        /* На мобиле попап на весь экран снизу */
+        @media (max-width: 768px) {
+            .cm-emoji-popup {
+                top: auto !important;
+                bottom: 0;
+                left: 0 !important;
+                right: 0;
+                border-radius: 12px 12px 0 0;
+                max-height: 60vh;
+            }
+            .cm-emoji-popup em-emoji-picker {
+                width: 100% !important;
+                height: 60vh !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -3006,9 +3040,406 @@
     </script>
 
         <!-- CodeMirror 5 + Markdown toolbar + Live preview -->
+        <!-- CodeMirror 5 + Markdown toolbar + Live preview -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-                // ============================================================
+
+        // ============================================================
+        // Настройка marked.js
+        // ============================================================
+        if (window.marked) {
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                mangle: false,
+            });
+        }
+
+        // ============================================================
+        // Шаблон обёртки редактора
+        // ============================================================
+        function buildEditorShell(textarea) {
+            const wrap = document.createElement('div');
+            wrap.className = 'editor-wrap';
+
+            const toolbar = document.createElement('div');
+            toolbar.className = 'editor-toolbar';
+            toolbar.innerHTML = `
+                <button type="button" data-md="bold" title="Жирный (Ctrl+B)"><b>B</b></button>
+                <button type="button" data-md="italic" title="Курсив (Ctrl+I)"><i>I</i></button>
+                <button type="button" data-md="strike" title="Зачёркнутый"><s>S</s></button>
+                <button type="button" data-md="code" title="Код в строке">&lt;/&gt;</button>
+                <span class="tb-sep"></span>
+                <button type="button" data-md="h1" title="Заголовок 1">H1</button>
+                <button type="button" data-md="h2" title="Заголовок 2">H2</button>
+                <button type="button" data-md="h3" title="Заголовок 3">H3</button>
+                <span class="tb-sep"></span>
+                <button type="button" data-md="ul" title="Маркированный список">•</button>
+                <button type="button" data-md="ol" title="Нумерованный список">1.</button>
+                <button type="button" data-md="quote" title="Цитата">❝</button>
+                <span class="tb-sep"></span>
+                <button type="button" data-md="link" title="Ссылка (Ctrl+K)">🔗</button>
+                <button type="button" data-md="image" title="Картинка">🖼</button>
+                <button type="button" data-md="emoji" title="Смайлы (Ctrl+E)">🙂</button>
+                <button type="button" data-md="codeblock" title="Блок кода">&lt;/&gt;&lt;/&gt;</button>
+                <button type="button" data-md="hr" title="Разделитель">—</button>
+                <div class="tb-right">
+                    <button type="button" data-md="toggle-preview" title="Показать/скрыть превью">👁</button>
+                </div>
+            `;
+
+            const split = document.createElement('div');
+            split.className = 'editor-split';
+
+            const editorPane = document.createElement('div');
+            editorPane.className = 'editor-pane editor-pane-editor';
+
+            const previewPane = document.createElement('div');
+            previewPane.className = 'editor-pane editor-pane-preview';
+            previewPane.innerHTML = '<div class="editor-preview-label">Предпросмотр</div><div class="editor-preview-body"></div>';
+
+            split.appendChild(editorPane);
+            split.appendChild(previewPane);
+
+            wrap.appendChild(toolbar);
+            wrap.appendChild(split);
+
+            textarea.parentNode.insertBefore(wrap, textarea);
+
+            return { wrap, toolbar, split, editorPane, previewPane };
+        }
+
+        // ============================================================
+        // Базовые действия тулбара
+        // ============================================================
+        function wrapSelection(cm, before, after, placeholder) {
+            const sel = cm.getSelection();
+            const text = sel || placeholder;
+            cm.replaceSelection(before + text + after);
+            if (!sel) {
+                const from = cm.getCursor('from');
+                const start = { line: from.line, ch: from.ch - before.length - placeholder.length };
+                const end = { line: from.line, ch: from.ch - after.length };
+                cm.setSelection(start, end);
+            }
+            cm.focus();
+        }
+
+        function prefixLine(cm, prefix) {
+            const cursor = cm.getCursor();
+            cm.replaceRange(prefix, { line: cursor.line, ch: 0 }, { line: cursor.line, ch: 0 });
+            cm.focus();
+        }
+
+        function prefixLines(cm, prefix) {
+            const from = cm.getCursor('from');
+            const to = cm.getCursor('to');
+            for (let i = from.line; i <= to.line; i++) {
+                cm.replaceRange(prefix, { line: i, ch: 0 }, { line: i, ch: 0 });
+            }
+            cm.focus();
+        }
+
+        function prefixNumberedLines(cm) {
+            const from = cm.getCursor('from');
+            const to = cm.getCursor('to');
+            let n = 1;
+            for (let i = from.line; i <= to.line; i++) {
+                cm.replaceRange(n + '. ', { line: i, ch: 0 }, { line: i, ch: 0 });
+                n++;
+            }
+            cm.focus();
+        }
+
+        function insertLink(cm) {
+            const sel = cm.getSelection();
+            const text = sel || 'текст ссылки';
+            const md = '[' + text + '](https://example.com)';
+            cm.replaceSelection(md);
+            if (!sel) {
+                const cursor = cm.getCursor();
+                const lineStart = { line: cursor.line, ch: cursor.ch - '](https://example.com)'.length };
+                const lineEnd = { line: cursor.line, ch: cursor.ch - 1 };
+                cm.setSelection(lineStart, lineEnd);
+            }
+            cm.focus();
+        }
+
+        function insertCodeBlock(cm) {
+            cm.replaceSelection('\n```\nкод\n```\n');
+            cm.focus();
+        }
+
+        function insertText(cm, text) {
+            cm.replaceSelection(text);
+            cm.focus();
+        }
+
+        // ============================================================
+        // Загрузка картинок
+        // ============================================================
+        const UPLOAD_URL = '{{ url("forum:upload_image") }}';
+
+        function showUploadToast(message, isError) {
+            const toast = document.createElement('div');
+            toast.className = 'editor-upload-toast' + (isError ? ' error' : '');
+            toast.innerHTML = (isError ? '❌ ' : '<div class="editor-upload-spinner"></div> ') + message;
+            document.body.appendChild(toast);
+            return toast;
+        }
+
+        function uploadImageFile(file, callback) {
+            if (!file || !file.type.startsWith('image/')) {
+                if (callback) callback(null, 'Не картинка');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                if (callback) callback(null, 'Файл больше 5 МБ');
+                return;
+            }
+
+            const toast = showUploadToast('Загружаю картинку...', false);
+
+            const fd = new FormData();
+            fd.append('image', file);
+
+            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+            const csrf = csrfInput ? csrfInput.value : '';
+
+            fetch(UPLOAD_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrf },
+                body: fd,
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                toast.remove();
+                if (data.error) {
+                    showUploadToast(data.error, true);
+                    setTimeout(function() {
+                        document.querySelectorAll('.editor-upload-toast.error').forEach(function(t) { t.remove(); });
+                    }, 3000);
+                    if (callback) callback(null, data.error);
+                    return;
+                }
+                if (callback) callback(data.url, null);
+            })
+            .catch(function(err) {
+                toast.remove();
+                showUploadToast('Ошибка загрузки', true);
+                setTimeout(function() {
+                    document.querySelectorAll('.editor-upload-toast.error').forEach(function(t) { t.remove(); });
+                }, 3000);
+                if (callback) callback(null, String(err));
+            });
+        }
+
+        function insertUploadedImage(cm, url, altText) {
+            const alt = altText || 'картинка';
+            const md = '![' + alt + '](' + url + ')\n';
+            const cursor = cm.getCursor();
+            cm.replaceRange(md, cursor, cursor);
+            cm.focus();
+        }
+
+        function insertImage(cm) {
+            const input = document.getElementById('editor-image-input');
+            if (!input) return;
+            input._activeEditor = cm;
+            input.onchange = function() {
+                const file = input.files[0];
+                if (!file) return;
+                const editor = input._activeEditor;
+                uploadImageFile(file, function(url) {
+                    if (url && editor) insertUploadedImage(editor, url, file.name.replace(/\.[^.]+$/, ''));
+                });
+                input.value = '';
+            };
+            input.click();
+        }
+
+        function setupImageDrop(editor, editorPane) {
+            const overlay = document.createElement('div');
+            overlay.className = 'editor-drop-overlay';
+            overlay.innerHTML = '<div class="editor-drop-overlay-text">📷 Отпустите, чтобы загрузить</div>';
+            editorPane.appendChild(overlay);
+
+            let dragCounter = 0;
+
+            function isImageDrag(e) {
+                if (!e.dataTransfer) return false;
+                const items = e.dataTransfer.items;
+                if (!items) return false;
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type && items[i].type.startsWith('image/')) return true;
+                }
+                return false;
+            }
+
+            editorPane.addEventListener('dragenter', function(e) {
+                if (!isImageDrag(e)) return;
+                e.preventDefault();
+                dragCounter++;
+                overlay.classList.add('active');
+            });
+
+            editorPane.addEventListener('dragover', function(e) {
+                if (!isImageDrag(e)) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            });
+
+            editorPane.addEventListener('dragleave', function(e) {
+                dragCounter--;
+                if (dragCounter <= 0) {
+                    dragCounter = 0;
+                    overlay.classList.remove('active');
+                }
+            });
+
+            editorPane.addEventListener('drop', function(e) {
+                if (!isImageDrag(e)) return;
+                e.preventDefault();
+                dragCounter = 0;
+                overlay.classList.remove('active');
+
+                const files = Array.from(e.dataTransfer.files).filter(function(f) {
+                    return f.type.startsWith('image/');
+                });
+
+                files.forEach(function(file) {
+                    uploadImageFile(file, function(url) {
+                        if (url) insertUploadedImage(editor, url, file.name.replace(/\.[^.]+$/, ''));
+                    });
+                });
+            });
+
+            editor.getWrapperElement().addEventListener('paste', function(e) {
+                const items = e.clipboardData && e.clipboardData.items;
+                if (!items) return;
+
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.kind === 'file' && item.type.startsWith('image/')) {
+                        e.preventDefault();
+                        const file = item.getAsFile();
+                        if (file) {
+                            uploadImageFile(file, function(url) {
+                                if (url) insertUploadedImage(editor, url, 'вставленная картинка');
+                            });
+                        }
+                        break;
+                    }
+                }
+            });
+        }
+
+        // ============================================================
+        // Emoji picker
+        // ============================================================
+        let activeEmojiEditor = null;
+        let emojiPopupEl = null;
+
+        function closeEmojiPopup() {
+            if (emojiPopupEl) {
+                emojiPopupEl.remove();
+                emojiPopupEl = null;
+                activeEmojiEditor = null;
+            }
+        }
+
+        function openEmojiPopup(editor, anchorBtn) {
+            if (emojiPopupEl && activeEmojiEditor === editor) {
+                closeEmojiPopup();
+                return;
+            }
+            closeEmojiPopup();
+
+            activeEmojiEditor = editor;
+
+            const popup = document.createElement('div');
+            popup.className = 'cm-emoji-popup';
+
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+            if (!isMobile && anchorBtn && anchorBtn.getBoundingClientRect) {
+                const rect = anchorBtn.getBoundingClientRect();
+                popup.style.top = (rect.bottom + 6) + 'px';
+                const popupWidth = 360;
+                let left = rect.left;
+                if (left + popupWidth > window.innerWidth - 10) {
+                    left = window.innerWidth - popupWidth - 10;
+                }
+                popup.style.left = left + 'px';
+            }
+
+            if (window.EmojiMart && window.EmojiMart.Picker) {
+                const picker = new EmojiMart.Picker({
+                    onEmojiSelect: function(emoji) {
+                        if (activeEmojiEditor) {
+                            const cm = activeEmojiEditor;
+                            cm.replaceSelection(emoji.native);
+                            cm.focus();
+                        }
+                        closeEmojiPopup();
+                    },
+                    theme: 'light',
+                    locale: 'ru',
+                    previewPosition: 'none',
+                    skinTonePosition: 'preview',
+                    perLine: 8,
+                });
+                picker.style.width = '360px';
+                picker.style.height = '420px';
+                if (isMobile) {
+                    picker.style.width = '100%';
+                    picker.style.height = '60vh';
+                }
+                popup.appendChild(picker);
+            } else {
+                const fallback = ['😀','😂','😊','😍','🤔','😎','👍','👎','❤️','🔥','🎉','✅','❌','🚀','💡','🐛','⚠️','📌','💬','🙏'];
+                popup.style.padding = '10px';
+                popup.style.maxWidth = '320px';
+                fallback.forEach(function(e) {
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.textContent = e;
+                    b.style.cssText = 'font-size:22px;padding:6px;border:none;background:transparent;cursor:pointer;border-radius:6px;';
+                    b.addEventListener('mouseenter', function() { b.style.background = '#eef4ff'; });
+                    b.addEventListener('mouseleave', function() { b.style.background = 'transparent'; });
+                    b.addEventListener('click', function() {
+                        if (activeEmojiEditor) {
+                            activeEmojiEditor.replaceSelection(e);
+                            activeEmojiEditor.focus();
+                        }
+                        closeEmojiPopup();
+                    });
+                    popup.appendChild(b);
+                });
+            }
+
+            document.body.appendChild(popup);
+            emojiPopupEl = popup;
+
+            setTimeout(function() {
+                document.addEventListener('mousedown', onOutsideClickEmoji);
+                document.addEventListener('touchstart', onOutsideClickEmoji, { passive: true });
+            }, 0);
+        }
+
+        function onOutsideClickEmoji(e) {
+            if (!emojiPopupEl) return;
+            if (emojiPopupEl.contains(e.target)) return;
+            if (e.target.closest && e.target.closest('[data-md="emoji"]')) return;
+            closeEmojiPopup();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeEmojiPopup();
+        });
+
+        // ============================================================
         // Автодополнение @username
         // ============================================================
         const MENTION_URL = '{{ url("forum:users_search") }}';
@@ -3067,7 +3498,6 @@
                 let top = coords.bottom + 4;
                 let left = coords.left;
 
-                // Если попап уходит за нижнюю границу видимой области — ставим ВЫШЕ курсора
                 if (top + 264 > vvTop + vvHeight) {
                     top = coords.top - 264;
                 }
@@ -3140,7 +3570,6 @@
                 setTimeout(closePopup, 150);
             });
 
-            // Клавиши
             const existing = editor.getOption('extraKeys') || {};
             const newKeys = Object.assign({}, existing, {
                 'Up': function(cm) {
@@ -3173,76 +3602,16 @@
             });
             editor.setOption('extraKeys', newKeys);
 
-            // На мобиле — закрываем попап при скролле страницы
             if (IS_TOUCH) {
                 window.addEventListener('scroll', function() {
                     if (popup) closePopup();
                 }, { passive: true });
             }
         }
-        // Настройка marked.js — GitHub-подобный Markdown
-        if (window.marked) {
-            marked.setOptions({
-                breaks: true,
-                gfm: true,
-                headerIds: false,
-                mangle: false,
-            });
-        }
 
-        // ---- Шаблон обёртки редактора ----
-        function buildEditorShell(textarea) {
-            const wrap = document.createElement('div');
-            wrap.className = 'editor-wrap';
-
-            const toolbar = document.createElement('div');
-            toolbar.className = 'editor-toolbar';
-            toolbar.innerHTML = `
-                <button type="button" data-md="bold" title="Жирный (Ctrl+B)"><b>B</b></button>
-                <button type="button" data-md="italic" title="Курсив (Ctrl+I)"><i>I</i></button>
-                <button type="button" data-md="strike" title="Зачёркнутый"><s>S</s></button>
-                <button type="button" data-md="code" title="Код в строке">&lt;/&gt;</button>
-                <span class="tb-sep"></span>
-                <button type="button" data-md="h1" title="Заголовок 1">H1</button>
-                <button type="button" data-md="h2" title="Заголовок 2">H2</button>
-                <button type="button" data-md="h3" title="Заголовок 3">H3</button>
-                <span class="tb-sep"></span>
-                <button type="button" data-md="ul" title="Маркированный список">•</button>
-                <button type="button" data-md="ol" title="Нумерованный список">1.</button>
-                <button type="button" data-md="quote" title="Цитата">❝</button>
-                <span class="tb-sep"></span>
-                <button type="button" data-md="link" title="Ссылка (Ctrl+K)">🔗</button>
-                <button type="button" data-md="image" title="Картинка">🖼</button>
-                <button type="button" data-md="codeblock" title="Блок кода">&lt;/&gt;&lt;/&gt;</button>
-                <button type="button" data-md="hr" title="Разделитель">—</button>
-                <div class="tb-right">
-                    <button type="button" data-md="toggle-preview" title="Показать/скрыть превью">👁</button>
-                </div>
-            `;
-
-            const split = document.createElement('div');
-            split.className = 'editor-split';
-
-            const editorPane = document.createElement('div');
-            editorPane.className = 'editor-pane editor-pane-editor';
-
-            const previewPane = document.createElement('div');
-            previewPane.className = 'editor-pane editor-pane-preview';
-            previewPane.innerHTML = '<div class="editor-preview-label">Предпросмотр</div><div class="editor-preview-body"></div>';
-
-            split.appendChild(editorPane);
-            split.appendChild(previewPane);
-
-            wrap.appendChild(toolbar);
-            wrap.appendChild(split);
-
-            // Вставляем wrap перед textarea
-            textarea.parentNode.insertBefore(wrap, textarea);
-
-            return { wrap, toolbar, split, editorPane, previewPane };
-        }
-
-        // ---- Действия тулбара ----
+        // ============================================================
+        // ACTIONS (после всех функций)
+        // ============================================================
         const ACTIONS = {
             bold: (cm) => wrapSelection(cm, '**', '**', 'жирный'),
             italic: (cm) => wrapSelection(cm, '*', '*', 'курсив'),
@@ -3260,248 +3629,14 @@
             hr: (cm) => insertText(cm, '\n\n---\n\n'),
         };
 
-        function wrapSelection(cm, before, after, placeholder) {
-            const sel = cm.getSelection();
-            const text = sel || placeholder;
-            cm.replaceSelection(before + text + after);
-            if (!sel) {
-                // выделяем placeholder, чтобы сразу печатать
-                const from = cm.getCursor('from');
-                const start = { line: from.line, ch: from.ch - before.length - placeholder.length };
-                const end = { line: from.line, ch: from.ch - after.length };
-                cm.setSelection(start, end);
-            }
-            cm.focus();
-        }
-
-        function prefixLine(cm, prefix) {
-            const cursor = cm.getCursor();
-            const line = cm.getLine(cursor.line);
-            cm.replaceRange(prefix, { line: cursor.line, ch: 0 }, { line: cursor.line, ch: 0 });
-            cm.focus();
-        }
-
-        function prefixLines(cm, prefix) {
-            const from = cm.getCursor('from');
-            const to = cm.getCursor('to');
-            for (let i = from.line; i <= to.line; i++) {
-                cm.replaceRange(prefix, { line: i, ch: 0 }, { line: i, ch: 0 });
-            }
-            cm.focus();
-        }
-
-        function prefixNumberedLines(cm) {
-            const from = cm.getCursor('from');
-            const to = cm.getCursor('to');
-            let n = 1;
-            for (let i = from.line; i <= to.line; i++) {
-                cm.replaceRange(n + '. ', { line: i, ch: 0 }, { line: i, ch: 0 });
-                n++;
-            }
-            cm.focus();
-        }
-
-        function insertLink(cm) {
-            const sel = cm.getSelection();
-            const text = sel || 'текст ссылки';
-            const md = '[' + text + '](https://example.com)';
-            cm.replaceSelection(md);
-            if (!sel) {
-                const cursor = cm.getCursor();
-                // выделяем URL для быстрой замены
-                const lineStart = { line: cursor.line, ch: cursor.ch - '](https://example.com)'.length };
-                const lineEnd = { line: cursor.line, ch: cursor.ch - 1 };
-                cm.setSelection(lineStart, lineEnd);
-            }
-            cm.focus();
-        }
-
-                // ============================================================
-        // Загрузка картинок: кнопка + drag&drop + paste
         // ============================================================
-        const UPLOAD_URL = '{{ url("forum:upload_image") }}';
-
-        function showUploadToast(message, isError) {
-            const toast = document.createElement('div');
-            toast.className = 'editor-upload-toast' + (isError ? ' error' : '');
-            toast.innerHTML = (isError ? '❌ ' : '<div class="editor-upload-spinner"></div> ') + message;
-            document.body.appendChild(toast);
-            return toast;
-        }
-
-        function uploadImageFile(file, callback) {
-            if (!file || !file.type.startsWith('image/')) {
-                if (callback) callback(null, 'Не картинка');
-                return;
-            }
-            if (file.size > 5 * 1024 * 1024) {
-                if (callback) callback(null, 'Файл больше 5 МБ');
-                return;
-            }
-
-            const toast = showUploadToast('Загружаю картинку...', false);
-
-            const fd = new FormData();
-            fd.append('image', file);
-
-            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
-            const csrf = csrfInput ? csrfInput.value : '';
-
-            fetch(UPLOAD_URL, {
-                method: 'POST',
-                headers: { 'X-CSRFToken': csrf },
-                body: fd,
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                toast.remove();
-                if (data.error) {
-                    showUploadToast(data.error, true);
-                    setTimeout(function() {
-                        document.querySelectorAll('.editor-upload-toast.error').forEach(function(t) { t.remove(); });
-                    }, 3000);
-                    if (callback) callback(null, data.error);
-                    return;
-                }
-                if (callback) callback(data.url, null);
-            })
-            .catch(function(err) {
-                toast.remove();
-                showUploadToast('Ошибка загрузки', true);
-                setTimeout(function() {
-                    document.querySelectorAll('.editor-upload-toast.error').forEach(function(t) { t.remove(); });
-                }, 3000);
-                if (callback) callback(null, String(err));
-            });
-        }
-
-        function insertUploadedImage(cm, url, altText) {
-            const alt = altText || 'картинка';
-            const md = '![' + alt + '](' + url + ')\n';
-            const cursor = cm.getCursor();
-            cm.replaceRange(md, cursor, cursor);
-            cm.focus();
-        }
-
-        function insertImage(cm) {
-            // Открываем file picker
-            const input = document.getElementById('editor-image-input');
-            if (!input) return;
-
-            // Запоминаем активный редактор в data-атрибуте
-            input.dataset.target = '1';
-            input._activeEditor = cm;
-
-            input.onchange = function() {
-                const file = input.files[0];
-                if (!file) return;
-                const editor = input._activeEditor;
-                uploadImageFile(file, function(url, err) {
-                    if (url && editor) insertUploadedImage(editor, url, file.name.replace(/\.[^.]+$/, ''));
-                });
-                input.value = '';  // сброс, чтобы можно было выбрать тот же файл снова
-            };
-
-            input.click();
-        }
-
-        function setupImageDrop(editor, editorPane) {
-            // Overlay для индикации drag&drop
-            const overlay = document.createElement('div');
-            overlay.className = 'editor-drop-overlay';
-            overlay.innerHTML = '<div class="editor-drop-overlay-text">📷 Отпустите, чтобы загрузить</div>';
-            editorPane.appendChild(overlay);
-
-            let dragCounter = 0;
-
-            function isImageDrag(e) {
-                if (!e.dataTransfer) return false;
-                const items = e.dataTransfer.items;
-                if (!items) return false;
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].type && items[i].type.startsWith('image/')) return true;
-                }
-                return false;
-            }
-
-            editorPane.addEventListener('dragenter', function(e) {
-                if (!isImageDrag(e)) return;
-                e.preventDefault();
-                dragCounter++;
-                overlay.classList.add('active');
-            });
-
-            editorPane.addEventListener('dragover', function(e) {
-                if (!isImageDrag(e)) return;
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'copy';
-            });
-
-            editorPane.addEventListener('dragleave', function(e) {
-                dragCounter--;
-                if (dragCounter <= 0) {
-                    dragCounter = 0;
-                    overlay.classList.remove('active');
-                }
-            });
-
-            editorPane.addEventListener('drop', function(e) {
-                if (!isImageDrag(e)) return;
-                e.preventDefault();
-                dragCounter = 0;
-                overlay.classList.remove('active');
-
-                const files = Array.from(e.dataTransfer.files).filter(function(f) {
-                    return f.type.startsWith('image/');
-                });
-
-                files.forEach(function(file) {
-                    uploadImageFile(file, function(url) {
-                        if (url) insertUploadedImage(editor, url, file.name.replace(/\.[^.]+$/, ''));
-                    });
-                });
-            });
-
-            // Ctrl+V — вставка из буфера
-            editor.getWrapperElement().addEventListener('paste', function(e) {
-                const items = e.clipboardData && e.clipboardData.items;
-                if (!items) return;
-
-                let handled = false;
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i];
-                    if (item.kind === 'file' && item.type.startsWith('image/')) {
-                        e.preventDefault();
-                        const file = item.getAsFile();
-                        if (file) {
-                            uploadImageFile(file, function(url) {
-                                if (url) insertUploadedImage(editor, url, 'вставленная картинка');
-                            });
-                        }
-                        handled = true;
-                        break;
-                    }
-                }
-            });
-        }
-
-        function insertCodeBlock(cm) {
-            cm.replaceSelection('\n```\nкод\n```\n');
-            cm.focus();
-        }
-
-        function insertText(cm, text) {
-            cm.replaceSelection(text);
-            cm.focus();
-        }
-
-        // ---- Инициализация всех .editor ----
+        // Инициализация всех .editor
+        // ============================================================
         const editors = new Map();
 
         document.querySelectorAll('textarea.editor').forEach(function(textarea) {
             const shell = buildEditorShell(textarea);
 
-            // Textarea больше не нужна в UI — CM её сам скроет
             const editor = CodeMirror.fromTextArea(textarea, {
                 mode: 'markdown',
                 theme: 'dracula',
@@ -3515,22 +3650,29 @@
                     'Ctrl-B': function(cm) { ACTIONS.bold(cm); },
                     'Ctrl-I': function(cm) { ACTIONS.italic(cm); },
                     'Ctrl-K': function(cm) { ACTIONS.link(cm); },
+                    'Ctrl-E': function(cm) { openEmojiPopup(cm, null); },
                 },
             });
             editor.setSize(null, 400);
 
-            // Переносим DOM CM в editorPane
             shell.editorPane.appendChild(editor.getWrapperElement());
 
-            // Тулбар — обработчики
+            // Тулбар
             shell.toolbar.querySelectorAll('button[data-md]').forEach(function(btn) {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     const action = btn.dataset.md;
+
                     if (action === 'toggle-preview') {
                         shell.split.classList.toggle('preview-hidden');
                         return;
                     }
+
+                    if (action === 'emoji') {
+                        openEmojiPopup(editor, btn);
+                        return;
+                    }
+
                     if (ACTIONS[action]) ACTIONS[action](editor);
                 });
             });
@@ -3559,16 +3701,12 @@
             updatePreview();
             editor.on('change', updatePreview);
 
-            // Автодополнение @username
             setupMentionAutocomplete(editor);
-
             setupImageDrop(editor, shell.editorPane);
 
-            // Синхронизация при submit
             editors.set(textarea, editor);
         });
 
-        // Синхронизация при отправке формы
         document.querySelectorAll('form').forEach(function(form) {
             form.addEventListener('submit', function() {
                 editors.forEach(function(editor, textarea) {
@@ -3579,6 +3717,7 @@
             });
         });
     });
+    </script>
     </script>
 </body>
 </html>

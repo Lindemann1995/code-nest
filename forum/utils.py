@@ -1,8 +1,10 @@
 import re
 import markdown
 import bleach
+import emoji
 from django.contrib.auth.models import User
 from .models import Notification
+
 
 
 # Регулярка: @username (латиница, цифры, _, ., +, -, от 3 до 30 символов)
@@ -142,7 +144,13 @@ def render_markdown(text):
             },
         },
     )
+        # 2. @username → <a class="mention">
     html = linkify_mentions(html)
+
+    # 3. :smile: → 😄 (не трогая <code>, <pre>, <a>)
+    html = emojize_html(html)
+
+    # 4. Чистим HTML от опасных тегов
     clean = bleach.clean(
         html,
         tags=ALLOWED_TAGS,
@@ -151,3 +159,41 @@ def render_markdown(text):
         strip=True,
     )
     return clean
+
+EMOJI_CODE_PATTERN = re.compile(r':([a-zA-Z0-9_+\-]+):')
+
+
+def emojize_html(html):
+    """
+    Заменяет :smile: на 😄 в HTML, не трогая <code>, <pre>, <a>.
+    """
+    parts = re.split(r'(<[^>]+>)', html)
+    inside_skip = 0
+
+    result = []
+    for part in parts:
+        if part.startswith('<'):
+            tag_lower = part.lower()
+            if re.match(r'<(a|code|pre)\b', tag_lower):
+                inside_skip += 1
+            elif re.match(r'</(a|code|pre)>', tag_lower):
+                inside_skip = max(0, inside_skip - 1)
+            result.append(part)
+            continue
+
+        if inside_skip > 0:
+            result.append(part)
+            continue
+
+        # Заменяем только если emoji знает такой код
+        def replacer(match):
+            code = match.group(1)
+            converted = emoji.emojize(f':{code}:', language='alias')
+            # Если не сконвертилось — emoji вернёт исходную строку
+            if converted == f':{code}:':
+                return match.group(0)
+            return converted
+
+        result.append(EMOJI_CODE_PATTERN.sub(replacer, part))
+
+    return ''.join(result)
