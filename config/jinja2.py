@@ -29,11 +29,20 @@ def csrf_context(request):
     }
 
 def unread_counts(request):
-    """Счётчики непрочитанных уведомлений и ЛС."""
+    """Счётчики непрочитанных + последние уведомления для шапки."""
     if not request.user.is_authenticated:
-        return {'unread_notifs': 0, 'unread_msgs': 0}
+        return {
+            'unread_notifs': 0,
+            'unread_msgs': 0,
+            'recent_notifications': [],
+        }
 
-    unread_notifs = request.user.notifications.filter(is_read=False).count()
+    notifs_qs = request.user.notifications.select_related(
+        'sender', 'topic', 'post'
+    )
+
+    unread_notifs = notifs_qs.filter(is_read=False).count()
+    recent_notifications = list(notifs_qs[:8])
 
     unread_msgs = 0
     for conv in request.user.conversations.all():
@@ -42,6 +51,7 @@ def unread_counts(request):
     return {
         'unread_notifs': unread_notifs,
         'unread_msgs': unread_msgs,
+        'recent_notifications': recent_notifications,
     }
 
 def render_field(field, **attrs):

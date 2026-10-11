@@ -5,7 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Code Nest{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+
+    <!-- CodeMirror 5 — Markdown-редактор -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/continuelist.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+        <!-- marked.js — рендер Markdown для live preview -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+    <!-- DOMPurify — очистка HTML в preview -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.5/dist/purify.min.js"></script>
+
+    <!-- highlight.js CSS (для подсветки кода в постах) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
 
     <style>
@@ -60,6 +75,146 @@
             margin-bottom: 15px;
             font-size: 18px;
             color: #333;
+        }
+                /* ===== Markdown-редактор: тулбар + сплит с preview ===== */
+        .editor-wrap {
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .editor-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            padding: 6px 8px;
+            background: #f7f8fa;
+            border-bottom: 1px solid #e5e5e7;
+            align-items: center;
+        }
+        .editor-toolbar button {
+            background: transparent;
+            border: 1px solid transparent;
+            color: #444;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.12s;
+            padding: 0;
+        }
+        .editor-toolbar button:hover {
+            background: #fff;
+            border-color: #d1d1d6;
+            color: #0066cc;
+        }
+        .editor-toolbar button:active {
+            background: #eef4ff;
+        }
+        .editor-toolbar .tb-sep {
+            width: 1px;
+            height: 20px;
+            background: #e0e0e3;
+            margin: 0 4px;
+        }
+        .editor-toolbar .tb-right {
+            margin-left: auto;
+            display: flex;
+            gap: 2px;
+        }
+        .editor-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 400px;
+        }
+        .editor-split.preview-hidden {
+            grid-template-columns: 1fr;
+        }
+        .editor-pane {
+            min-width: 0;
+            position: relative;
+        }
+        .editor-pane-editor {
+            border-right: 1px solid #e5e5e7;
+        }
+        .editor-split.preview-hidden .editor-pane-editor {
+            border-right: none;
+        }
+        .editor-pane-preview {
+            background: #fafbfc;
+            padding: 15px 20px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 600px;
+        }
+        .editor-split.preview-hidden .editor-pane-preview {
+            display: none;
+        }
+        .editor-preview-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+        .editor-pane-preview h1 { font-size: 20px; margin: 10px 0 8px; }
+        .editor-pane-preview h2 { font-size: 17px; margin: 10px 0 8px; }
+        .editor-pane-preview h3 { font-size: 15px; margin: 10px 0 8px; }
+        .editor-pane-preview p { margin: 8px 0; }
+        .editor-pane-preview ul, .editor-pane-preview ol { margin: 8px 0 8px 22px; }
+        .editor-pane-preview li { margin: 3px 0; }
+        .editor-pane-preview blockquote {
+            border-left: 4px solid #d1d1d6;
+            padding: 6px 12px;
+            margin: 8px 0;
+            color: #555;
+            background: #fff;
+            border-radius: 0 6px 6px 0;
+        }
+        .editor-pane-preview code {
+            background: #f0f0f2;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12.5px;
+            color: #c7254e;
+        }
+        .editor-pane-preview pre {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-size: 12.5px;
+            line-height: 1.5;
+        }
+        .editor-pane-preview pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+        }
+        .editor-pane-preview a { color: #0066cc; }
+        .editor-pane-preview hr { border: none; border-top: 1px solid #e5e5e7; margin: 12px 0; }
+        .editor-pane-preview table { border-collapse: collapse; margin: 10px 0; }
+        .editor-pane-preview th, .editor-pane-preview td {
+            border: 1px solid #e5e5e7; padding: 6px 10px;
+        }
+        .editor-pane-preview th { background: #fff; font-weight: 600; }
+        .editor-pane-preview img { max-width: 100%; height: auto; border-radius: 4px; }
+
+        @media (max-width: 900px) {
+            .editor-split { grid-template-columns: 1fr; }
+            .editor-pane-editor { border-right: none; border-bottom: 1px solid #e5e5e7; }
         }
         /* Формы авторизации */
         .auth-form {
@@ -161,85 +316,6 @@
         }
         .logout-btn:hover { color: #f5a623; }
 
-        /* Quill code-block */
-        .post-content .ql-code-block-container {
-            background: #2d2d2d !important;
-            color: #f8f8f2;
-            padding: 15px 20px;
-            border-radius: 6px;
-            overflow-x: auto;
-            margin: 15px 0;
-        }
-        .post-content .ql-code-block {
-            background: transparent !important;
-            color: #f8f8f2 !important;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            white-space: pre-wrap;
-        }
-
-        /* Quill редактор */
-        .ql-toolbar.ql-snow {
-            background: #f8f9fa;
-            border: 1px solid #d1d1d6;
-            border-radius: 6px 6px 0 0;
-            padding: 8px 12px;
-        }
-        .ql-container.ql-snow {
-            background: #ffffff;
-            border: 1px solid #d1d1d6;
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-            font-size: 15px;
-            min-height: 300px;
-        }
-        .ql-editor {
-            color: #1d1d1f;
-            min-height: 250px;
-        }
-        .ql-editor.ql-blank::before {
-            color: #999;
-            font-style: normal;
-        }
-        .ql-snow .ql-stroke { stroke: #444; }
-        .ql-snow .ql-fill,
-        .ql-snow .ql-stroke.ql-fill { fill: #444; }
-        .ql-snow .ql-picker { color: #444; }
-        .ql-snow .ql-picker-options {
-            background: #fff;
-            border: 1px solid #d1d1d6;
-        }
-        .ql-snow .ql-picker-item { color: #444; }
-        .ql-snow button:hover .ql-stroke,
-        .ql-snow button.ql-active .ql-stroke { stroke: #0066cc; }
-        .ql-snow button:hover .ql-fill,
-        .ql-snow button.ql-active .ql-fill { fill: #0066cc; }
-        .ql-snow .ql-picker-label:hover,
-        .ql-snow .ql-picker-label.ql-active { color: #0066cc; }
-        .ql-snow .ql-picker-label:hover .ql-stroke,
-        .ql-snow .ql-picker-label.ql-active .ql-stroke { stroke: #0066cc; }
-        .ql-editor a { color: #0066cc; }
-        .ql-editor blockquote {
-            border-left: 4px solid #f5a623;
-            padding-left: 15px;
-            margin: 10px 0;
-            color: #555;
-        }
-        .ql-editor pre.ql-syntax {
-            background: #2d2d2d !important;
-            color: #f8f8f2 !important;
-            border-radius: 6px;
-            padding: 12px 15px;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: 14px;
-        }
-        .ql-editor .ql-align-center,
-        .post-content .ql-align-center { text-align: center; }
-        .ql-editor .ql-align-right,
-        .post-content .ql-align-right { text-align: right; }
-        .ql-editor .ql-align-justify,
-        .post-content .ql-align-justify { text-align: justify; }
 
         /* ===== Профиль ===== */
         .profile-page { max-width: 920px; margin: 0 auto; }
@@ -1025,6 +1101,61 @@
             line-height: 1.6;
             word-wrap: break-word;
         }
+        /* Markdown-стили внутри поста */
+        .post-content h1 { font-size: 22px; margin: 15px 0 10px; }
+        .post-content h2 { font-size: 19px; margin: 15px 0 10px; }
+        .post-content h3 { font-size: 17px; margin: 15px 0 10px; }
+        .post-content p { margin: 10px 0; }
+        .post-content ul, .post-content ol { margin: 10px 0 10px 25px; }
+        .post-content li { margin: 4px 0; }
+        .post-content blockquote {
+            border-left: 4px solid #d1d1d6;
+            padding: 8px 15px;
+            margin: 10px 0;
+            color: #555;
+            background: #fafbfc;
+            border-radius: 0 6px 6px 0;
+        }
+        .post-content code {
+            background: #f0f0f2;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            color: #c7254e;
+        }
+        .post-content pre {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 12px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .post-content pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+            font-size: inherit;
+        }
+        .post-content table {
+            border-collapse: collapse;
+            margin: 12px 0;
+            width: 100%;
+        }
+        .post-content th, .post-content td {
+            border: 1px solid #e5e5e7;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .post-content th { background: #fafbfc; font-weight: 600; }
+        .post-content img { max-width: 100%; height: auto; border-radius: 6px; }
+        .post-content a { color: #0066cc; }
+        .post-content hr { border: none; border-top: 1px solid #e5e5e7; margin: 15px 0; }
+
         .post-actions {
             display: flex;
             justify-content: space-between;
@@ -1358,8 +1489,9 @@
             gap: 12px;
         }
         .section-card {
-            display: flex;
-            align-items: flex-start;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: center;
             gap: 12px;
             padding: 14px 16px;
             background: #fafbfc;
@@ -1396,31 +1528,6 @@
         }
         .section-card-stats { display: flex; gap: 12px; font-size: 12px; color: #666; }
         .section-card-stats .stat-item strong { color: #0066cc; }
-        .section-card-last {
-            display: none;
-            text-align: right;
-            font-size: 11px;
-            color: #999;
-            flex-shrink: 0;
-            max-width: 180px;
-            border-left: 1px solid #e5e5e7;
-            padding-left: 12px;
-        }
-        .last-topic-label { color: #aaa; margin-bottom: 3px; }
-        .last-topic-title {
-            display: block;
-            color: #0066cc;
-            font-size: 12px;
-            margin-bottom: 3px;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .last-topic-title:hover { text-decoration: underline; }
-        .last-topic-author { color: #999; font-size: 11px; }
-        .last-topic-author a { color: #0066cc; text-decoration: none; }
-        @media (min-width: 1100px) {
-            .section-card-last { display: block; }
-        }
         .category-card-empty {
             padding: 25px;
             color: #999;
@@ -2474,9 +2581,6 @@
 
     <div id="toast-container"></div>
 
-    <!-- Quill -->
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-
     <!-- highlight.js -->
     <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/python.min.js"></script>
@@ -2485,59 +2589,11 @@
     <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/javascript.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/bash.min.js"></script>
 
-    <!-- Quill init -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('textarea.editor').forEach(function(el) {
-                el.style.display = 'none';
-                const editorDiv = document.createElement('div');
-                editorDiv.innerHTML = el.value;
-                el.parentNode.insertBefore(editorDiv, el);
-                const quill = new Quill(editorDiv, {
-                    theme: 'snow',
-                    placeholder: el.placeholder || 'Напишите что-нибудь...',
-                    modules: {
-                        toolbar: [
-                            [{ 'header': [1, 2, 3, false] }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                            [{ 'align': [] }],
-                            ['blockquote', 'code-block'],
-                            ['link', 'image'],
-                            ['clean']
-                        ]
-                    }
-                });
-                function syncContent() { el.value = quill.root.innerHTML; }
-                quill.on('text-change', syncContent);
-                const form = el.closest('form');
-                if (form) form.addEventListener('submit', syncContent);
-            });
-        });
-    </script>
-
-    <!-- Code highlight -->
+    <!-- Code highlight: подсветка кода в постах -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.post-content .ql-code-block').forEach(function(block) {
-            const code = document.createElement('code');
-            code.className = 'language-c';
-            code.textContent = block.textContent;
-            hljs.highlightElement(code);
-            block.innerHTML = '';
-            block.appendChild(code);
-        });
-        document.querySelectorAll('.post-content pre').forEach(function(pre) {
-            if (pre.querySelector('code')) {
-                hljs.highlightElement(pre.querySelector('code'));
-                return;
-            }
-            const code = document.createElement('code');
-            code.className = 'language-c';
-            code.textContent = pre.textContent;
-            hljs.highlightElement(code);
-            pre.innerHTML = '';
-            pre.appendChild(code);
+        document.querySelectorAll('.post-content pre code').forEach(function(block) {
+            hljs.highlightElement(block);
         });
     });
     </script>
@@ -2819,6 +2875,242 @@
                 m.classList.remove('open');
             });
         }
+    });
+    </script>
+
+        <!-- CodeMirror 5 + Markdown toolbar + Live preview -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Настройка marked.js — GitHub-подобный Markdown
+        if (window.marked) {
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                mangle: false,
+            });
+        }
+
+        // ---- Шаблон обёртки редактора ----
+        function buildEditorShell(textarea) {
+            const wrap = document.createElement('div');
+            wrap.className = 'editor-wrap';
+
+            const toolbar = document.createElement('div');
+            toolbar.className = 'editor-toolbar';
+            toolbar.innerHTML = `
+                <button type="button" data-md="bold" title="Жирный (Ctrl+B)"><b>B</b></button>
+                <button type="button" data-md="italic" title="Курсив (Ctrl+I)"><i>I</i></button>
+                <button type="button" data-md="strike" title="Зачёркнутый"><s>S</s></button>
+                <button type="button" data-md="code" title="Код в строке">&lt;/&gt;</button>
+                <span class="tb-sep"></span>
+                <button type="button" data-md="h1" title="Заголовок 1">H1</button>
+                <button type="button" data-md="h2" title="Заголовок 2">H2</button>
+                <button type="button" data-md="h3" title="Заголовок 3">H3</button>
+                <span class="tb-sep"></span>
+                <button type="button" data-md="ul" title="Маркированный список">•</button>
+                <button type="button" data-md="ol" title="Нумерованный список">1.</button>
+                <button type="button" data-md="quote" title="Цитата">❝</button>
+                <span class="tb-sep"></span>
+                <button type="button" data-md="link" title="Ссылка (Ctrl+K)">🔗</button>
+                <button type="button" data-md="image" title="Картинка">🖼</button>
+                <button type="button" data-md="codeblock" title="Блок кода">&lt;/&gt;&lt;/&gt;</button>
+                <button type="button" data-md="hr" title="Разделитель">—</button>
+                <div class="tb-right">
+                    <button type="button" data-md="toggle-preview" title="Показать/скрыть превью">👁</button>
+                </div>
+            `;
+
+            const split = document.createElement('div');
+            split.className = 'editor-split';
+
+            const editorPane = document.createElement('div');
+            editorPane.className = 'editor-pane editor-pane-editor';
+
+            const previewPane = document.createElement('div');
+            previewPane.className = 'editor-pane editor-pane-preview';
+            previewPane.innerHTML = '<div class="editor-preview-label">Предпросмотр</div><div class="editor-preview-body"></div>';
+
+            split.appendChild(editorPane);
+            split.appendChild(previewPane);
+
+            wrap.appendChild(toolbar);
+            wrap.appendChild(split);
+
+            // Вставляем wrap перед textarea
+            textarea.parentNode.insertBefore(wrap, textarea);
+
+            return { wrap, toolbar, split, editorPane, previewPane };
+        }
+
+        // ---- Действия тулбара ----
+        const ACTIONS = {
+            bold: (cm) => wrapSelection(cm, '**', '**', 'жирный'),
+            italic: (cm) => wrapSelection(cm, '*', '*', 'курсив'),
+            strike: (cm) => wrapSelection(cm, '~~', '~~', 'зачёркнутый'),
+            code: (cm) => wrapSelection(cm, '`', '`', 'код'),
+            h1: (cm) => prefixLine(cm, '# '),
+            h2: (cm) => prefixLine(cm, '## '),
+            h3: (cm) => prefixLine(cm, '### '),
+            ul: (cm) => prefixLines(cm, '- '),
+            ol: (cm) => prefixNumberedLines(cm),
+            quote: (cm) => prefixLines(cm, '> '),
+            link: (cm) => insertLink(cm),
+            image: (cm) => insertImage(cm),
+            codeblock: (cm) => insertCodeBlock(cm),
+            hr: (cm) => insertText(cm, '\n\n---\n\n'),
+        };
+
+        function wrapSelection(cm, before, after, placeholder) {
+            const sel = cm.getSelection();
+            const text = sel || placeholder;
+            cm.replaceSelection(before + text + after);
+            if (!sel) {
+                // выделяем placeholder, чтобы сразу печатать
+                const from = cm.getCursor('from');
+                const start = { line: from.line, ch: from.ch - before.length - placeholder.length };
+                const end = { line: from.line, ch: from.ch - after.length };
+                cm.setSelection(start, end);
+            }
+            cm.focus();
+        }
+
+        function prefixLine(cm, prefix) {
+            const cursor = cm.getCursor();
+            const line = cm.getLine(cursor.line);
+            cm.replaceRange(prefix, { line: cursor.line, ch: 0 }, { line: cursor.line, ch: 0 });
+            cm.focus();
+        }
+
+        function prefixLines(cm, prefix) {
+            const from = cm.getCursor('from');
+            const to = cm.getCursor('to');
+            for (let i = from.line; i <= to.line; i++) {
+                cm.replaceRange(prefix, { line: i, ch: 0 }, { line: i, ch: 0 });
+            }
+            cm.focus();
+        }
+
+        function prefixNumberedLines(cm) {
+            const from = cm.getCursor('from');
+            const to = cm.getCursor('to');
+            let n = 1;
+            for (let i = from.line; i <= to.line; i++) {
+                cm.replaceRange(n + '. ', { line: i, ch: 0 }, { line: i, ch: 0 });
+                n++;
+            }
+            cm.focus();
+        }
+
+        function insertLink(cm) {
+            const sel = cm.getSelection();
+            const text = sel || 'текст ссылки';
+            const md = '[' + text + '](https://example.com)';
+            cm.replaceSelection(md);
+            if (!sel) {
+                const cursor = cm.getCursor();
+                // выделяем URL для быстрой замены
+                const lineStart = { line: cursor.line, ch: cursor.ch - '](https://example.com)'.length };
+                const lineEnd = { line: cursor.line, ch: cursor.ch - 1 };
+                cm.setSelection(lineStart, lineEnd);
+            }
+            cm.focus();
+        }
+
+        function insertImage(cm) {
+            cm.replaceSelection('![alt-текст](https://example.com/image.png)');
+            cm.focus();
+        }
+
+        function insertCodeBlock(cm) {
+            cm.replaceSelection('\n```\nкод\n```\n');
+            cm.focus();
+        }
+
+        function insertText(cm, text) {
+            cm.replaceSelection(text);
+            cm.focus();
+        }
+
+        // ---- Инициализация всех .editor ----
+        const editors = new Map();
+
+        document.querySelectorAll('textarea.editor').forEach(function(textarea) {
+            const shell = buildEditorShell(textarea);
+
+            // Textarea больше не нужна в UI — CM её сам скроет
+            const editor = CodeMirror.fromTextArea(textarea, {
+                mode: 'markdown',
+                theme: 'dracula',
+                lineNumbers: true,
+                lineWrapping: true,
+                indentUnit: 4,
+                tabSize: 4,
+                extraKeys: {
+                    'Enter': 'newlineAndIndentContinueMarkdownList',
+                    'Tab': function(cm) { cm.replaceSelection('    '); },
+                    'Ctrl-B': function(cm) { ACTIONS.bold(cm); },
+                    'Ctrl-I': function(cm) { ACTIONS.italic(cm); },
+                    'Ctrl-K': function(cm) { ACTIONS.link(cm); },
+                },
+            });
+            editor.setSize(null, 400);
+
+            // Переносим DOM CM в editorPane
+            shell.editorPane.appendChild(editor.getWrapperElement());
+
+            // Тулбар — обработчики
+            shell.toolbar.querySelectorAll('button[data-md]').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const action = btn.dataset.md;
+                    if (action === 'toggle-preview') {
+                        shell.split.classList.toggle('preview-hidden');
+                        return;
+                    }
+                    if (ACTIONS[action]) ACTIONS[action](editor);
+                });
+            });
+
+            // Live preview
+            const previewBody = shell.previewPane.querySelector('.editor-preview-body');
+            function updatePreview() {
+                if (!previewBody) return;
+                const md = editor.getValue() || '';
+                let html = '';
+                if (window.marked) {
+                    try {
+                        html = marked.parse(md);
+                    } catch (err) {
+                        html = '<p style="color:#c00;">Ошибка парсинга: ' + err.message + '</p>';
+                    }
+                } else {
+                    html = '<pre>' + md.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</pre>';
+                }
+                if (window.DOMPurify) {
+                    html = DOMPurify.sanitize(html);
+                }
+                previewBody.innerHTML = html;
+            }
+
+            // Первый рендер + при каждом изменении
+            updatePreview();
+            editor.on('change', updatePreview);
+
+            // Синхронизация при submit
+            editors.set(textarea, editor);
+        });
+
+        // Синхронизация при отправке формы
+        document.querySelectorAll('form').forEach(function(form) {
+            form.addEventListener('submit', function() {
+                editors.forEach(function(editor, textarea) {
+                    if (form.contains(textarea) || textarea.form === form) {
+                        textarea.value = editor.getValue();
+                    }
+                });
+            });
+        });
     });
     </script>
 </body>

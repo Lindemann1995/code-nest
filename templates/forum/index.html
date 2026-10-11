@@ -50,18 +50,7 @@
                                     </span>
                                 </div>
                             </div>
-                            {% if s.last_topic %}
-                                <div class="section-card-last">
-                                    <div class="last-topic-label">Последнее:</div>
-                                    <a href="{{ url('forum:topic', kwargs={'section_slug': s.section.slug, 'slug': s.last_topic.slug}) }}" class="last-topic-title">
-                                        {{ s.last_topic.title[:40] }}{% if s.last_topic.title|length > 40 %}...{% endif %}
-                                    </a>
-                                    <div class="last-topic-author">
-                                        от <a href="{{ url('forum:profile', kwargs={'username': s.last_topic.author.username}) }}"
-                                              class="{% if s.last_topic.author.profile.role == 'team' %}username-team{% endif %}">{{ s.last_topic.author.username }}</a>
-                                    </div>
-                                </div>
-                            {% endif %}
+                            
                         </a>
                     {% endfor %}
                 </div>

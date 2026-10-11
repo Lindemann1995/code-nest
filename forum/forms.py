@@ -22,10 +22,12 @@ class RegisterForm(UserCreationForm):
             'username': 'Обязательно! До 150 символов. Буквы, цифры и @/./+/-/_',
         }
 
+
 class TopicForm(forms.ModelForm):
     """Форма создания новой темы."""
 
     content = forms.CharField(
+        required=False,
         widget=forms.Textarea(attrs={
             'class': 'editor',
             'rows': 15,
@@ -57,21 +59,23 @@ class TopicForm(forms.ModelForm):
         if user and not user.profile.is_staff_role:
             self.fields.pop('prefix', None)
 
+
 class PostForm(forms.ModelForm):
     """Форма ответа в теме."""
+
+    content = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'editor',
+            'rows': 10,
+            'placeholder': 'Напишите ответ...',
+        }),
+        label='',
+    )
+
     class Meta:
         model = Post
         fields = ('content',)
-        widgets = {
-            'content': forms.Textarea(attrs={
-                'class': 'editor',
-                'rows': 10,
-                'placeholder': 'Напишите ответ...',
-            })
-        }
-        labels = {
-            'content': '',
-        }
 
 
 class ProfileEditForm(forms.ModelForm):
@@ -80,8 +84,8 @@ class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = (
-            'avatar',       # ← ДОБАВИЛИ
-            'banner',       # ← ДОБАВИЛИ
+            'avatar',
+            'banner',
             'status',
             'bio',
             'signature',
@@ -136,6 +140,7 @@ class ProfileEditForm(forms.ModelForm):
             'is_online_public': 'Показывать онлайн-статус',
         }
 
+
 class TopicMoveForm(forms.Form):
     """Форма переноса темы в другой раздел."""
     new_section = forms.ModelChoiceField(
@@ -144,6 +149,7 @@ class TopicMoveForm(forms.Form):
         empty_label="— Выберите раздел —",
         widget=forms.Select(attrs={'class': 'form-select'})
     )
+
 
 class TopicPrefixForm(forms.ModelForm):
     """Форма смены префикса темы."""

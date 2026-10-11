@@ -227,9 +227,9 @@ class Post(models.Model):
         return result
     
     def content_with_mentions(self):
-        """Возвращает HTML с обработанными @упоминаниями."""
-        from .utils import linkify_mentions
-        return linkify_mentions(self.content)
+        """Рендерит Markdown + подставляет @упоминания + чистит HTML."""
+        from .utils import render_markdown
+        return render_markdown(self.content)
 
 class Profile(models.Model):
     """Профиль пользователя - расширение стандартной модели User."""
