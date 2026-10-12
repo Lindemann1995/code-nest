@@ -38,6 +38,11 @@ class Section(models.Model):
         related_name='sections',
         verbose_name="Категория"
     )
+    is_container = models.BooleanField(
+        default=False,
+        verbose_name="Раздел-контейнер",
+        help_text="Только для подразделов. Прямые темы запрещены."
+    )
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,

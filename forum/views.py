@@ -100,6 +100,10 @@ def topic_create(request, section_slug):
     """Создание новой темы в разделе."""
     section = get_object_or_404(Section, slug=section_slug)
 
+    # В разделе-контейнере могут писать только модераторы и выше
+    if section.is_container and not request.user.profile.is_staff_role:
+        return redirect('forum:section', slug=section_slug)
+
     if request.method == 'POST':
         topic_form = TopicForm(request.POST, user=request.user)
         post_form = PostForm(request.POST)
