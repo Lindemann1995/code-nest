@@ -386,22 +386,49 @@
             align-items: flex-start;
         }
                 /* Редактор и автодополнение на мобиле */
-        .editor-toolbar button {
-            width: 40px;
-            height: 40px;
-            font-size: 15px;
-        }
-        .editor-toolbar {
-            padding: 8px 10px;
-        }
-        .cm-mention-item {
-            padding: 12px 14px;
-            font-size: 15px;
-        }
-        .cm-mention-avatar {
-            width: 32px;
-            height: 32px;
-            font-size: 14px;
+                /* На мобиле тулбар скроллится горизонтально, кнопки крупнее */
+        @media (max-width: 768px) {
+            .editor-toolbar {
+                padding: 8px 10px;
+                gap: 4px;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .editor-toolbar::-webkit-scrollbar { display: none; }
+            .editor-toolbar button {
+                width: 42px;
+                height: 42px;
+                font-size: 16px;
+                flex-shrink: 0;
+                touch-action: manipulation;
+            }
+            .editor-toolbar .tb-sep {
+                height: 24px;
+                flex-shrink: 0;
+            }
+            .editor-toolbar .tb-right {
+                margin-left: 0;
+                flex-shrink: 0;
+            }
+            .cm-mention-item {
+                padding: 12px 14px;
+                font-size: 15px;
+            }
+            .cm-mention-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            .editor-wrap {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                margin-left: -12px;
+                margin-right: -12px;
+            }
         }
         .profile-avatar {
             width: 120px;
@@ -2462,13 +2489,29 @@
             .post-content { padding: 15px; font-size: 14px; }
             .post-header { padding: 10px 15px; }
             .post-actions { padding: 10px 15px; gap: 10px; }
-            .post-menu-dropdown {
+                        .post-menu-dropdown {
                 bottom: auto;
                 top: calc(100% + 6px);
                 right: 0;
             }
-            .reaction-picker { left: auto; right: 0; }
-            .reaction-picker-item { font-size: 20px; padding: 3px 5px; }
+            /* Реакции на мобиле — шторка снизу по центру */
+            .reaction-picker {
+                position: fixed;
+                left: 50%;
+                bottom: 90px;
+                transform: translateX(-50%) translateY(6px);
+                right: auto;
+                border-radius: 30px;
+                padding: 8px 14px;
+                gap: 6px;
+                box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+                z-index: 9999;
+            }
+            .reaction-wrapper:hover .reaction-picker,
+            .reaction-picker.open {
+                transform: translateX(-50%) translateY(0);
+            }
+            .reaction-picker-item { font-size: 26px; padding: 6px 8px; }
 
             /* Чат */
             .chat-msg { max-width: 90%; }
@@ -2611,6 +2654,221 @@
             .cm-emoji-popup em-emoji-picker {
                 width: 100% !important;
                 height: 60vh !important;
+            }
+        }
+                /* ===== Шторка выравнивания ===== */
+        .cm-align-popup {
+            position: fixed;
+            z-index: 10001;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            padding: 6px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .cm-align-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: #333;
+            padding: 0;
+            font-family: inherit;
+        }
+        .cm-align-btn:hover {
+            background: #eef4ff;
+            border-color: #0066cc;
+            color: #0066cc;
+        }
+        .cm-align-btn:active {
+            background: #dbe9ff;
+        }
+        /* На мобиле — шторка снизу по центру */
+        @media (max-width: 768px) {
+            .cm-align-popup {
+                top: auto !important;
+                bottom: 90px;
+                left: 50% !important;
+                transform: translateX(-50%);
+                padding: 8px 12px;
+                gap: 6px;
+                border-radius: 30px;
+            }
+            .cm-align-btn {
+                width: 52px;
+                height: 52px;
+                font-size: 24px;
+            }
+        }
+                /* ===== Шторка цветов ===== */
+        .cm-color-popup {
+            position: fixed;
+            z-index: 10001;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            padding: 10px;
+        }
+        .cm-color-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 6px;
+        }
+        .cm-color-swatch {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 2px solid #e5e5e7;
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.12s, border-color 0.12s;
+        }
+        .cm-color-swatch:hover {
+            transform: scale(1.15);
+            border-color: #0066cc;
+        }
+        .cm-color-swatch:active {
+            transform: scale(0.95);
+        }
+        /* На мобиле */
+        @media (max-width: 768px) {
+            .cm-color-popup {
+                top: auto !important;
+                bottom: 90px;
+                left: 50% !important;
+                transform: translateX(-50%);
+                padding: 12px;
+                max-width: 92vw;
+            }
+            .cm-color-grid {
+                gap: 8px;
+            }
+            .cm-color-swatch {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        /* ===== Шторка шрифтов ===== */
+        .cm-font-popup {
+            position: fixed;
+            z-index: 10001;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            padding: 6px;
+            min-width: 220px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .cm-font-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            cursor: pointer;
+            text-align: left;
+            font-size: 16px;
+            color: #1d1d1f;
+            font-family: inherit;
+            transition: background 0.12s;
+            width: 100%;
+        }
+        .cm-font-item:hover {
+            background: #eef4ff;
+            border-color: #0066cc;
+            color: #0066cc;
+        }
+        .cm-font-item .font-preview {
+            flex: 1;
+        }
+        .cm-font-item .font-label {
+            font-size: 11px;
+            color: #999;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        /* На мобиле */
+        @media (max-width: 768px) {
+            .cm-font-popup {
+                top: auto !important;
+                bottom: 90px;
+                left: 50% !important;
+                transform: translateX(-50%);
+                max-width: 92vw;
+                min-width: 260px;
+            }
+            .cm-font-item {
+                padding: 14px 16px;
+                font-size: 17px;
+            }
+        }
+
+        /* ===== Шторка размеров ===== */
+        .cm-size-popup {
+            position: fixed;
+            z-index: 10001;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            padding: 8px;
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            max-width: 260px;
+        }
+        .cm-size-btn {
+            width: 48px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e7;
+            background: #fafbfc;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.12s;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cm-size-btn:hover {
+            background: #eef4ff;
+            border-color: #0066cc;
+            color: #0066cc;
+        }
+        .cm-size-btn:active {
+            background: #dbe9ff;
+        }
+        /* На мобиле */
+        @media (max-width: 768px) {
+            .cm-size-popup {
+                top: auto !important;
+                bottom: 90px;
+                left: 50% !important;
+                transform: translateX(-50%);
+                max-width: 92vw;
+                padding: 10px;
+                gap: 6px;
+            }
+            .cm-size-btn {
+                width: 56px;
+                height: 48px;
+                font-size: 16px;
             }
         }
     </style>
@@ -2836,11 +3094,19 @@
     </script>
 
     <!-- Reactions -->
+        <!-- Reactions -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const IS_TOUCH_DEVICE = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
         document.querySelectorAll('.reaction-bar').forEach(function(bar) {
             const postId = bar.dataset.postId;
+            const wrapper = bar.querySelector('.reaction-wrapper');
+            const trigger = bar.querySelector('.reaction-trigger');
+            const picker = bar.querySelector('.reaction-picker');
             const pickerItems = bar.querySelectorAll('.reaction-picker-item');
+
+            // Обработчик выбора реакции
             pickerItems.forEach(function(btn) {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -2866,6 +3132,44 @@
                     .catch(err => console.error('Ошибка:', err));
                 });
             });
+
+            // На тач-устройствах: открываем/закрываем попап по тапу на триггер
+            if (IS_TOUCH_DEVICE && trigger && picker) {
+                trigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Если у поста нет реакций вообще — сразу открываем
+                    // Если попап уже открыт — закрываем
+                    const isOpen = picker.classList.contains('open');
+
+                    // Закрываем все другие открытые попапы
+                    document.querySelectorAll('.reaction-picker.open').forEach(function(p) {
+                        if (p !== picker) p.classList.remove('open');
+                    });
+
+                    if (isOpen) {
+                        picker.classList.remove('open');
+                    } else {
+                        picker.classList.add('open');
+                    }
+                });
+            }
+
+            // Клик вне попапа — закрывает
+            document.addEventListener('click', function(e) {
+                if (!picker) return;
+                if (picker.contains(e.target)) return;
+                if (wrapper && wrapper.contains(e.target)) return;
+                picker.classList.remove('open');
+            });
+
+            // На тач: закрываем при скролле страницы
+            if (IS_TOUCH_DEVICE) {
+                window.addEventListener('scroll', function() {
+                    if (picker) picker.classList.remove('open');
+                }, { passive: true });
+            }
         });
     });
     </script>
@@ -3079,6 +3383,10 @@
                 <button type="button" data-md="ol" title="Нумерованный список">1.</button>
                 <button type="button" data-md="quote" title="Цитата">❝</button>
                 <span class="tb-sep"></span>
+                <button type="button" data-md="align" title="Выравнивание">☰</button>
+                <button type="button" data-md="color" title="Цвет текста">🎨</button>
+                <button type="button" data-md="font" title="Шрифт">Aa</button>
+                <button type="button" data-md="size" title="Размер текста">12</button>
                 <button type="button" data-md="link" title="Ссылка (Ctrl+K)">🔗</button>
                 <button type="button" data-md="image" title="Картинка">🖼</button>
                 <button type="button" data-md="emoji" title="Смайлы (Ctrl+E)">🙂</button>
@@ -3608,6 +3916,344 @@
                 }, { passive: true });
             }
         }
+                // ============================================================
+        // Выравнивание текста (шторка)
+        // ============================================================
+        let activeAlignEditor = null;
+        let alignPopupEl = null;
+
+        function closeAlignPopup() {
+            if (alignPopupEl) {
+                alignPopupEl.remove();
+                alignPopupEl = null;
+                activeAlignEditor = null;
+            }
+        }
+
+        function insertAlignment(editor, align) {
+            // Оборачиваем выделенный текст или текущий абзац в <div style="text-align: X">
+            const from = editor.getCursor('from');
+            const to = editor.getCursor('to');
+
+            let startPos, endPos, text;
+
+            if (from.line === to.line && from.ch === to.ch) {
+                // Ничего не выделено — берём текущую строку целиком
+                const line = from.line;
+                text = editor.getLine(line);
+                if (!text.trim()) {
+                    // Пустая строка — просто вставляем пустой div
+                    editor.replaceRange(
+                        `<div style="text-align: ${align}">Текст</div>`,
+                        { line: line, ch: 0 },
+                        { line: line, ch: 0 }
+                    );
+                    closeAlignPopup();
+                    return;
+                }
+                startPos = { line, ch: 0 };
+                endPos = { line, ch: text.length };
+            } else {
+                // Выделено — берём выделение
+                startPos = from;
+                endPos = to;
+                text = editor.getRange(from, to);
+            }
+
+            // Оборачиваем
+            const wrapped = `<div style="text-align: ${align}">\n${text}\n</div>\n`;
+            editor.replaceRange(wrapped, startPos, endPos);
+            editor.focus();
+            closeAlignPopup();
+        }
+
+        function openAlignPopup(editor, anchorBtn) {
+            if (alignPopupEl && activeAlignEditor === editor) {
+                closeAlignPopup();
+                return;
+            }
+            closeAlignPopup();
+
+            activeAlignEditor = editor;
+
+            const popup = document.createElement('div');
+            popup.className = 'cm-align-popup';
+
+            const options = [
+                { align: 'left',    icon: '⯇',  title: 'По левому краю' },
+                { align: 'center',  icon: '☰',  title: 'По центру' },
+                { align: 'right',   icon: '⯈',  title: 'По правому краю' },
+                { align: 'justify', icon: '☰',  title: 'По ширине' },
+            ];
+
+            // Иконки делаем понятнее — используем SVG-подобные символы
+            const icons = {
+                left:    '⇤',
+                center:  '⇔',
+                right:   '⇥',
+                justify: '≡',
+            };
+
+            options.forEach(function(opt) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'cm-align-btn';
+                btn.title = opt.title;
+                btn.textContent = icons[opt.align];
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (activeAlignEditor) {
+                        insertAlignment(activeAlignEditor, opt.align);
+                    }
+                });
+                popup.appendChild(btn);
+            });
+
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+            if (!isMobile && anchorBtn && anchorBtn.getBoundingClientRect) {
+                const rect = anchorBtn.getBoundingClientRect();
+                popup.style.top = (rect.bottom + 6) + 'px';
+                const popupWidth = 200;
+                let left = rect.left;
+                if (left + popupWidth > window.innerWidth - 10) {
+                    left = window.innerWidth - popupWidth - 10;
+                }
+                popup.style.left = left + 'px';
+            }
+
+            document.body.appendChild(popup);
+            alignPopupEl = popup;
+
+            setTimeout(function() {
+                document.addEventListener('mousedown', onOutsideClickAlign);
+                document.addEventListener('touchstart', onOutsideClickAlign, { passive: true });
+            }, 0);
+        }
+
+        function onOutsideClickAlign(e) {
+            if (!alignPopupEl) return;
+            if (alignPopupEl.contains(e.target)) return;
+            if (e.target.closest && e.target.closest('[data-md="align"]')) return;
+            closeAlignPopup();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeAlignPopup();
+        });
+
+                // ============================================================
+        // Цвет / Шрифт / Размер (шторки)
+        // ============================================================
+
+        // Палитра цветов — 2 ряда по 12
+        const COLOR_PALETTE = [
+            // Первый ряд — базовые
+            '#000000', '#666666', '#999999', '#cccccc', '#ffffff',
+            '#e11d48', '#dc2626', '#ea580c', '#f59e0b', '#eab308',
+            '#22c55e', '#0ea5e9',
+            // Второй ряд — оттенки + доп
+            '#1d4ed8', '#6366f1', '#a855f7', '#d946ef', '#ec4899',
+            '#f43f5e', '#14b8a6', '#06b6d4', '#84cc16', '#10b981',
+            '#f97316', '#78350f',
+        ];
+
+        // Разрешённые шрифты (совпадает с backend whitelist)
+        const FONT_LIST = [
+            { value: 'Inter',            label: 'Sans (Inter)' },
+            { value: 'Georgia',          label: 'Serif' },
+            { value: 'Consolas',         label: 'Mono' },
+            { value: 'JetBrains Mono',   label: 'Code' },
+            { value: 'Times New Roman',  label: 'Times' },
+            { value: 'Arial',            label: 'Arial' },
+        ];
+
+        // Размеры шрифта
+        const SIZE_LIST = [12, 14, 16, 18, 20, 24, 28, 32];
+
+        // Общий менеджер попапов (чтобы одновременно открыт был только один)
+        let activeSpanEditor = null;
+        let colorPopupEl = null;
+        let fontPopupEl = null;
+        let sizePopupEl = null;
+
+        function closeAllSpanPopups() {
+            if (colorPopupEl) { colorPopupEl.remove(); colorPopupEl = null; }
+            if (fontPopupEl)  { fontPopupEl.remove();  fontPopupEl = null; }
+            if (sizePopupEl)  { sizePopupEl.remove();  sizePopupEl = null; }
+            activeSpanEditor = null;
+        }
+
+        // Универсальная функция: оборачивает выделение в <span style="...">
+        function wrapWithSpan(editor, styleText) {
+            const from = editor.getCursor('from');
+            const to = editor.getCursor('to');
+            const selected = editor.getRange(from, to);
+
+            if (!selected) {
+                // Ничего не выделено — просто вставляем пустой span с маркером
+                const html = `<span style="${styleText}">текст</span>`;
+                editor.replaceRange(html, from, to);
+                // выделяем слово "текст"
+                editor.setSelection(
+                    { line: from.line, ch: from.ch + html.indexOf('>') + 1 },
+                    { line: from.line, ch: from.ch + html.indexOf('>') + 1 + 5 }
+                );
+            } else {
+                // Оборачиваем выделение
+                const html = `<span style="${styleText}">${selected}</span>`;
+                editor.replaceRange(html, from, to);
+            }
+            editor.focus();
+            closeAllSpanPopups();
+        }
+
+        // Общая функция позиционирования попапа у кнопки
+        function positionSpanPopup(popup, anchorBtn, popupWidth) {
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            if (isMobile || !anchorBtn || !anchorBtn.getBoundingClientRect) return;
+            const rect = anchorBtn.getBoundingClientRect();
+            popup.style.top = (rect.bottom + 6) + 'px';
+            let left = rect.left;
+            if (left + popupWidth > window.innerWidth - 10) {
+                left = window.innerWidth - popupWidth - 10;
+            }
+            popup.style.left = left + 'px';
+        }
+
+        // ---- Цвет ----
+        function openColorPopup(editor, anchorBtn) {
+            if (colorPopupEl) { closeAllSpanPopups(); return; }
+            closeAllSpanPopups();
+            activeSpanEditor = editor;
+
+            const popup = document.createElement('div');
+            popup.className = 'cm-color-popup';
+
+            const grid = document.createElement('div');
+            grid.className = 'cm-color-grid';
+
+            COLOR_PALETTE.forEach(function(color) {
+                const swatch = document.createElement('button');
+                swatch.type = 'button';
+                swatch.className = 'cm-color-swatch';
+                swatch.style.background = color;
+                swatch.title = color;
+                swatch.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (activeSpanEditor) {
+                        wrapWithSpan(activeSpanEditor, 'color: ' + color);
+                    }
+                });
+                grid.appendChild(swatch);
+            });
+
+            popup.appendChild(grid);
+            document.body.appendChild(popup);
+            colorPopupEl = popup;
+            positionSpanPopup(popup, anchorBtn, 320);
+
+            setTimeout(function() {
+                document.addEventListener('mousedown', onOutsideSpanClick);
+                document.addEventListener('touchstart', onOutsideSpanClick, { passive: true });
+            }, 0);
+        }
+
+        // ---- Шрифт ----
+        function openFontPopup(editor, anchorBtn) {
+            if (fontPopupEl) { closeAllSpanPopups(); return; }
+            closeAllSpanPopups();
+            activeSpanEditor = editor;
+
+            const popup = document.createElement('div');
+            popup.className = 'cm-font-popup';
+
+            FONT_LIST.forEach(function(f) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'cm-font-item';
+                btn.innerHTML =
+                    '<span class="font-preview" style="font-family: \'' + f.value + '\', sans-serif;">' +
+                        'Пример текста' +
+                    '</span>' +
+                    '<span class="font-label">' + f.label + '</span>';
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (activeSpanEditor) {
+                        wrapWithSpan(activeSpanEditor, 'font-family: ' + f.value);
+                    }
+                });
+                popup.appendChild(btn);
+            });
+
+            document.body.appendChild(popup);
+            fontPopupEl = popup;
+            positionSpanPopup(popup, anchorBtn, 240);
+
+            setTimeout(function() {
+                document.addEventListener('mousedown', onOutsideSpanClick);
+                document.addEventListener('touchstart', onOutsideSpanClick, { passive: true });
+            }, 0);
+        }
+
+        // ---- Размер ----
+        function openSizePopup(editor, anchorBtn) {
+            if (sizePopupEl) { closeAllSpanPopups(); return; }
+            closeAllSpanPopups();
+            activeSpanEditor = editor;
+
+            const popup = document.createElement('div');
+            popup.className = 'cm-size-popup';
+
+            SIZE_LIST.forEach(function(size) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'cm-size-btn';
+                btn.textContent = size;
+                btn.title = size + ' px';
+                // Визуальное превью размера
+                btn.style.fontSize = Math.min(size, 20) + 'px';
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (activeSpanEditor) {
+                        wrapWithSpan(activeSpanEditor, 'font-size: ' + size + 'px');
+                    }
+                });
+                popup.appendChild(btn);
+            });
+
+            document.body.appendChild(popup);
+            sizePopupEl = popup;
+            positionSpanPopup(popup, anchorBtn, 260);
+
+            setTimeout(function() {
+                document.addEventListener('mousedown', onOutsideSpanClick);
+                document.addEventListener('touchstart', onOutsideSpanClick, { passive: true });
+            }, 0);
+        }
+
+        // Клик вне попапа — закрывает все
+        function onOutsideSpanClick(e) {
+            if (!colorPopupEl && !fontPopupEl && !sizePopupEl) return;
+            const inPopup = (colorPopupEl && colorPopupEl.contains(e.target)) ||
+                            (fontPopupEl && fontPopupEl.contains(e.target)) ||
+                            (sizePopupEl && sizePopupEl.contains(e.target));
+            if (inPopup) return;
+            if (e.target.closest && (
+                e.target.closest('[data-md="color"]') ||
+                e.target.closest('[data-md="font"]') ||
+                e.target.closest('[data-md="size"]')
+            )) return;
+            closeAllSpanPopups();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeAllSpanPopups();
+        });
 
         // ============================================================
         // ACTIONS (после всех функций)
@@ -3673,6 +4319,26 @@
                         return;
                     }
 
+                    if (action === 'align') {
+                        openAlignPopup(editor, btn);
+                        return;
+                    }
+
+                    if (action === 'color') {
+                        openColorPopup(editor, btn);
+                        return;
+                    }
+
+                    if (action === 'font') {
+                        openFontPopup(editor, btn);
+                        return;
+                    }
+
+                    if (action === 'size') {
+                        openSizePopup(editor, btn);
+                        return;
+                    }
+
                     if (ACTIONS[action]) ACTIONS[action](editor);
                 });
             });
@@ -3697,9 +4363,13 @@
                 }
                 previewBody.innerHTML = html;
             }
-
-            updatePreview();
+                        updatePreview();
             editor.on('change', updatePreview);
+
+            // На мобиле — превью скрыто по умолчанию, чтобы редактор не сжимался
+            if (window.matchMedia('(max-width: 768px)').matches) {
+                shell.split.classList.add('preview-hidden');
+            }
 
             setupMentionAutocomplete(editor);
             setupImageDrop(editor, shell.editorPane);
@@ -3717,7 +4387,6 @@
             });
         });
     });
-    </script>
     </script>
 </body>
 </html>
