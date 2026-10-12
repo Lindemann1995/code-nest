@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, TopicForm, PostForm, ProfileEditForm, TopicMoveForm, TopicPrefixForm
 from django.http import JsonResponse
 from django.utils import timezone
-from .utils import parse_mentions, linkify_mentions, render_markdown
+from .utils import parse_mentions, linkify_mentions, render_html, render_markdown
 from .achievements import check_user_achievements
 import os
 import uuid
@@ -68,14 +68,12 @@ def section_detail(request, slug):
 def topic_detail(request, section_slug, slug):
     """Страница темы - список сообщений."""
     topic = get_object_or_404(Topic, slug=slug, section__slug=section_slug)
-    # Увеличиваем счетчик просмотров
     topic.views += 1
     topic.save(update_fields=['views'])
 
-    # Рендерим контент каждого поста в HTML
     posts = list(topic.posts.all())
     for post in posts:
-        post.content_html = render_markdown(post.content)
+        post.content_html = render_html(post.content)
 
     return render(request, 'forum/topic.html', {
         'topic': topic,

@@ -2,13 +2,20 @@ from jinja2 import Environment
 from django.urls import reverse
 from django.template.context_processors import csrf
 from django.utils.safestring import mark_safe
+from django.contrib.staticfiles.storage import staticfiles_storage
+
+
+def render_field(field, **attrs):
+    """Рендерит поле Django-формы в Jinja2."""
+    return field.as_widget(attrs=attrs)
 
 
 def environment(**options):
     env = Environment(**options)
     env.globals.update({
+        'static': staticfiles_storage.url,
         'url': reverse,
-        'render_field': render_field, 
+        'render_field': render_field,
     })
     return env
 
@@ -27,6 +34,7 @@ def csrf_context(request):
     return {
         'csrf_input': mark_safe(html),
     }
+
 
 def unread_counts(request):
     """Счётчики непрочитанных + последние уведомления для шапки."""
@@ -53,7 +61,3 @@ def unread_counts(request):
         'unread_msgs': unread_msgs,
         'recent_notifications': recent_notifications,
     }
-
-def render_field(field, **attrs):
-    """Рендерит поле Django-формы в Jinja2."""
-    return field.as_widget(attrs=attrs)

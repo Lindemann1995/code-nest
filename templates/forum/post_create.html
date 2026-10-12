@@ -18,7 +18,9 @@
     <div class="form-field">
         {{ form.content }}
         {% if form.content.errors %}
-            <div class="field-error">{{ form.content.errors }}</div>
+            <div class="field-error">
+                {% for error in form.content.errors %}{{ error }}{% endfor %}
+            </div>
         {% endif %}
     </div>
 
