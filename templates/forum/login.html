@@ -34,10 +34,11 @@
         </div>
 
         <button type="submit" class="btn-primary">Войти</button>
+        
     </form>
 
-    <p class="auth-link">
-        Нет аккаунта? <a href="{{ url('forum:register') }}">Зарегистрироваться</a>
-    </p>
+    <div class="auth-link">
+    Нет аккаунта? <a href="{{ url('forum:register') }}">Зарегистрироваться</a>
+    · <a href="{{ url('password_reset') }}">Забыли пароль?</a>
 </div>
 {% endblock %}

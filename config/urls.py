@@ -21,10 +21,44 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
+
     # Аутентификация
     path('login/', auth_views.LoginView.as_view(template_name='forum/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='forum:index'), name='logout'),
+
+    # Восстановление пароля
+    path(
+        'password-reset/',
+        auth_views.PasswordResetView.as_view(
+            template_name='forum/password_reset_form.html',
+            email_template_name='forum/emails/password_reset_email.txt',
+            subject_template_name='forum/emails/password_reset_subject.txt',
+            success_url='/password-reset/done/',
+        ),
+        name='password_reset',
+    ),
+    path(
+        'password-reset/done/',
+        auth_views.PasswordResetDoneView.as_view(
+            template_name='forum/password_reset_done.html',
+        ),
+        name='password_reset_done',
+    ),
+    path(
+        'password-reset/confirm/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name='forum/password_reset_confirm.html',
+            success_url='/password-reset/complete/',
+        ),
+        name='password_reset_confirm',
+    ),
+    path(
+        'password-reset/complete/',
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name='forum/password_reset_complete.html',
+        ),
+        name='password_reset_complete',
+    ),
 
     # Основной сайт
     path('', include('forum.urls')),
