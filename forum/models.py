@@ -231,10 +231,6 @@ class Post(models.Model):
                 })
         return result
     
-    def content_with_mentions(self):
-        """Рендерит Markdown + подставляет @упоминания + чистит HTML."""
-        from .utils import render_markdown
-        return render_markdown(self.content)
 
 class Profile(models.Model):
     """Профиль пользователя - расширение стандартной модели User."""

@@ -147,7 +147,7 @@
                 </div>
 
                 <div class="post-content">
-                    {{ post.content_with_mentions()|safe }}
+                    {{ post.content_html|safe }}
                 </div>
 
                 <div class="post-actions">
