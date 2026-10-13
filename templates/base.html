@@ -8,6 +8,12 @@
 
     <!-- TinyMCE с российского CDN -->
     <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js" referrerpolicy="origin"></script>
+    <!-- Prism.js для подсветки кода -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism-okaidia.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
 
     <!-- highlight.js CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
@@ -2813,12 +2819,54 @@ document.addEventListener('DOMContentLoaded', function() {
             height: 400,
             menubar: false,
             branding: false,
-            plugins: 'link image lists code table',
-            toolbar: 'undo redo | bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist | link image | code',
-            images_upload_url: '{{ url("forum:upload_image") }}',
-            images_upload_credentials: true,
+            // Язык пока не трогаем, разберёмся с ним отдельно
+            plugins: 'link image lists code table codesample media',
+            toolbar: 'undo redo | bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist | link image | table media | codesample | code',
+            codesample_languages: [
+                { text: 'Python', value: 'python' },
+                { text: 'JavaScript', value: 'javascript' },
+                { text: 'HTML/XML', value: 'markup' },
+                { text: 'CSS', value: 'css' },
+                { text: 'Bash', value: 'bash' },
+            ],
+            images_upload_handler: function (blobInfo, progress) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '{{ url("forum:upload_image") }}');
+
+        // Достаём CSRF-токен из cookie
+        const csrftoken = document.cookie.split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1];
+        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+
+        xhr.upload.onprogress = (e) => {
+            progress(e.loaded / e.total * 100);
+        };
+
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                const json = JSON.parse(xhr.responseText);
+                if (json.url) {
+                    resolve(json.url);
+                } else {
+                    reject({ message: json.error || 'Upload failed', remove: true });
+                }
+            } else {
+                reject({ message: 'HTTP Error: ' + xhr.status, remove: true });
+            }
+        };
+        xhr.onerror = () => reject({ message: 'Network error', remove: true });
+
+        const formData = new FormData();
+        formData.append('image', blobInfo.blob(), blobInfo.filename());
+        xhr.send(formData);
+    });
+},
+
         });
     }
+    
 });
 </script>
 </body>

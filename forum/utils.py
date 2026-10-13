@@ -123,30 +123,29 @@ def emojize_html(html):
 ALLOWED_TAGS = [
     'p', 'br', 'hr',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'strong', 'b', 'em', 'i', 'u', 's', 'del', 'ins', 'sub', 'sup',
+    'strong', 'b', 'em', 'i', 'u', 's', 'del', 'ins',
     'blockquote', 'code', 'pre',
     'ul', 'ol', 'li',
-    'a', 'img', 'figure', 'figcaption',
-    'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+    'a', 'img',
+    'table', 'thead', 'tbody', 'tr', 'th', 'td',  # Для таблиц
     'span', 'div',
+    'iframe', 'video', 'source',  # Для медиа
 ]
 
 ALLOWED_ATTRIBUTES = {
-    'a': ['href', 'title', 'rel', 'class', 'target'],
+    'a': ['href', 'title', 'rel', 'class'],
     'img': ['src', 'alt', 'title', 'width', 'height', 'class'],
     'code': ['class'],
     'pre': ['class'],
-    'span': ['class', 'style'],
-    'div': ['class', 'style'],
-    'p': ['style'],
-    'h1': ['style'], 'h2': ['style'], 'h3': ['style'],
-    'h4': ['style'], 'h5': ['style'], 'h6': ['style'],
-    'figure': ['class'],
-    'figcaption': ['class'],
     'table': ['class'],
     'td': ['colspan', 'rowspan', 'style'],
     'th': ['colspan', 'rowspan', 'style'],
-    'ol': ['start', 'type'],
+    'iframe': ['src', 'width', 'height', 'allow', 'allowfullscreen', 'frameborder'],
+    'video': ['src', 'controls', 'width', 'height'],
+    'source': ['src', 'type'],
+    'span': ['class', 'style'],
+    'div': ['class', 'style'],
+    'p': ['style'],
     '*': ['id'],
 }
 
